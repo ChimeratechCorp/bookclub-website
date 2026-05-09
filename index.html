@@ -17,13 +17,13 @@
     .update-btn { background: #3b82f6; color: white; }
     .result { margin-top: 20px; padding: 16px; background: rgba(0,0,0,0.3); border-radius: 12px; text-align: center; font-size: 1.2rem; min-height: 60px; display: flex; align-items: center; justify-content: center; border: 1px dashed #4b5563; }
     .wheel-wrapper { position: relative; width: 500px; height: 500px; }
-    canvas { width: 100%; height: 100%; border-radius: 50%; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); box-shadow: 0 0 50px rgba(0,0,0,0.6); cursor: crosshair; }
+    canvas { width: 100%; height: 100%; border-radius: 50%; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); box-shadow: 0 0 50px rgba(0,0,0,0.6); }
     .pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 40px solid #ef4444; z-index: 10; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.5)); }
     .metadata-panel { height: 600px; overflow-y: auto; scrollbar-width: thin; }
     #bookCover img { width: 100%; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
     .review-panel { margin-top: 20px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
-    .stars { font-size: 28px; cursor: pointer; color: #4b5563; margin-bottom: 10px; transition: 0.2s; }
-    .stars span.active { color: #facc15; text-shadow: 0 0 10px rgba(250, 204, 21, 0.4); }
+    .stars { font-size: 28px; cursor: pointer; color: #4b5563; margin-bottom: 10px; }
+    .stars span.active { color: #facc15; }
     @media (max-width: 1100px) { .container { grid-template-columns: 1fr; } .wheel-wrapper { width: 400px; height: 400px; margin: 0 auto; } }
   </style>
 </head>
@@ -38,11 +38,10 @@
 The Hobbit
 1984
 The Great Gatsby
-The Catcher in the Rye
-Pride and Prejudice</textarea>
+The Catcher in the Rye</textarea>
       <button class="update-btn" onclick="updateWheel()">Update Wheel</button>
       <button class="spin-btn" id="spinButton">Hold to Spin / Click</button>
-      <div class="result" id="result">Hover over a slice or Spin!</div>
+      <div class="result" id="result">Spin to see the winner!</div>
     </div>
 
     <div class="wheel-section">
@@ -66,8 +65,8 @@ Pride and Prejudice</textarea>
       <div class="review-panel">
         <h3 style="font-size: 1rem; margin-bottom: 10px;">Your Review</h3>
         <div id="starRating" class="stars"></div>
-        <textarea id="userReview" style="height: 80px;" placeholder="What did you think of this book?"></textarea>
-        <button id="saveReviewBtn" style="background:#3b82f6; color:white; margin-top:5px; font-size: 14px;">Save My Thoughts</button>
+        <textarea id="userReview" style="height: 80px;" placeholder="Thoughts on the winner?"></textarea>
+        <button id="saveReviewBtn" style="background:#3b82f6; color:white; margin-top:5px; font-size: 14px;">Save Review</button>
       </div>
     </div>
   </div>
@@ -83,8 +82,6 @@ Pride and Prejudice</textarea>
     let currentRotation = 0;
     let spinning = false;
     let holdInterval = null;
-    let hoveredIndex = -1;
-    let hoverTimeout = null;
     const apiCache = new Map();
 
     const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'];
@@ -140,7 +137,6 @@ Pride and Prejudice</textarea>
             const olDoc = olRes.docs?.[0];
             const gItem = gRes.items?.[0]?.volumeInfo;
             
-            // SECURITY FIX: Swap http for https to prevent blocked content
             let coverUrl = gItem?.imageLinks?.thumbnail || "";
             if (coverUrl) coverUrl = coverUrl.replace("http://", "https://");
 
@@ -149,7 +145,7 @@ Pride and Prejudice</textarea>
                 author: olDoc?.author_name?.join(", ") || "Unknown",
                 year: olDoc?.first_publish_year || "N/A",
                 rating: olDoc?.ratings_average ? `${olDoc.ratings_average.toFixed(1)}/5` : "N/A",
-                description: gItem?.description || "No description available for this work.",
+                description: gItem?.description || "No description available.",
                 cover: coverUrl,
                 link: olDoc ? `https://openlibrary.org${olDoc.key}` : "#"
             };
@@ -169,48 +165,19 @@ Pride and Prejudice</textarea>
         document.getElementById("metaLink").href = meta.link;
     }
 
-    // High Precision Hover Detection
-    canvas.addEventListener('mousemove', (e) => {
-        if (spinning || items.length === 0) return;
-
-        const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
-
-        const x = (e.clientX - rect.left) * scaleX - canvas.width / 2;
-        const y = (e.clientY - rect.top) * scaleY - canvas.height / 2;
-
-        let angle = Math.atan2(y, x);
-        if (angle < 0) angle += Math.PI * 2;
-
-        const currentRotationRad = (currentRotation * Math.PI) / 180;
-        let adjustedAngle = (angle - (currentRotationRad % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
-
-        const sliceAngle = (Math.PI * 2) / items.length;
-        const index = Math.floor(adjustedAngle / sliceAngle);
-
-        if (index !== hoveredIndex && items[index]) {
-            hoveredIndex = index;
-            clearTimeout(hoverTimeout);
-            hoverTimeout = setTimeout(async () => {
-                const hoveredBook = items[index];
-                const data = await getBookData(hoveredBook);
-                displayMetadata(data);
-                loadSavedReview(hoveredBook);
-                window.currentSelectedBook = hoveredBook;
-            }, 100);
-        }
-    });
-
     function spinWheel() {
         if (spinning || items.length === 0) return;
         spinning = true;
         canvas.style.transition = 'transform 5s cubic-bezier(0.15, 0, 0.15, 1)';
+        
         const randomIndex = Math.floor(Math.random() * items.length);
         const degreesPerSlice = 360 / items.length;
         const targetAngle = 270 - (randomIndex * degreesPerSlice + (degreesPerSlice / 2));
+        
         currentRotation += (360 * 10) + (targetAngle - (currentRotation % 360));
         canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+        result.innerHTML = "Spinning...";
 
         setTimeout(async () => {
             const winner = items[randomIndex];
@@ -240,7 +207,7 @@ Pride and Prejudice</textarea>
         }
     });
 
-    // Stars & Persistence
+    // Review & Persistence Logic
     let selectedRating = 0;
     const starContainer = document.getElementById("starRating");
     for (let i = 1; i <= 5; i++) {
@@ -266,11 +233,11 @@ Pride and Prejudice</textarea>
     }
 
     document.getElementById("saveReviewBtn").onclick = () => {
-        if (!window.currentSelectedBook) return;
+        if (!window.currentSelectedBook) return alert("Spin the wheel first!");
         const saved = JSON.parse(localStorage.getItem("bookReviews") || "{}");
         saved[window.currentSelectedBook] = { rating: selectedRating, review: document.getElementById("userReview").value };
         localStorage.setItem("bookReviews", JSON.stringify(saved));
-        alert("Review saved locally!");
+        alert("Review saved!");
     };
   </script>
 </body>
