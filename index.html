@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Minimalist Book Roulette</title>
+  <title>Book Roulette - Fixed Covers</title>
   <style>
     :root {
       --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; --success: #10b981;
@@ -20,17 +20,15 @@
     .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-bottom: 10px; }
     .btn-update { background: var(--accent); color: white; }
     .btn-spin { background: var(--success); color: white; font-size: 1.2rem; height: 65px; }
-    .btn:active { transform: scale(0.97); }
-    .btn:disabled { opacity: 0.4; filter: grayscale(1); cursor: not-allowed; }
     
     .wheel-area { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
     #canvas { max-width: 100%; filter: drop-shadow(0 0 40px rgba(0,0,0,0.5)); }
     .pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 40px solid #ef4444; z-index: 10; }
     .status { margin-top: 25px; font-size: 1.2rem; font-weight: 800; text-align: center; min-height: 1.5em; }
 
-    .book-cover { width: 100%; aspect-ratio: 2/3; background: #0a0f1d; border-radius: 12px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #334155; }
-    .book-cover img { width: 100%; height: 100%; object-fit: cover; }
-
+    .book-cover { width: 100%; aspect-ratio: 2/3; background: #0a0f1d; border-radius: 12px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #334155; position: relative; }
+    .book-cover img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s; }
+    
     @media (max-width: 1100px) { .container { grid-template-columns: 1fr; } .wheel-area { order: -1; } }
   </style>
 </head>
@@ -39,29 +37,26 @@
   <h1 style="font-weight: 900; letter-spacing: -1px; margin-bottom: 10px;">BOOK ROULETTE</h1>
 
   <div class="container">
-    <!-- INPUTS -->
     <div class="panel">
       <h2>Wheel Settings</h2>
       <textarea id="listInput">Project Hail Mary
-The Great Gatsby
 Dune
+Foundation
 Neuromancer</textarea>
       <button class="btn btn-update" onclick="wheel.updateItems()">Update Wheel</button>
       <button class="btn btn-spin" id="spinBtn">HOLD TO SPIN</button>
     </div>
 
-    <!-- WHEEL -->
     <div class="wheel-area">
       <div class="pointer"></div>
       <canvas id="canvas" width="500" height="500"></canvas>
       <div id="status" class="status">Ready to spin</div>
     </div>
 
-    <!-- RESULTS -->
     <div class="panel">
       <h2>Selection</h2>
       <div class="book-cover" id="coverDiv">
-        <span style="color:#475569">Spin to start</span>
+        <span id="loader" style="color:#475569">Spin to start</span>
       </div>
       <div id="bookTitle" style="font-weight:800; font-size:1.1rem; margin-bottom:5px;">---</div>
       <div id="bookAuthor" style="color:#94a3b8; font-size:0.95rem;">---</div>
@@ -77,29 +72,18 @@ Neuromancer</textarea>
       input: document.getElementById('listInput'),
       items: [],
       colors: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'],
-      angle: 0,
-      velocity: 0,
-      isHolding: false,
-      isSpinning: false,
-      friction: 0.988,
+      angle: 0, velocity: 0, isHolding: false, isSpinning: false, friction: 0.988,
 
       init() {
         const saved = localStorage.getItem('minimalBookList');
         if (saved) this.input.value = saved;
-
-        this.spinBtn.addEventListener('pointerdown', () => { 
-          if(!this.isSpinning) this.isHolding = true; 
-        });
-        
+        this.spinBtn.addEventListener('pointerdown', () => { if(!this.isSpinning) this.isHolding = true; });
         window.addEventListener('pointerup', () => { 
           if(this.isHolding) { 
-            this.isHolding = false; 
-            this.isSpinning = true; 
-            this.spinBtn.disabled = true; 
-            if(this.velocity < 0.1) this.velocity = 0.25; 
+            this.isHolding = false; this.isSpinning = true; 
+            this.spinBtn.disabled = true; if(this.velocity < 0.1) this.velocity = 0.25; 
           } 
         });
-
         this.updateItems();
         this.loop();
       },
@@ -117,36 +101,18 @@ Neuromancer</textarea>
         const arc = (Math.PI*2)/this.items.length;
         this.items.forEach((text, i) => {
           this.ctx.beginPath(); this.ctx.fillStyle = this.colors[i % this.colors.length];
-          this.ctx.moveTo(centerX, centerY); 
-          this.ctx.arc(centerX, centerY, radius, this.angle + i*arc, this.angle + (i+1)*arc); 
-          this.ctx.fill();
-          this.ctx.save(); 
-          this.ctx.translate(centerX, centerY); 
-          this.ctx.rotate(this.angle + i*arc + arc/2);
-          this.ctx.fillStyle = "white"; 
-          this.ctx.font = "bold 14px sans-serif"; 
-          this.ctx.textAlign = "right";
-          this.ctx.fillText(text.substring(0,20), radius-30, 5); 
-          this.ctx.restore();
+          this.ctx.moveTo(centerX, centerY); this.ctx.arc(centerX, centerY, radius, this.angle + i*arc, this.angle + (i+1)*arc); this.ctx.fill();
+          this.ctx.save(); this.ctx.translate(centerX, centerY); this.ctx.rotate(this.angle + i*arc + arc/2);
+          this.ctx.fillStyle = "white"; this.ctx.font = "bold 14px sans-serif"; this.ctx.textAlign = "right";
+          this.ctx.fillText(text.substring(0,20), radius-30, 5); this.ctx.restore();
         });
       },
 
       loop() {
-        if(this.isHolding) { 
-          this.velocity = Math.min(this.velocity + 0.008, 0.45); 
-          this.angle += this.velocity; 
-          this.draw(); 
-        }
+        if(this.isHolding) { this.velocity = Math.min(this.velocity + 0.008, 0.45); this.angle += this.velocity; this.draw(); }
         else if(this.isSpinning) { 
-          this.velocity *= this.friction; 
-          this.angle += this.velocity; 
-          this.draw();
-          if(this.velocity < 0.001) { 
-            this.velocity = 0; 
-            this.isSpinning = false; 
-            this.spinBtn.disabled = false; 
-            this.calculateWinner(); 
-          }
+          this.velocity *= this.friction; this.angle += this.velocity; this.draw();
+          if(this.velocity < 0.001) { this.velocity = 0; this.isSpinning = false; this.spinBtn.disabled = false; this.calculateWinner(); }
         }
         requestAnimationFrame(() => this.loop());
       },
@@ -162,20 +128,38 @@ Neuromancer</textarea>
 
       async fetchMetadata(title) {
         document.getElementById('bookTitle').textContent = "Searching...";
+        document.getElementById('loader').textContent = "Fetching cover...";
+        
         try {
-          const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(title)}&maxResults=1`);
-          const data = await res.json();
-          if(data.items) {
-            const b = data.items[0].volumeInfo;
-            this.renderUI(b.title, b.authors, b.imageLinks?.thumbnail);
-          } else { throw new Error(); }
-        } catch(e) { this.renderUI(title, ["Unknown Author"], null); }
+          // intitle: helps find more accurate covers
+          const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(title)}&maxResults=1`);
+          const data = await response.json();
+          
+          if(data.items && data.items[0].volumeInfo) {
+            const info = data.items[0].volumeInfo;
+            const img = info.imageLinks ? info.imageLinks.thumbnail || info.imageLinks.smallThumbnail : null;
+            // Force HTTPS to prevent blocked mixed content
+            const secureImg = img ? img.replace(/^http:\/\//i, 'https://') : null;
+            this.renderUI(info.title, info.authors, secureImg);
+          } else {
+            this.renderUI(title, ["Author not found"], null);
+          }
+        } catch(e) {
+          console.error("Fetch error:", e);
+          this.renderUI(title, ["Search failed"], null);
+        }
       },
 
       renderUI(t, a, c) {
         document.getElementById('bookTitle').textContent = t;
-        document.getElementById('bookAuthor').textContent = a ? a.join(', ') : "---";
-        document.getElementById('coverDiv').innerHTML = c ? `<img src="${c.replace('http:','https:')}">` : "No Image Found";
+        document.getElementById('bookAuthor').textContent = a ? a.join(', ') : "Unknown Author";
+        const coverDiv = document.getElementById('coverDiv');
+        
+        if (c) {
+          coverDiv.innerHTML = `<img src="${c}" alt="cover" onerror="this.style.display='none'; document.getElementById('loader').textContent='Image Error';">`;
+        } else {
+          coverDiv.innerHTML = `<span style="color:#475569">No Cover Found</span>`;
+        }
       }
     };
 
