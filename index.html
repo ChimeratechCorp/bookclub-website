@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pro Book Spinner & Universal Logger</title>
+  <title>Pro Book Spinner & Personal Logger</title>
   <style>
     :root {
       --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; --success: #10b981;
@@ -30,7 +30,6 @@
     .book-cover { width: 100%; aspect-ratio: 2/3; background: #0a0f1d; border-radius: 12px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #334155; }
     .book-cover img { width: 100%; height: 100%; object-fit: cover; }
     
-    /* Log Forms */
     .input-group { margin-bottom: 10px; }
     .input-group label { display: block; font-size: 0.75rem; color: #94a3b8; margin-bottom: 4px; }
     input, select { width: 100%; padding: 10px; background: #0a0f1d; color: white; border: 1px solid #334155; border-radius: 8px; font-size: 14px; }
@@ -54,6 +53,7 @@
       <h2>Wheel Settings</h2>
       <textarea id="listInput">Project Hail Mary
 Dune
+Foundation
 Neuromancer</textarea>
       <button class="btn btn-update" onclick="wheel.updateItems()">Sync & Save Wheel</button>
       <button class="btn btn-spin" id="spinBtn">HOLD TO SPIN</button>
@@ -63,7 +63,7 @@ Neuromancer</textarea>
     <div class="wheel-area">
       <div class="pointer"></div>
       <canvas id="canvas" width="450" height="450"></canvas>
-      <div id="status" class="status">Hold to charge</div>
+      <div id="status" class="status">Ready for spin</div>
     </div>
 
     <!-- SELECTION PREVIEW -->
@@ -75,18 +75,19 @@ Neuromancer</textarea>
       
       <div id="autoLogArea" style="display:none; border-top:1px solid var(--border); padding-top:15px;">
         <div class="input-group">
-            <label>Rate Selection:</label>
+            <label>Rate Winner:</label>
             <select id="autoRating"><option>⭐⭐⭐⭐⭐</option><option>⭐⭐⭐⭐</option><option>⭐⭐⭐</option><option>⭐⭐</option><option>⭐</option></select>
         </div>
-        <button class="btn btn-log" onclick="wheel.logSelected()">Log This Selection</button>
+        <button class="btn btn-log" onclick="wheel.logSelected()">Log Winner</button>
       </div>
     </div>
   </div>
 
   <!-- HISTORY SECTION -->
   <div class="history-section">
+    <!-- MANUAL ENTRY FORM -->
     <div class="panel">
-        <h2>Add To History</h2>
+        <h2>Manual Log Entry</h2>
         <div class="input-group">
             <label>Book Title:</label>
             <input type="text" id="manTitle" placeholder="e.g. 1984">
@@ -99,9 +100,10 @@ Neuromancer</textarea>
             <label>Your Rating:</label>
             <select id="manRating"><option>⭐⭐⭐⭐⭐</option><option>⭐⭐⭐⭐</option><option>⭐⭐⭐</option><option>⭐⭐</option><option>⭐</option></select>
         </div>
-        <button class="btn btn-log" onclick="wheel.logManual()">Add Completed Book</button>
+        <button class="btn btn-log" onclick="wheel.logManual()">Add To History</button>
     </div>
 
+    <!-- HISTORY TABLE -->
     <div class="panel">
         <h2>Reading History <button class="clear-history" onclick="wheel.clearHistory()">Clear All</button></h2>
         <table>
@@ -115,17 +117,43 @@ Neuromancer</textarea>
 
   <script>
     const wheel = {
-      canvas: document.getElementById('canvas'), ctx: document.getElementById('canvas').getContext('2d'),
-      status: document.getElementById('status'), spinBtn: document.getElementById('spinBtn'),
+      canvas: document.getElementById('canvas'), 
+      ctx: document.getElementById('canvas').getContext('2d'),
+      status: document.getElementById('status'), 
+      spinBtn: document.getElementById('spinBtn'),
       input: document.getElementById('listInput'),
-      items: [], colors: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
-      angle: 0, velocity: 0, isHolding: false, isSpinning: false, friction: 0.988,
+      
+      items: [], 
+      colors: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'],
+      
+      angle: 0, 
+      velocity: 0, 
+      isHolding: false, 
+      isSpinning: false, 
+      friction: 0.988,
 
       init() {
-        const saved = localStorage.getItem('myBookList');
-        if (saved) this.input.value = saved;
-        this.spinBtn.addEventListener('pointerdown', () => { if(!this.isSpinning) this.isHolding = true; document.getElementById('autoLogArea').style.display = 'none'; });
-        window.addEventListener('pointerup', () => { if(this.isHolding) { this.isHolding = false; this.isSpinning = true; this.spinBtn.disabled = true; if(this.velocity < 0.1) this.velocity = 0.25; } });
+        // Load spin list
+        const savedList = localStorage.getItem('myBookList');
+        if (savedList) this.input.value = savedList;
+
+        // Interaction
+        this.spinBtn.addEventListener('pointerdown', () => { 
+          if(!this.isSpinning) {
+            this.isHolding = true; 
+            document.getElementById('autoLogArea').style.display = 'none';
+          }
+        });
+        
+        window.addEventListener('pointerup', () => { 
+          if(this.isHolding) { 
+            this.isHolding = false; 
+            this.isSpinning = true; 
+            this.spinBtn.disabled = true; 
+            if(this.velocity < 0.1) this.velocity = 0.25; 
+          } 
+        });
+
         this.updateItems();
         this.renderHistory();
         this.loop();
@@ -144,17 +172,36 @@ Neuromancer</textarea>
         const arc = (Math.PI*2)/this.items.length;
         this.items.forEach((text, i) => {
           this.ctx.beginPath(); this.ctx.fillStyle = this.colors[i % this.colors.length];
-          this.ctx.moveTo(centerX, centerY); this.ctx.arc(centerX, centerY, radius, this.angle + i*arc, this.angle + (i+1)*arc); this.ctx.fill();
-          this.ctx.save(); this.ctx.translate(centerX, centerY); this.ctx.rotate(this.angle + i*arc + arc/2);
-          this.ctx.fillStyle = "white"; this.ctx.font = "bold 13px sans-serif"; this.ctx.textAlign = "right";
-          this.ctx.fillText(text.substring(0,18), radius-25, 5); this.ctx.restore();
+          this.ctx.moveTo(centerX, centerY); 
+          this.ctx.arc(centerX, centerY, radius, this.angle + i*arc, this.angle + (i+1)*arc); 
+          this.ctx.fill();
+          this.ctx.save(); 
+          this.ctx.translate(centerX, centerY); 
+          this.ctx.rotate(this.angle + i*arc + arc/2);
+          this.ctx.fillStyle = "white"; 
+          this.ctx.font = "bold 13px sans-serif"; 
+          this.ctx.textAlign = "right";
+          this.ctx.fillText(text.substring(0,18), radius-25, 5); 
+          this.ctx.restore();
         });
       },
 
       loop() {
-        if(this.isHolding) { this.velocity = Math.min(this.velocity + 0.008, 0.45); this.angle += this.velocity; this.draw(); }
-        else if(this.isSpinning) { this.velocity *= this.friction; this.angle += this.velocity; this.draw();
-          if(this.velocity < 0.001) { this.velocity = 0; this.isSpinning = false; this.spinBtn.disabled = false; this.calculateWinner(); }
+        if(this.isHolding) { 
+          this.velocity = Math.min(this.velocity + 0.008, 0.45); 
+          this.angle += this.velocity; 
+          this.draw(); 
+        }
+        else if(this.isSpinning) { 
+          this.velocity *= this.friction; 
+          this.angle += this.velocity; 
+          this.draw();
+          if(this.velocity < 0.001) { 
+            this.velocity = 0; 
+            this.isSpinning = false; 
+            this.spinBtn.disabled = false; 
+            this.calculateWinner(); 
+          }
         }
         requestAnimationFrame(() => this.loop());
       },
@@ -187,9 +234,10 @@ Neuromancer</textarea>
         document.getElementById('coverDiv').innerHTML = c ? `<img src="${c.replace('http:','https:')}">` : "No Image";
       },
 
+      // History Functions
       saveToHistory(entry) {
         const history = JSON.parse(localStorage.getItem('readingHistory') || '[]');
-        history.unshift(entry);
+        history.unshift(entry); // Newest at top
         localStorage.setItem('readingHistory', JSON.stringify(history));
         this.renderHistory();
       },
@@ -202,30 +250,45 @@ Neuromancer</textarea>
           date: new Date().toLocaleDateString()
         });
         document.getElementById('autoLogArea').style.display = 'none';
-        this.status.textContent = "Selection Logged!";
+        this.status.textContent = "Winner Logged!";
       },
 
       logManual() {
         const t = document.getElementById('manTitle');
         const a = document.getElementById('manAuthor');
-        if(!t.value) return alert("Please enter a title");
+        if(!t.value) return alert("Please enter a book title");
+        
         this.saveToHistory({
           title: t.value,
           author: a.value || "Unknown",
           rating: document.getElementById('manRating').value,
           date: new Date().toLocaleDateString()
         });
+        
         t.value = ''; a.value = '';
-        this.status.textContent = "Manual Log Added!";
+        this.status.textContent = "Manual Entry Saved!";
       },
 
       renderHistory() {
         const history = JSON.parse(localStorage.getItem('readingHistory') || '[]');
-        document.getElementById('historyBody').innerHTML = history.map(h => `<tr><td>${h.title}</td><td>${h.author}</td><td>${h.rating}</td><td>${h.date}</td></tr>`).join('');
+        document.getElementById('historyBody').innerHTML = history.map(h => `
+          <tr>
+            <td>${h.title}</td>
+            <td>${h.author}</td>
+            <td>${h.rating}</td>
+            <td>${h.date}</td>
+          </tr>
+        `).join('');
       },
 
-      clearHistory() { if(confirm("Clear your history?")) { localStorage.removeItem('readingHistory'); this.renderHistory(); } }
+      clearHistory() {
+        if(confirm("Are you sure you want to delete your entire history?")) {
+          localStorage.removeItem('readingHistory');
+          this.renderHistory();
+        }
+      }
     };
+
     wheel.init();
   </script>
 </body>
