@@ -167,6 +167,51 @@
       font-size: 1.5rem;
     }
 
+    /* REVIEW PANEL */
+    .review-panel {
+      margin-top: 20px;
+      background: rgba(255,255,255,0.08);
+      padding: 15px;
+      border-radius: 12px;
+    }
+
+    .stars {
+      font-size: 28px;
+      cursor: pointer;
+      letter-spacing: 5px;
+      user-select: none;
+    }
+
+    .stars span {
+      color: gray;
+    }
+
+    .stars .active {
+      color: gold;
+    }
+
+    #userReview {
+      width: 100%;
+      height: 120px;
+      margin-top: 10px;
+      border-radius: 10px;
+      padding: 10px;
+      background: #111827;
+      color: white;
+      border: 1px solid #374151;
+    }
+
+    #saveReviewBtn {
+      margin-top: 10px;
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      background: #3b82f6;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
     @media (max-width: 900px) {
       .container {
         grid-template-columns: 1fr;
@@ -223,12 +268,21 @@ The Catcher in the Rye</textarea>
       <p><strong>Title:</strong> <span id="metaTitle">—</span></p>
       <p><strong>Author:</strong> <span id="metaAuthor">—</span></p>
       <p><strong>Year:</strong> <span id="metaYear">—</span></p>
-      <p><strong>Genres:</strong> <span id="metaGenres">—</span></p>
       <p><strong>Rating:</strong> <span id="metaRating">—</span></p>
-      <p><strong>ISBN:</strong> <span id="metaISBN">—</span></p>
       <p><strong>Description:</strong></p>
       <p id="metaDescription">—</p>
       <p><a id="metaLink" href="#" target="_blank">More Info</a></p>
+
+      <!-- REVIEW PANEL -->
+      <div class="review-panel">
+        <h3>Your Rating</h3>
+        <div id="starRating" class="stars"></div>
+
+        <h3>Your Review</h3>
+        <textarea id="userReview" placeholder="Write your thoughts..."></textarea>
+
+        <button id="saveReviewBtn">Save Review</button>
+      </div>
     </div>
 
   </div>
@@ -344,7 +398,9 @@ The Catcher in the Rye</textarea>
       setTimeout(() => {
         const winner = items[randomIndex];
         result.innerHTML = `🎉 Winner: <strong>${winner}</strong>`;
+        window.currentSelectedBook = winner;
         fetchBookMetadata(winner);
+        loadSavedReview(winner);
         spinning = false;
       }, 5000);
     }
@@ -442,9 +498,7 @@ The Catcher in the Rye</textarea>
           title: book.title || "Not available",
           author: book.author_name ? book.author_name.join(", ") : "Not available",
           year: book.first_publish_year || "Not available",
-          genres: book.subject ? book.subject.slice(0, 5).join(", ") : "Not available",
           rating: book.ratings_average ? `${book.ratings_average.toFixed(1)} / 5` : "Not available",
-          isbn: book.isbn ? book.isbn[0] : "Not available",
           description: fullDescription || "Not available",
           cover: book.cover_i
             ? `https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg`
@@ -466,9 +520,7 @@ The Catcher in the Rye</textarea>
         document.getElementById("metaTitle").textContent = "Not available";
         document.getElementById("metaAuthor").textContent = "Not available";
         document.getElementById("metaYear").textContent = "Not available";
-        document.getElementById("metaGenres").textContent = "Not available";
         document.getElementById("metaRating").textContent = "Not available";
-        document.getElementById("metaISBN").textContent = "Not available";
         document.getElementById("metaDescription").textContent = "Not available";
         document.getElementById("metaLink").href = "#";
         return;
@@ -480,12 +532,65 @@ The Catcher in the Rye</textarea>
       document.getElementById("metaTitle").textContent = meta.title;
       document.getElementById("metaAuthor").textContent = meta.author;
       document.getElementById("metaYear").textContent = meta.year;
-      document.getElementById("metaGenres").textContent = meta.genres;
       document.getElementById("metaRating").textContent = meta.rating;
-      document.getElementById("metaISBN").textContent = meta.isbn;
       document.getElementById("metaDescription").textContent = meta.description;
       document.getElementById("metaLink").href = meta.link;
     }
+
+    /* STAR RATING SYSTEM */
+    let selectedRating = 0;
+
+    const starContainer = document.getElementById("starRating");
+
+    for (let i = 1; i <= 5; i++) {
+      const star = document.createElement("span");
+      star.textContent = "★";
+      star.dataset.value = i;
+
+      star.addEventListener("click", () => {
+        selectedRating = i;
+        updateStarDisplay();
+      });
+
+      starContainer.appendChild(star);
+    }
+
+    function updateStarDisplay() {
+      const stars = starContainer.querySelectorAll("span");
+      stars.forEach(star => {
+        star.classList.toggle("active", star.dataset.value <= selectedRating);
+      });
+    }
+
+    /* REVIEW MEMORY */
+    function loadSavedReview(bookTitle) {
+      const saved = JSON.parse(localStorage.getItem("bookReviews") || "{}");
+
+      if (saved[bookTitle]) {
+        selectedRating = saved[bookTitle].rating;
+        document.getElementById("userReview").value = saved[bookTitle].review;
+      } else {
+        selectedRating = 0;
+        document.getElementById("userReview").value = "";
+      }
+
+      updateStarDisplay();
+    }
+
+    document.getElementById("saveReviewBtn").addEventListener("click", () => {
+      const reviewText = document.getElementById("userReview").value.trim();
+      const saved = JSON.parse(localStorage.getItem("bookReviews") || "{}");
+
+      const currentBook = window.currentSelectedBook;
+      if (!currentBook) return;
+
+      saved[currentBook] = {
+        rating: selectedRating,
+        review: reviewText
+      };
+
+      localStorage.setItem("bookReviews", JSON.stringify(saved));
+    });
   </script>
 </body>
 </html>
