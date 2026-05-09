@@ -3,92 +3,114 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pro Book Spinner - History Edition</title>
+  <title>Pro Book Spinner & Universal Logger</title>
   <style>
     :root {
       --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; --success: #10b981;
       --text: #f8fafc; --border: rgba(255, 255, 255, 0.1);
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
     body { background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
     
     .container { display: grid; grid-template-columns: 320px 1fr 320px; gap: 25px; max-width: 1300px; width: 100%; margin-top: 20px; }
     .panel { background: var(--card); padding: 20px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); border: 1px solid var(--border); }
     h2 { margin-bottom: 15px; font-size: 0.9rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; }
 
-    textarea { width: 100%; height: 200px; background: #0a0f1d; color: #cbd5e1; border: 1px solid #334155; border-radius: 8px; padding: 12px; resize: none; margin-bottom: 15px; font-size: 14px; }
-    .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-bottom: 10px; }
+    textarea { width: 100%; height: 180px; background: #0a0f1d; color: #cbd5e1; border: 1px solid #334155; border-radius: 8px; padding: 12px; resize: none; margin-bottom: 10px; font-size: 14px; }
+    .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-bottom: 8px; }
     .btn-update { background: var(--accent); color: white; }
-    .btn-spin { background: var(--success); color: white; font-size: 1.2rem; height: 60px; user-select: none; touch-action: none; }
-    .btn-log { background: #6366f1; color: white; margin-top: 10px; display: none; }
+    .btn-spin { background: var(--success); color: white; font-size: 1.1rem; height: 55px; }
+    .btn-log { background: #6366f1; color: white; }
     
     .wheel-area { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
     #canvas { max-width: 100%; filter: drop-shadow(0 0 30px rgba(0,0,0,0.6)); }
     .pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 40px solid #ef4444; z-index: 10; }
-    .status { margin-top: 25px; font-size: 1.2rem; font-weight: 800; text-align: center; min-height: 1.5em; }
+    .status { margin-top: 15px; font-size: 1.1rem; font-weight: 800; text-align: center; min-height: 1.5em; }
 
-    .book-cover { width: 100%; aspect-ratio: 2/3; background: #0a0f1d; border-radius: 12px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #334155; }
+    .book-cover { width: 100%; aspect-ratio: 2/3; background: #0a0f1d; border-radius: 12px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #334155; }
     .book-cover img { width: 100%; height: 100%; object-fit: cover; }
     
-    /* Rating & History Styles */
-    .rating-select { width: 100%; padding: 10px; background: #0a0f1d; color: white; border: 1px solid #334155; border-radius: 8px; margin-top: 5px; }
-    .history-panel { width: 100%; max-width: 1300px; margin-top: 30px; }
+    /* Log Forms */
+    .input-group { margin-bottom: 10px; }
+    .input-group label { display: block; font-size: 0.75rem; color: #94a3b8; margin-bottom: 4px; }
+    input, select { width: 100%; padding: 10px; background: #0a0f1d; color: white; border: 1px solid #334155; border-radius: 8px; font-size: 14px; }
+    
+    .history-section { width: 100%; max-width: 1300px; margin-top: 30px; display: grid; grid-template-columns: 320px 1fr; gap: 25px; }
     table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; }
-    th, td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border); }
-    th { background: rgba(255,255,255,0.05); color: var(--accent); text-transform: uppercase; font-size: 0.8rem; }
-    .clear-history { background: #ef4444; color: white; padding: 5px 10px; font-size: 0.7rem; float: right; border-radius: 4px; border: none; cursor: pointer; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+    th { background: rgba(255,255,255,0.05); color: var(--accent); }
+    .clear-history { background: #ef4444; color: white; padding: 4px 8px; font-size: 0.7rem; float: right; border-radius: 4px; border: none; cursor: pointer; }
 
-    @media (max-width: 1000px) { .container { grid-template-columns: 1fr; } .wheel-area { order: -1; } }
+    @media (max-width: 1000px) { .container, .history-section { grid-template-columns: 1fr; } .wheel-area { order: -1; } }
   </style>
 </head>
 <body>
 
-  <h1>BOOK ROULETTE PRO</h1>
+  <h1 style="margin-bottom: 5px;">BOOK ROULETTE PRO</h1>
 
   <div class="container">
+    <!-- WHEEL INPUTS -->
     <div class="panel">
-      <h2>Reading List</h2>
+      <h2>Wheel Settings</h2>
       <textarea id="listInput">Project Hail Mary
 Dune
 Neuromancer</textarea>
-      <button class="btn btn-update" onclick="wheel.updateItems()">Sync & Save</button>
+      <button class="btn btn-update" onclick="wheel.updateItems()">Sync & Save Wheel</button>
       <button class="btn btn-spin" id="spinBtn">HOLD TO SPIN</button>
     </div>
 
+    <!-- CANVAS -->
     <div class="wheel-area">
       <div class="pointer"></div>
-      <canvas id="canvas" width="500" height="500"></canvas>
-      <div id="status" class="status">Hold button to charge</div>
+      <canvas id="canvas" width="450" height="450"></canvas>
+      <div id="status" class="status">Hold to charge</div>
     </div>
 
+    <!-- SELECTION PREVIEW -->
     <div class="panel">
-      <h2>Selection Info</h2>
-      <div class="book-cover" id="coverDiv"><span style="color:#475569">Spin to start</span></div>
-      <div id="bookTitle">---</div>
-      <div id="bookAuthor">---</div>
+      <h2>Current Selection</h2>
+      <div class="book-cover" id="coverDiv"><span style="color:#475569">---</span></div>
+      <div id="bookTitle" style="font-weight:700; margin-bottom:5px;">---</div>
+      <div id="bookAuthor" style="color:#94a3b8; font-size:0.9rem; margin-bottom:15px;">---</div>
       
-      <div id="logArea" style="display:none; margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;">
-        <label style="font-size: 0.8rem;">Rating:</label>
-        <select id="ratingSelect" class="rating-select">
-          <option value="⭐⭐⭐⭐⭐">5 Stars - Amazing</option>
-          <option value="⭐⭐⭐⭐">4 Stars - Great</option>
-          <option value="⭐⭐⭐">3 Stars - Good</option>
-          <option value="⭐⭐">2 Stars - Okay</option>
-          <option value="⭐">1 Star - Poor</option>
-        </select>
-        <button class="btn btn-log" id="logBtn" onclick="wheel.logBook()">Log Completed Book</button>
+      <div id="autoLogArea" style="display:none; border-top:1px solid var(--border); padding-top:15px;">
+        <div class="input-group">
+            <label>Rate Selection:</label>
+            <select id="autoRating"><option>⭐⭐⭐⭐⭐</option><option>⭐⭐⭐⭐</option><option>⭐⭐⭐</option><option>⭐⭐</option><option>⭐</option></select>
+        </div>
+        <button class="btn btn-log" onclick="wheel.logSelected()">Log This Selection</button>
       </div>
     </div>
   </div>
 
-  <div class="history-panel panel">
-    <h2>Reading History <button class="clear-history" onclick="wheel.clearHistory()">Clear All</button></h2>
-    <table>
-      <thead>
-        <tr><th>Book Title</th><th>Author</th><th>Rating</th><th>Date Logged</th></tr>
-      </thead>
-      <tbody id="historyBody"></tbody>
-    </table>
+  <!-- HISTORY SECTION -->
+  <div class="history-section">
+    <div class="panel">
+        <h2>Add To History</h2>
+        <div class="input-group">
+            <label>Book Title:</label>
+            <input type="text" id="manTitle" placeholder="e.g. 1984">
+        </div>
+        <div class="input-group">
+            <label>Author:</label>
+            <input type="text" id="manAuthor" placeholder="George Orwell">
+        </div>
+        <div class="input-group">
+            <label>Your Rating:</label>
+            <select id="manRating"><option>⭐⭐⭐⭐⭐</option><option>⭐⭐⭐⭐</option><option>⭐⭐⭐</option><option>⭐⭐</option><option>⭐</option></select>
+        </div>
+        <button class="btn btn-log" onclick="wheel.logManual()">Add Completed Book</button>
+    </div>
+
+    <div class="panel">
+        <h2>Reading History <button class="clear-history" onclick="wheel.clearHistory()">Clear All</button></h2>
+        <table>
+          <thead>
+            <tr><th>Book</th><th>Author</th><th>Rating</th><th>Date</th></tr>
+          </thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+    </div>
   </div>
 
   <script>
@@ -96,15 +118,14 @@ Neuromancer</textarea>
       canvas: document.getElementById('canvas'), ctx: document.getElementById('canvas').getContext('2d'),
       status: document.getElementById('status'), spinBtn: document.getElementById('spinBtn'),
       input: document.getElementById('listInput'),
-      items: [], colors: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
+      items: [], colors: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
       angle: 0, velocity: 0, isHolding: false, isSpinning: false, friction: 0.988,
-      currentWinner: null,
 
       init() {
         const saved = localStorage.getItem('myBookList');
         if (saved) this.input.value = saved;
-        this.spinBtn.addEventListener('pointerdown', (e) => this.onPress(e));
-        window.addEventListener('pointerup', () => this.onRelease());
+        this.spinBtn.addEventListener('pointerdown', () => { if(!this.isSpinning) this.isHolding = true; document.getElementById('autoLogArea').style.display = 'none'; });
+        window.addEventListener('pointerup', () => { if(this.isHolding) { this.isHolding = false; this.isSpinning = true; this.spinBtn.disabled = true; if(this.velocity < 0.1) this.velocity = 0.25; } });
         this.updateItems();
         this.renderHistory();
         this.loop();
@@ -117,22 +138,18 @@ Neuromancer</textarea>
       },
 
       draw() {
-        const { ctx, canvas, items, colors, angle } = this;
-        const centerX = canvas.width/2, centerY = canvas.height/2, radius = canvas.width/2 - 20;
-        ctx.clearRect(0,0,500,500);
-        if(!items.length) return;
-        const arc = (Math.PI*2)/items.length;
-        items.forEach((text, i) => {
-          ctx.beginPath(); ctx.fillStyle = colors[i % colors.length];
-          ctx.moveTo(centerX, centerY); ctx.arc(centerX, centerY, radius, angle + i*arc, angle + (i+1)*arc); ctx.fill();
-          ctx.save(); ctx.translate(centerX, centerY); ctx.rotate(angle + i*arc + arc/2);
-          ctx.fillStyle = "white"; ctx.font = "bold 14px sans-serif"; ctx.textAlign = "right";
-          ctx.fillText(text.substring(0,18), radius-30, 5); ctx.restore();
+        const centerX = 225, centerY = 225, radius = 205;
+        this.ctx.clearRect(0,0,450,450);
+        if(!this.items.length) return;
+        const arc = (Math.PI*2)/this.items.length;
+        this.items.forEach((text, i) => {
+          this.ctx.beginPath(); this.ctx.fillStyle = this.colors[i % this.colors.length];
+          this.ctx.moveTo(centerX, centerY); this.ctx.arc(centerX, centerY, radius, this.angle + i*arc, this.angle + (i+1)*arc); this.ctx.fill();
+          this.ctx.save(); this.ctx.translate(centerX, centerY); this.ctx.rotate(this.angle + i*arc + arc/2);
+          this.ctx.fillStyle = "white"; this.ctx.font = "bold 13px sans-serif"; this.ctx.textAlign = "right";
+          this.ctx.fillText(text.substring(0,18), radius-25, 5); this.ctx.restore();
         });
       },
-
-      onPress(e) { if(this.isSpinning) return; this.isHolding = true; document.getElementById('logArea').style.display = 'none'; },
-      onRelease() { if(!this.isHolding) return; this.isHolding = false; this.isSpinning = true; this.spinBtn.disabled = true; if(this.velocity < 0.1) this.velocity = 0.25; },
 
       loop() {
         if(this.isHolding) { this.velocity = Math.min(this.velocity + 0.008, 0.45); this.angle += this.velocity; this.draw(); }
@@ -146,9 +163,9 @@ Neuromancer</textarea>
         const arc = (Math.PI*2)/this.items.length;
         let norm = (1.5 * Math.PI - this.angle) % (Math.PI*2);
         if(norm < 0) norm += (Math.PI*2);
-        this.currentWinner = this.items[Math.floor(norm/arc)];
-        this.status.innerHTML = `WINNER: <span style="color:var(--success)">${this.currentWinner}</span>`;
-        this.fetchMetadata(this.currentWinner);
+        const winner = this.items[Math.floor(norm/arc)];
+        this.status.innerHTML = `WINNER: <span style="color:var(--success)">${winner}</span>`;
+        this.fetchMetadata(winner);
       },
 
       async fetchMetadata(title) {
@@ -161,8 +178,7 @@ Neuromancer</textarea>
             this.renderUI(b.title, b.authors, b.imageLinks?.thumbnail);
           } else { throw new Error(); }
         } catch(e) { this.renderUI(title, ["Unknown Author"], null); }
-        document.getElementById('logArea').style.display = 'block';
-        document.getElementById('logBtn').style.display = 'block';
+        document.getElementById('autoLogArea').style.display = 'block';
       },
 
       renderUI(t, a, c) {
@@ -171,25 +187,41 @@ Neuromancer</textarea>
         document.getElementById('coverDiv').innerHTML = c ? `<img src="${c.replace('http:','https:')}">` : "No Image";
       },
 
-      logBook() {
+      saveToHistory(entry) {
         const history = JSON.parse(localStorage.getItem('readingHistory') || '[]');
-        const newEntry = {
-          title: document.getElementById('bookTitle').textContent,
-          author: document.getElementById('bookAuthor').textContent,
-          rating: document.getElementById('ratingSelect').value,
-          date: new Date().toLocaleDateString()
-        };
-        history.unshift(newEntry);
+        history.unshift(entry);
         localStorage.setItem('readingHistory', JSON.stringify(history));
         this.renderHistory();
-        document.getElementById('logArea').style.display = 'none';
-        this.status.textContent = "Book Logged!";
+      },
+
+      logSelected() {
+        this.saveToHistory({
+          title: document.getElementById('bookTitle').textContent,
+          author: document.getElementById('bookAuthor').textContent,
+          rating: document.getElementById('autoRating').value,
+          date: new Date().toLocaleDateString()
+        });
+        document.getElementById('autoLogArea').style.display = 'none';
+        this.status.textContent = "Selection Logged!";
+      },
+
+      logManual() {
+        const t = document.getElementById('manTitle');
+        const a = document.getElementById('manAuthor');
+        if(!t.value) return alert("Please enter a title");
+        this.saveToHistory({
+          title: t.value,
+          author: a.value || "Unknown",
+          rating: document.getElementById('manRating').value,
+          date: new Date().toLocaleDateString()
+        });
+        t.value = ''; a.value = '';
+        this.status.textContent = "Manual Log Added!";
       },
 
       renderHistory() {
         const history = JSON.parse(localStorage.getItem('readingHistory') || '[]');
-        const body = document.getElementById('historyBody');
-        body.innerHTML = history.map(h => `<tr><td>${h.title}</td><td>${h.author}</td><td>${h.rating}</td><td>${h.date}</td></tr>`).join('');
+        document.getElementById('historyBody').innerHTML = history.map(h => `<tr><td>${h.title}</td><td>${h.author}</td><td>${h.rating}</td><td>${h.date}</td></tr>`).join('');
       },
 
       clearHistory() { if(confirm("Clear your history?")) { localStorage.removeItem('readingHistory'); this.renderHistory(); } }
