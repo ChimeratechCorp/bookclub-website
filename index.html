@@ -1,225 +1,333 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pro Spin Wheel – by Robert Cruz</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pro Book Spinner - Physics Edition</title>
   <style>
     :root {
-      --bg-dark: #0f172a;
-      --bg-light: #1e293b;
-      --panel-bg: rgba(30, 41, 59, 0.7);
-      --border-color: rgba(255, 255, 255, 0.1);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --primary: #3b82f6;
+      --bg: #0f172a;
+      --card: #1e293b;
+      --accent: #3b82f6;
       --success: #10b981;
+      --text: #f8fafc;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     
     body { 
-      background: linear-gradient(135deg, var(--bg-dark), var(--bg-light)); 
-      color: var(--text-main); 
-      min-height: 100vh; 
+      background-color: var(--bg); 
+      color: var(--text); 
       display: flex; 
       flex-direction: column; 
       align-items: center; 
-      padding: 2rem 1rem; 
+      min-height: 100vh; 
+      padding: 20px;
     }
 
-    .header { 
-      width: 100%; max-width: 1400px; text-align: center; font-size: 2.5rem; font-weight: 800; 
-      margin-bottom: 2rem; padding: 1.5rem 0; background: var(--panel-bg); 
-      border: 1px solid var(--border-color); border-radius: 16px; backdrop-filter: blur(10px);
+    .container {
+      display: grid;
+      grid-template-columns: 300px 1fr 300px;
+      gap: 30px;
+      max-width: 1200px;
+      width: 100%;
+      margin-top: 20px;
     }
 
-    .layout-grid { 
-      display: grid; grid-template-columns: 320px 1fr 340px; gap: 2rem; 
-      width: 100%; max-width: 1400px; 
+    .panel {
+      background: var(--card);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.05);
     }
 
-    .card { background: var(--panel-bg); border: 1px solid var(--border-color); padding: 1.5rem; border-radius: 16px; }
+    h2 { margin-bottom: 15px; font-size: 1.2rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
 
-    textarea { 
-      width: 100%; height: 180px; background: var(--bg-dark); border: 1px solid var(--border-color); 
-      color: var(--text-main); border-radius: 8px; padding: 0.8rem; resize: none; margin-bottom: 1rem; 
+    textarea {
+      width: 100%;
+      height: 200px;
+      background: #0f172a;
+      color: white;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 10px;
+      resize: none;
+      margin-bottom: 15px;
+      font-size: 14px;
     }
 
-    .btn { 
-      width: 100%; border: none; padding: 1rem; border-radius: 8px; 
-      font-weight: 700; cursor: pointer; transition: 0.2s; margin-bottom: 0.5rem;
-    }
-    .btn-update { background: var(--primary); color: white; }
-    .btn-spin { background: var(--success); color: white; font-size: 1.2rem; cursor: pointer; user-select: none; }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .status-box { 
-      margin-top: 1rem; background: rgba(0,0,0,0.3); border-radius: 8px; 
-      height: 60px; display: flex; align-items: center; justify-content: center; border: 1px dashed #444;
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.1s, filter 0.2s;
+      margin-bottom: 10px;
     }
 
-    .wheel-container { position: relative; width: 450px; height: 450px; margin: 0 auto; }
-    .pointer { 
-      position: absolute; top: -15px; left: 50%; transform: translateX(-50%); 
-      width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; 
-      border-top: 40px solid #ef4444; z-index: 10; 
+    .btn-update { background: var(--accent); color: white; }
+    .btn-spin { 
+      background: var(--success); 
+      color: white; 
+      font-size: 1.1rem; 
+      height: 60px;
+      user-select: none;
+      touch-action: none;
     }
 
-    canvas { width: 100% !important; height: 100% !important; border-radius: 50%; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    .cover-wrapper { width: 100%; aspect-ratio: 2/3; background: #000; border-radius: 8px; margin-bottom: 1rem; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-    .cover-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+    .wheel-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    #canvas {
+      max-width: 100%;
+      filter: drop-shadow(0 0 20px rgba(0,0,0,0.5));
+    }
+
+    .pointer {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-top: 40px solid #ef4444;
+      z-index: 10;
+      filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3));
+    }
+
+    .status {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-align: center;
+      min-height: 1.5em;
+    }
+
+    .book-cover {
+      width: 100%;
+      aspect-ratio: 2/3;
+      background: #000;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 1px solid #334155;
+    }
+
+    .book-cover img { width: 100%; height: 100%; object-fit: cover; }
+    #bookTitle { font-weight: bold; font-size: 1.1rem; margin-bottom: 5px; }
+    #bookAuthor { color: #94a3b8; font-size: 0.9rem; }
+
+    @media (max-width: 1000px) {
+      .container { grid-template-columns: 1fr; }
+      .wheel-area { order: -1; }
+    }
   </style>
 </head>
 <body>
 
-  <header class="header">Spin Wheel – Pro Edition</header>
+  <h1>BOOK ROULETTE PRO</h1>
 
-  <main class="layout-grid">
-    <aside class="card">
-      <h2>🎡 Control</h2>
-      <textarea id="choicesInput">Dune
+  <div class="container">
+    <!-- INPUT PANEL -->
+    <div class="panel">
+      <h2>Your Library</h2>
+      <textarea id="listInput">Dune
 The Hobbit
 Foundation
+1984
 Neuromancer
-Dracula</textarea>
-      <button class="btn btn-update" id="btnUpdate">Update Wheel</button>
-      <button class="btn btn-spin" id="btnSpin">HOLD TO SPIN</button>
-      <div class="status-box" id="statusBox">Ready!</div>
-    </aside>
+Brave New World</textarea>
+      <button class="btn btn-update" onclick="wheel.updateItems()">Save List</button>
+      <button class="btn btn-spin" id="spinBtn">HOLD TO SPIN</button>
+    </div>
 
-    <section class="wheel-container">
+    <!-- WHEEL PANEL -->
+    <div class="wheel-area">
       <div class="pointer"></div>
-      <canvas id="wheelCanvas"></canvas>
-    </section>
+      <canvas id="canvas" width="500" height="500"></canvas>
+      <div id="status" class="status">Ready to play</div>
+    </div>
 
-    <aside class="card">
-      <h2>📚 Book Info</h2>
-      <div class="cover-wrapper" id="bookCover"></div>
-      <p id="metaTitle" style="font-weight:bold;"></p>
-      <p id="metaAuthor" style="color:var(--text-muted); margin-bottom: 1rem;"></p>
-      <div id="metaDescription" style="font-size: 0.85rem; color: #ccc;"></div>
-    </aside>
-  </main>
+    <!-- DETAILS PANEL -->
+    <div class="panel">
+      <h2>Selection</h2>
+      <div class="book-cover" id="coverDiv">
+        <span style="color: #475569;">No Selection</span>
+      </div>
+      <div id="bookTitle">---</div>
+      <div id="bookAuthor">---</div>
+    </div>
+  </div>
 
   <script>
-    const canvas = document.getElementById('wheelCanvas');
-    const ctx = canvas.getContext('2d');
-    const choicesInput = document.getElementById('choicesInput');
-    const btnSpin = document.getElementById('btnSpin');
-    const btnUpdate = document.getElementById('btnUpdate');
-    const statusBox = document.getElementById('statusBox');
+    const wheel = {
+      canvas: document.getElementById('canvas'),
+      ctx: document.getElementById('canvas').getContext('2d'),
+      status: document.getElementById('status'),
+      spinBtn: document.getElementById('spinBtn'),
+      
+      items: [],
+      colors: ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'],
+      
+      angle: 0,
+      velocity: 0,
+      isHolding: false,
+      isSpinning: false,
+      friction: 0.985, // How fast it slows down (0.99 is slow, 0.95 is fast)
 
-    let items = [];
-    let rotation = 0;
-    let isHolding = false;
-    let isSpinning = false;
-    let holdInterval;
-    const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'];
+      init() {
+        // Event Listeners
+        this.spinBtn.addEventListener('pointerdown', (e) => this.onPress(e));
+        window.addEventListener('pointerup', () => this.onRelease());
+        
+        this.updateItems();
+        this.loop();
+      },
 
-    function init() {
-      const size = 450;
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = size * dpr;
-      canvas.height = size * dpr;
-      ctx.scale(dpr, dpr);
-      updateItems();
-    }
+      updateItems() {
+        const input = document.getElementById('listInput').value;
+        this.items = input.split('\n').map(item => item.trim()).filter(item => item !== "");
+        this.draw();
+      },
 
-    function updateItems() {
-      items = choicesInput.value.split('\n').map(s => s.trim()).filter(s => s !== "");
-      draw();
-    }
+      draw() {
+        const { ctx, canvas, items, colors, angle } = this;
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = canvas.width / 2 - 20;
 
-    function draw() {
-      const center = 225;
-      const radius = 215;
-      ctx.clearRect(0, 0, 450, 450);
-      if (items.length === 0) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        if (items.length === 0) return;
 
-      const arc = (Math.PI * 2) / items.length;
-      items.forEach((item, i) => {
-        const angle = i * arc;
+        const sliceAngle = (Math.PI * 2) / items.length;
+
+        items.forEach((text, i) => {
+          const startAngle = angle + (i * sliceAngle);
+          
+          // Draw Slice
+          ctx.beginPath();
+          ctx.fillStyle = colors[i % colors.length];
+          ctx.moveTo(centerX, centerY);
+          ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+          ctx.stroke();
+
+          // Draw Text
+          ctx.save();
+          ctx.translate(centerX, centerY);
+          ctx.rotate(startAngle + sliceAngle / 2);
+          ctx.fillStyle = "white";
+          ctx.font = "bold 16px sans-serif";
+          ctx.textAlign = "right";
+          ctx.fillText(text.substring(0, 15), radius - 30, 6);
+          ctx.restore();
+        });
+
+        // Center Pin
         ctx.beginPath();
-        ctx.fillStyle = colors[i % colors.length];
-        ctx.moveTo(center, center);
-        ctx.arc(center, center, radius, angle, angle + arc);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.save();
-        ctx.translate(center, center);
-        ctx.rotate(angle + arc / 2);
+        ctx.arc(centerX, centerY, 15, 0, Math.PI * 2);
         ctx.fillStyle = "white";
-        ctx.font = "bold 14px sans-serif";
-        ctx.fillText(item.slice(0, 15), radius - 100, 5);
-        ctx.restore();
-      });
-    }
+        ctx.fill();
+      },
 
-    function startHolding(e) {
-      if (isSpinning || items.length === 0) return;
-      e.preventDefault();
-      isHolding = true;
-      statusBox.textContent = "Charging up...";
-      canvas.style.transition = "none";
-      
-      holdInterval = setInterval(() => {
-        rotation += 15;
-        canvas.style.transform = `rotate(${rotation}deg)`;
-      }, 16);
-    }
+      onPress(e) {
+        if (this.isSpinning || this.items.length === 0) return;
+        this.isHolding = true;
+        this.status.textContent = "Powering up...";
+      },
 
-    function stopHolding() {
-      if (!isHolding) return;
-      isHolding = false;
-      clearInterval(holdInterval);
-      finishSpin();
-    }
+      onRelease() {
+        if (!this.isHolding) return;
+        this.isHolding = false;
+        this.isSpinning = true;
+        this.spinBtn.disabled = true;
+        this.status.textContent = "Spinning...";
+        
+        // Ensure a minimum spin speed if they just clicked quickly
+        if (this.velocity < 0.1) this.velocity = 0.3; 
+      },
 
-    function finishSpin() {
-      isSpinning = true;
-      btnSpin.disabled = true;
-      statusBox.textContent = "Spinning...";
+      loop() {
+        if (this.isHolding) {
+          // Increase velocity while holding, max out at 0.5 radians per frame
+          this.velocity = Math.min(this.velocity + 0.01, 0.4);
+          this.angle += this.velocity;
+          this.draw();
+        } else if (this.isSpinning) {
+          // Apply friction
+          this.velocity *= this.friction;
+          this.angle += this.velocity;
+          this.draw();
 
-      const extraSpins = 360 * 4;
-      const stopIdx = Math.floor(Math.random() * items.length);
-      const arcDeg = 360 / items.length;
-      const finalAngle = 270 - (stopIdx * arcDeg + arcDeg / 2);
-      
-      rotation += extraSpins + (finalAngle - (rotation % 360));
-      
-      canvas.style.transition = "transform 3s cubic-bezier(0.1, 0, 0.2, 1)";
-      canvas.style.transform = `rotate(${rotation}deg)`;
+          // Stop when velocity is near zero
+          if (this.velocity < 0.001) {
+            this.velocity = 0;
+            this.isSpinning = false;
+            this.spinBtn.disabled = false;
+            this.calculateWinner();
+          }
+        }
 
-      setTimeout(() => {
-        isSpinning = false;
-        btnSpin.disabled = false;
-        statusBox.innerHTML = `Winner: <strong>${items[stopIdx]}</strong>`;
-        fetchBook(items[stopIdx]);
-      }, 3100);
-    }
+        requestAnimationFrame(() => this.loop());
+      },
 
-    async function fetchBook(title) {
-      try {
-        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(title)}`);
-        const data = await res.json();
-        const book = data.items[0].volumeInfo;
-        document.getElementById('metaTitle').textContent = book.title;
-        document.getElementById('metaAuthor').textContent = book.authors?.join(", ") || "Unknown";
-        document.getElementById('metaDescription').textContent = book.description?.slice(0, 200) + "...";
-        document.getElementById('bookCover').innerHTML = `<img src="${book.imageLinks?.thumbnail.replace('http','https')}" />`;
-      } catch (e) { console.log("Fetch error"); }
-    }
+      calculateWinner() {
+        const sliceSize = (Math.PI * 2) / this.items.length;
+        
+        // The pointer is at the top (1.5 * PI)
+        // We normalize the angle to be between 0 and 2PI
+        let normalizedAngle = (1.5 * Math.PI - this.angle) % (Math.PI * 2);
+        if (normalizedAngle < 0) normalizedAngle += (Math.PI * 2);
+        
+        const index = Math.floor(normalizedAngle / sliceSize);
+        const winner = this.items[index];
+        
+        this.status.innerHTML = `Winner: <span style="color:var(--success)">${winner}</span>`;
+        this.fetchBookInfo(winner);
+      },
 
-    btnUpdate.onclick = updateItems;
-    btnSpin.onmousedown = startHolding;
-    window.onmouseup = stopHolding;
-    btnSpin.ontouchstart = startHolding;
-    window.ontouchend = stopHolding;
+      async fetchBookInfo(title) {
+        try {
+          const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(title)}`);
+          const data = await response.json();
+          if (data.items && data.items.length > 0) {
+            const book = data.items[0].volumeInfo;
+            document.getElementById('bookTitle').textContent = book.title;
+            document.getElementById('bookAuthor').textContent = book.authors ? book.authors.join(', ') : "Unknown Author";
+            
+            if (book.imageLinks && book.imageLinks.thumbnail) {
+              const httpsImg = book.imageLinks.thumbnail.replace('http:', 'https:');
+              document.getElementById('coverDiv').innerHTML = `<img src="${httpsImg}" alt="Cover">`;
+            } else {
+              document.getElementById('coverDiv').innerHTML = `<span style="color: #475569;">No Cover</span>`;
+            }
+          }
+        } catch (error) {
+          console.error("API Error", error);
+        }
+      }
+    };
 
-    init();
+    // Start everything
+    wheel.init();
   </script>
 </body>
 </html>
