@@ -141,7 +141,6 @@
       height: 100% !important; 
       border-radius: 50%; 
       box-shadow: 0 0 40px var(--wheel-shadow); 
-      /* Will-change optimizes hardware acceleration for the spin */
       will-change: transform; 
     }
 
@@ -259,7 +258,7 @@ Project Hail Mary</textarea>
         this.selectedRating = 0;
         this.apiCache = new Map();
         
-        // Colors palette (Tailwind-inspired)
+        // Colors palette
         this.colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'];
 
         this.init();
@@ -278,7 +277,6 @@ Project Hail Mary</textarea>
         this.ui.btnSpin.addEventListener('click', () => this.spin());
         this.ui.btnSaveReview.addEventListener('click', () => this.saveReview());
         
-        // Handle window resize for canvas redrawing
         window.addEventListener('resize', () => {
           if (!this.isSpinning) {
             this.setupCanvas();
@@ -293,17 +291,14 @@ Project Hail Mary</textarea>
       }
 
       setupCanvas() {
-        // High-DPI Display scaling for crisp text
         const dpr = window.devicePixelRatio || 1;
         const rect = this.ui.canvas.parentElement.getBoundingClientRect();
         
         this.ui.canvas.width = rect.width * dpr;
         this.ui.canvas.height = rect.height * dpr;
         
-        // Normalize coordinate system to use css pixels
         this.ui.ctx.scale(dpr, dpr);
         
-        // Set visual size
         this.ui.canvas.style.width = `${rect.width}px`;
         this.ui.canvas.style.height = `${rect.height}px`;
         
@@ -322,7 +317,7 @@ Project Hail Mary</textarea>
       drawWheel() {
         const ctx = this.ui.ctx;
         const center = this.canvasSize / 2;
-        const radius = center - 10; // Padding
+        const radius = center - 10; 
         
         ctx.clearRect(0, 0, this.canvasSize, this.canvasSize);
         if (this.items.length === 0) return;
@@ -332,19 +327,16 @@ Project Hail Mary</textarea>
         this.items.forEach((item, i) => {
           const angle = i * sliceAngle;
           
-          // Draw Slice
           ctx.beginPath();
           ctx.moveTo(center, center);
           ctx.arc(center, center, radius, angle, angle + sliceAngle);
           ctx.fillStyle = this.colors[i % this.colors.length];
           ctx.fill();
           
-          // Add border to slice
           ctx.lineWidth = 2;
           ctx.strokeStyle = '#0f172a';
           ctx.stroke();
 
-          // Draw Text
           ctx.save();
           ctx.translate(center, center);
           ctx.rotate(angle + sliceAngle / 2);
@@ -358,7 +350,6 @@ Project Hail Mary</textarea>
           ctx.restore();
         });
 
-        // Center Pivot
         ctx.beginPath();
         ctx.arc(center, center, 20, 0, Math.PI * 2);
         ctx.fillStyle = '#1e293b';
@@ -374,21 +365,16 @@ Project Hail Mary</textarea>
         this.setSpinState(true);
         this.ui.statusBox.innerHTML = "Spinning... 🎲";
 
-        // Logic to determine winner
         const randomIndex = Math.floor(Math.random() * this.items.length);
         const degreesPerSlice = 360 / this.items.length;
-        // Calculate target angle so the selected index lands at the top (270 degrees)
         const targetAngle = 270 - (randomIndex * degreesPerSlice + (degreesPerSlice / 2));
         
-        // Add multiple full rotations (e.g., 8 spins)
         const spins = 8;
         this.currentRotation += (360 * spins) + (targetAngle - (this.currentRotation % 360));
 
-        // Apply hardware-accelerated CSS transition
         this.ui.canvas.style.transition = 'transform 4.5s cubic-bezier(0.2, 0.8, 0.2, 1)';
         this.ui.canvas.style.transform = `rotate(${this.currentRotation}deg)`;
 
-        // Handle spin completion
         setTimeout(() => this.handleSpinComplete(this.items[randomIndex]), 4600);
       }
 
@@ -424,9 +410,17 @@ Project Hail Mary</textarea>
           const olDoc = olRes.docs?.[0];
           const gItem = gRes.items?.[0]?.volumeInfo;
           
-          // Ensure secure image loading
-          let coverUrl = gItem?.imageLinks?.thumbnail || "";
-          if (coverUrl) coverUrl = coverUrl.replace("http://", "https://");
+          let coverUrl = "";
+
+          // Fallback System 1: Try Google Books first
+          if (gItem?.imageLinks?.thumbnail) {
+            coverUrl = gItem.imageLinks.thumbnail.replace("http://", "https://");
+            coverUrl = coverUrl.replace("&zoom=1", "&zoom=2"); // Try to get higher res
+          } 
+          // Fallback System 2: Try Open Library Covers API
+          else if (olDoc?.cover_i) {
+            coverUrl = `https://covers.openlibrary.org/b/id/${olDoc.cover_i}-L.jpg`;
+          }
 
           const data = {
             title: olDoc?.title || gItem?.title || title,
@@ -454,7 +448,8 @@ Project Hail Mary</textarea>
         this.ui.meta.desc.textContent = meta.description;
         
         if (meta.cover) {
-          this.ui.meta.cover.innerHTML = `<img src="${meta.cover}" alt="Cover">`;
+          // Added an onerror fallback so broken links show text instead of a broken image icon
+          this.ui.meta.cover.innerHTML = `<img src="${meta.cover}" alt="Cover" onerror="this.onerror=null; this.parentElement.innerHTML='<span style=\\'color:var(--text-muted)\\'>No Cover Found</span>';">`;
         } else {
           this.ui.meta.cover.innerHTML = `<span style="color:var(--text-muted)">No Cover Found</span>`;
         }
@@ -506,7 +501,6 @@ Project Hail Mary</textarea>
         };
         localStorage.setItem("proBookReviews", JSON.stringify(saved));
         
-        // Visual feedback
         const originalText = this.ui.btnSaveReview.textContent;
         this.ui.btnSaveReview.textContent = "Saved! ✓";
         this.ui.btnSaveReview.style.background = "var(--success)";
@@ -517,7 +511,6 @@ Project Hail Mary</textarea>
       }
     }
 
-    // Initialize App on Load
     document.addEventListener('DOMContentLoaded', () => {
       window.app = new BookWheelApp();
     });
