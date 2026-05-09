@@ -10,7 +10,250 @@
     .top-title { width: 100%; text-align: center; font-size: 2.2rem; font-weight: bold; margin-bottom: 25px; padding: 15px 0; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 12px; }
     .container { display: grid; grid-template-columns: 320px 1fr 320px; gap: 30px; width: 100%; max-width: 1400px; align-items: start; }
     .panel, .metadata-panel { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 24px; border-radius: 20px; }
+    textarea { width: 100%; height: 240p<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spin Wheel – by Robert Cruz</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background: linear-gradient(135deg, #111827, #1f2937); color: white; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+    .top-title { width: 100%; text-align: center; font-size: 2.2rem; font-weight: bold; margin-bottom: 25px; padding: 15px 0; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 12px; }
+    .container { display: grid; grid-template-columns: 320px 1fr 320px; gap: 30px; width: 100%; max-width: 1400px; align-items: start; }
+    .panel, .metadata-panel { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 24px; border-radius: 20px; }
     textarea { width: 100%; height: 240px; background: #111827; border: 1px solid #374151; color: white; border-radius: 12px; padding: 12px; resize: none; font-size: 16px; margin-bottom: 16px; outline: none; }
+    button { width: 100%; border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s ease; margin-bottom: 12px; }
+    button:hover { transform: translateY(-2px); filter: brightness(1.1); }
+    .spin-btn { background: #22c55e; color: white; }
+    .update-btn { background: #3b82f6; color: white; }
+    .result { margin-top: 20px; padding: 16px; background: rgba(0,0,0,0.3); border-radius: 12px; text-align: center; font-size: 1.2rem; min-height: 60px; display: flex; align-items: center; justify-content: center; border: 1px dashed #4b5563; }
+    .wheel-wrapper { position: relative; width: 500px; height: 500px; }
+    canvas { width: 100%; height: 100%; border-radius: 50%; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); box-shadow: 0 0 50px rgba(0,0,0,0.6); }
+    .pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 40px solid #ef4444; z-index: 10; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.5)); }
+    .metadata-panel { height: 600px; overflow-y: auto; scrollbar-width: thin; }
+    #bookCover img { width: 100%; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+    .review-panel { margin-top: 20px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
+    .stars { font-size: 28px; cursor: pointer; color: #4b5563; margin-bottom: 10px; }
+    .stars span.active { color: #facc15; }
+    @media (max-width: 1100px) { .container { grid-template-columns: 1fr; } .wheel-wrapper { width: 400px; height: 400px; margin: 0 auto; } }
+  </style>
+</head>
+<body>
+
+  <div class="top-title">Spin Wheel – by Robert Cruz</div>
+
+  <div class="container">
+    <div class="panel">
+      <h1>🎡 My Books</h1>
+      <textarea id="choices">Dune
+The Hobbit
+1984
+The Great Gatsby
+The Catcher in the Rye</textarea>
+      <button class="update-btn" onclick="updateWheel()">Update Wheel</button>
+      <button class="spin-btn" id="spinButton">Hold to Spin / Click</button>
+      <div class="result" id="result">Spin to discover a book!</div>
+    </div>
+
+    <div class="wheel-section">
+      <div class="wheel-wrapper">
+        <div class="pointer"></div>
+        <canvas id="wheel" width="500" height="500"></canvas>
+      </div>
+    </div>
+
+    <div class="metadata-panel">
+      <h2 style="margin-bottom:15px;">📚 Book Details</h2>
+      <div id="bookCover"></div>
+      <p><strong>Title:</strong> <span id="metaTitle">—</span></p>
+      <p><strong>Author:</strong> <span id="metaAuthor">—</span></p>
+      <p><strong>Year:</strong> <span id="metaYear">—</span></p>
+      <p><strong>Rating:</strong> <span id="metaRating">—</span></p>
+      <p style="margin-top:10px;"><strong>Description:</strong></p>
+      <p id="metaDescription" style="font-size: 0.85rem; color: #d1d5db; line-height: 1.4;">—</p>
+      <p style="margin-top:15px;"><a id="metaLink" href="#" target="_blank" style="color: #60a5fa; text-decoration: none; font-weight: bold;">↗ Open Library Page</a></p>
+
+      <div class="review-panel">
+        <h3 style="font-size: 1rem; margin-bottom: 10px;">Your Review</h3>
+        <div id="starRating" class="stars"></div>
+        <textarea id="userReview" style="height: 80px;" placeholder="Thoughts on the winner?"></textarea>
+        <button id="saveReviewBtn" style="background:#3b82f6; color:white; margin-top:5px; font-size: 14px;">Save Review</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('wheel');
+    const ctx = canvas.getContext('2d');
+    const result = document.getElementById('result');
+    const choicesBox = document.getElementById("choices");
+    const spinButton = document.getElementById('spinButton');
+    
+    let items = [];
+    let currentRotation = 0;
+    let spinning = false;
+    let holdInterval = null;
+    const apiCache = new Map();
+
+    const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'];
+
+    // Load Data
+    const savedChoices = localStorage.getItem("wheelChoices");
+    if (savedChoices) choicesBox.value = savedChoices;
+    updateWheel();
+
+    function updateWheel() {
+        items = choicesBox.value.split('\n').map(i => i.trim()).filter(i => i.length > 0);
+        localStorage.setItem("wheelChoices", choicesBox.value);
+        drawWheel();
+    }
+
+    function drawWheel() {
+        const center = canvas.width / 2;
+        const radius = 240;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (items.length === 0) return;
+
+        const sliceAngle = (Math.PI * 2) / items.length;
+        items.forEach((item, i) => {
+            const angle = i * sliceAngle;
+            ctx.beginPath();
+            ctx.moveTo(center, center);
+            ctx.arc(center, center, radius, angle, angle + sliceAngle);
+            ctx.fillStyle = colors[i % colors.length];
+            ctx.fill();
+            ctx.save();
+            ctx.translate(center, center);
+            ctx.rotate(angle + sliceAngle / 2);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'right';
+            ctx.fillText(item.length > 18 ? item.substring(0, 15) + "..." : item, radius - 20, 10);
+            ctx.restore();
+        });
+        ctx.beginPath();
+        ctx.arc(center, center, 40, 0, Math.PI * 2);
+        ctx.fillStyle = '#111827';
+        ctx.fill();
+    }
+
+    async function getBookData(title) {
+        if (apiCache.has(title)) return apiCache.get(title);
+        try {
+            const [olRes, gRes] = await Promise.all([
+                fetch(`https://openlibrary.org/search.json?title=${encodeURIComponent(title)}`).then(r => r.json()),
+                fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(title)}`).then(r => r.json())
+            ]);
+            
+            const olDoc = olRes.docs?.[0];
+            const gItem = gRes.items?.[0]?.volumeInfo;
+            
+            let coverUrl = gItem?.imageLinks?.thumbnail || "";
+            if (coverUrl) coverUrl = coverUrl.replace("http://", "https://");
+
+            const data = {
+                title: olDoc?.title || title,
+                author: olDoc?.author_name?.join(", ") || "Unknown",
+                year: olDoc?.first_publish_year || "N/A",
+                rating: olDoc?.ratings_average ? `${olDoc.ratings_average.toFixed(1)}/5` : "N/A",
+                description: gItem?.description || "No description available.",
+                cover: coverUrl,
+                link: olDoc ? `https://openlibrary.org${olDoc.key}` : "#"
+            };
+            apiCache.set(title, data);
+            return data;
+        } catch (e) { return null; }
+    }
+
+    function displayMetadata(meta) {
+        if (!meta) return;
+        document.getElementById("metaTitle").textContent = meta.title;
+        document.getElementById("metaAuthor").textContent = meta.author;
+        document.getElementById("metaYear").textContent = meta.year;
+        document.getElementById("metaRating").textContent = meta.rating;
+        document.getElementById("metaDescription").textContent = meta.description;
+        document.getElementById("bookCover").innerHTML = meta.cover ? `<img src="${meta.cover}">` : "";
+        document.getElementById("metaLink").href = meta.link;
+    }
+
+    function spinWheel() {
+        if (spinning || items.length === 0) return;
+        spinning = true;
+        canvas.style.transition = 'transform 5s cubic-bezier(0.15, 0, 0.15, 1)';
+        
+        const randomIndex = Math.floor(Math.random() * items.length);
+        const degreesPerSlice = 360 / items.length;
+        const targetAngle = 270 - (randomIndex * degreesPerSlice + (degreesPerSlice / 2));
+        
+        currentRotation += (360 * 10) + (targetAngle - (currentRotation % 360));
+        canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+        result.innerHTML = "Spinning...";
+
+        setTimeout(async () => {
+            const winner = items[randomIndex];
+            result.innerHTML = `🎉 Winner: <strong>${winner}</strong>`;
+            window.currentSelectedBook = winner;
+            const data = await getBookData(winner);
+            displayMetadata(data);
+            loadSavedReview(winner);
+            spinning = false;
+        }, 5000);
+    }
+
+    spinButton.addEventListener('mousedown', () => {
+        if (spinning) return;
+        canvas.style.transition = 'none';
+        holdInterval = setInterval(() => {
+            currentRotation += 15;
+            canvas.style.transform = `rotate(${currentRotation}deg)`;
+        }, 16);
+    });
+
+    window.addEventListener('mouseup', () => {
+        if (holdInterval) {
+            clearInterval(holdInterval);
+            holdInterval = null;
+            spinWheel();
+        }
+    });
+
+    // Review & Persistence Logic
+    let selectedRating = 0;
+    const starContainer = document.getElementById("starRating");
+    for (let i = 1; i <= 5; i++) {
+        const s = document.createElement("span");
+        s.innerHTML = "★";
+        s.style.display = "inline-block";
+        s.style.marginRight = "5px";
+        s.onclick = () => { selectedRating = i; updateStars(); };
+        starContainer.appendChild(s);
+    }
+
+    function updateStars() {
+        Array.from(starContainer.children).forEach((s, i) => {
+            s.className = (i < selectedRating) ? 'active' : '';
+        });
+    }
+
+    function loadSavedReview(title) {
+        const saved = JSON.parse(localStorage.getItem("bookReviews") || "{}");
+        selectedRating = saved[title]?.rating || 0;
+        document.getElementById("userReview").value = saved[title]?.review || "";
+        updateStars();
+    }
+
+    document.getElementById("saveReviewBtn").onclick = () => {
+        if (!window.currentSelectedBook) return alert("Spin the wheel first!");
+        const saved = JSON.parse(localStorage.getItem("bookReviews") || "{}");
+        saved[window.currentSelectedBook] = { rating: selectedRating, review: document.getElementById("userReview").value };
+        localStorage.setItem("bookReviews", JSON.stringify(saved));
+        alert("Review saved!");
+    };
+  </script>
+</body>
+</html>x; background: #111827; border: 1px solid #374151; color: white; border-radius: 12px; padding: 12px; resize: none; font-size: 16px; margin-bottom: 16px; outline: none; }
     button { width: 100%; border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s ease; margin-bottom: 12px; }
     button:hover { transform: translateY(-2px); filter: brightness(1.1); }
     .spin-btn { background: #22c55e; color: white; }
