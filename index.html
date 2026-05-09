@@ -319,16 +319,19 @@ The Catcher in the Rye</textarea>
       localStorage.setItem("wheelChoices", choicesBox.value);
     });
 
-    function updateWheel() {
-      const text = choicesBox.value;
+function updateWheel() {
+  const text = choicesBox.value;
 
-      items = text
-        .split('\n')
-        .map(item => item.trim())
-        .filter(item => item !== '');
+  items = text
+    .split('\n')
+    .map(item => item.trim())
+    .filter(item => item !== '');
 
-      drawWheel();
-    }
+  drawWheel();
+
+  // Reset hover state so metadata updates correctly
+  lastHoveredBook = null;
+}
 
     function drawWheel() {
       const centerX = canvas.width / 2;
