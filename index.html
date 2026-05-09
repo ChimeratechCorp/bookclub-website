@@ -5,27 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Spin Wheel – by Robert Cruz</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background: linear-gradient(135deg, #111827, #1f2937); color: white; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
     .top-title { width: 100%; text-align: center; font-size: 2.2rem; font-weight: bold; margin-bottom: 25px; padding: 15px 0; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 12px; }
     .container { display: grid; grid-template-columns: 320px 1fr 320px; gap: 30px; width: 100%; max-width: 1400px; align-items: start; }
-    .panel { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 24px; border-radius: 20px; }
-    textarea { width: 100%; height: 240px; background: #111827; border: 1px solid #374151; color: white; border-radius: 12px; padding: 12px; resize: none; font-size: 16px; margin-bottom: 16px; }
+    .panel, .metadata-panel { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 24px; border-radius: 20px; }
+    textarea { width: 100%; height: 240px; background: #111827; border: 1px solid #374151; color: white; border-radius: 12px; padding: 12px; resize: none; font-size: 16px; margin-bottom: 16px; outline: none; }
     button { width: 100%; border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s ease; margin-bottom: 12px; }
-    button:hover { transform: translateY(-2px); }
+    button:hover { transform: translateY(-2px); filter: brightness(1.1); }
     .spin-btn { background: #22c55e; color: white; }
     .update-btn { background: #3b82f6; color: white; }
-    .result { margin-top: 20px; padding: 16px; background: rgba(255,255,255,0.08); border-radius: 12px; text-align: center; font-size: 1.2rem; min-height: 60px; display: flex; align-items: center; justify-content: center; }
+    .result { margin-top: 20px; padding: 16px; background: rgba(0,0,0,0.3); border-radius: 12px; text-align: center; font-size: 1.2rem; min-height: 60px; display: flex; align-items: center; justify-content: center; border: 1px dashed #4b5563; }
     .wheel-wrapper { position: relative; width: 500px; height: 500px; }
-    canvas { width: 100%; height: 100%; border-radius: 50%; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); box-shadow: 0 0 30px rgba(0,0,0,0.5); cursor: crosshair; }
-    .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 40px solid #ef4444; z-index: 10; }
-    .metadata-panel { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 20px; border-radius: 20px; height: 600px; overflow-y: auto; }
-    .metadata-panel img { width: 100%; border-radius: 12px; margin-bottom: 15px; }
-    .review-panel { margin-top: 20px; background: rgba(255,255,255,0.08); padding: 15px; border-radius: 12px; }
-    .stars { font-size: 28px; cursor: pointer; color: gray; margin-bottom: 10px; }
-    .stars .active { color: gold; }
-    #userReview { width: 100%; height: 80px; margin-top: 10px; border-radius: 10px; padding: 10px; background: #111827; color: white; border: 1px solid #374151; }
-    @media (max-width: 900px) { .container { grid-template-columns: 1fr; } .wheel-wrapper { width: 350px; height: 350px; } }
+    canvas { width: 100%; height: 100%; border-radius: 50%; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); box-shadow: 0 0 50px rgba(0,0,0,0.6); cursor: crosshair; }
+    .pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 40px solid #ef4444; z-index: 10; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.5)); }
+    .metadata-panel { height: 600px; overflow-y: auto; scrollbar-width: thin; }
+    #bookCover img { width: 100%; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+    .review-panel { margin-top: 20px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
+    .stars { font-size: 28px; cursor: pointer; color: #4b5563; margin-bottom: 10px; transition: 0.2s; }
+    .stars span.active { color: #facc15; text-shadow: 0 0 10px rgba(250, 204, 21, 0.4); }
+    @media (max-width: 1100px) { .container { grid-template-columns: 1fr; } .wheel-wrapper { width: 400px; height: 400px; margin: 0 auto; } }
   </style>
 </head>
 <body>
@@ -34,15 +33,16 @@
 
   <div class="container">
     <div class="panel">
-      <h1>🎡 Spin Wheel</h1>
+      <h1>🎡 My Books</h1>
       <textarea id="choices">Dune
 The Hobbit
 1984
 The Great Gatsby
-The Catcher in the Rye</textarea>
+The Catcher in the Rye
+Pride and Prejudice</textarea>
       <button class="update-btn" onclick="updateWheel()">Update Wheel</button>
       <button class="spin-btn" id="spinButton">Hold to Spin / Click</button>
-      <div class="result" id="result">Hover or Spin for details</div>
+      <div class="result" id="result">Hover over a slice or Spin!</div>
     </div>
 
     <div class="wheel-section">
@@ -52,22 +52,22 @@ The Catcher in the Rye</textarea>
       </div>
     </div>
 
-    <div class="metadata-panel" id="metadataPanel">
-      <h2>📚 Book Details</h2>
+    <div class="metadata-panel">
+      <h2 style="margin-bottom:15px;">📚 Book Details</h2>
       <div id="bookCover"></div>
       <p><strong>Title:</strong> <span id="metaTitle">—</span></p>
       <p><strong>Author:</strong> <span id="metaAuthor">—</span></p>
       <p><strong>Year:</strong> <span id="metaYear">—</span></p>
       <p><strong>Rating:</strong> <span id="metaRating">—</span></p>
-      <p><strong>Description:</strong></p>
-      <p id="metaDescription" style="font-size: 0.9rem; margin-top: 5px;">—</p>
-      <p style="margin-top:10px;"><a id="metaLink" href="#" target="_blank" style="color: #3b82f6;">Open Library Link</a></p>
+      <p style="margin-top:10px;"><strong>Description:</strong></p>
+      <p id="metaDescription" style="font-size: 0.85rem; color: #d1d5db; line-height: 1.4;">—</p>
+      <p style="margin-top:15px;"><a id="metaLink" href="#" target="_blank" style="color: #60a5fa; text-decoration: none; font-weight: bold;">↗ Open Library Page</a></p>
 
       <div class="review-panel">
-        <h3>Your Review</h3>
+        <h3 style="font-size: 1rem; margin-bottom: 10px;">Your Review</h3>
         <div id="starRating" class="stars"></div>
-        <textarea id="userReview" placeholder="Thoughts..."></textarea>
-        <button id="saveReviewBtn" style="background:#3b82f6; color:white; margin-top:10px;">Save Review</button>
+        <textarea id="userReview" style="height: 80px;" placeholder="What did you think of this book?"></textarea>
+        <button id="saveReviewBtn" style="background:#3b82f6; color:white; margin-top:5px; font-size: 14px;">Save My Thoughts</button>
       </div>
     </div>
   </div>
@@ -89,7 +89,7 @@ The Catcher in the Rye</textarea>
 
     const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'];
 
-    // Initialize
+    // Load Data
     const savedChoices = localStorage.getItem("wheelChoices");
     if (savedChoices) choicesBox.value = savedChoices;
     updateWheel();
@@ -136,15 +136,21 @@ The Catcher in the Rye</textarea>
                 fetch(`https://openlibrary.org/search.json?title=${encodeURIComponent(title)}`).then(r => r.json()),
                 fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(title)}`).then(r => r.json())
             ]);
+            
             const olDoc = olRes.docs?.[0];
             const gItem = gRes.items?.[0]?.volumeInfo;
+            
+            // SECURITY FIX: Swap http for https to prevent blocked content
+            let coverUrl = gItem?.imageLinks?.thumbnail || "";
+            if (coverUrl) coverUrl = coverUrl.replace("http://", "https://");
+
             const data = {
                 title: olDoc?.title || title,
                 author: olDoc?.author_name?.join(", ") || "Unknown",
                 year: olDoc?.first_publish_year || "N/A",
                 rating: olDoc?.ratings_average ? `${olDoc.ratings_average.toFixed(1)}/5` : "N/A",
-                description: gItem?.description || "No description found.",
-                cover: gItem?.imageLinks?.thumbnail || "",
+                description: gItem?.description || "No description available for this work.",
+                cover: coverUrl,
                 link: olDoc ? `https://openlibrary.org${olDoc.key}` : "#"
             };
             apiCache.set(title, data);
@@ -163,16 +169,23 @@ The Catcher in the Rye</textarea>
         document.getElementById("metaLink").href = meta.link;
     }
 
-    // Hover Listener
+    // High Precision Hover Detection
     canvas.addEventListener('mousemove', (e) => {
         if (spinning || items.length === 0) return;
+
         const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left - canvas.width / 2;
-        const y = e.clientY - rect.top - canvas.height / 2;
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+
+        const x = (e.clientX - rect.left) * scaleX - canvas.width / 2;
+        const y = (e.clientY - rect.top) * scaleY - canvas.height / 2;
+
         let angle = Math.atan2(y, x);
         if (angle < 0) angle += Math.PI * 2;
+
         const currentRotationRad = (currentRotation * Math.PI) / 180;
         let adjustedAngle = (angle - (currentRotationRad % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+
         const sliceAngle = (Math.PI * 2) / items.length;
         const index = Math.floor(adjustedAngle / sliceAngle);
 
@@ -180,10 +193,11 @@ The Catcher in the Rye</textarea>
             hoveredIndex = index;
             clearTimeout(hoverTimeout);
             hoverTimeout = setTimeout(async () => {
-                const data = await getBookData(items[index]);
+                const hoveredBook = items[index];
+                const data = await getBookData(hoveredBook);
                 displayMetadata(data);
-                loadSavedReview(items[index]);
-                window.currentSelectedBook = items[index];
+                loadSavedReview(hoveredBook);
+                window.currentSelectedBook = hoveredBook;
             }, 100);
         }
     });
@@ -209,7 +223,6 @@ The Catcher in the Rye</textarea>
         }, 5000);
     }
 
-    // Hold Logic
     spinButton.addEventListener('mousedown', () => {
         if (spinning) return;
         canvas.style.transition = 'none';
@@ -227,31 +240,37 @@ The Catcher in the Rye</textarea>
         }
     });
 
-    // Star Rating & Reviews
+    // Stars & Persistence
     let selectedRating = 0;
     const starContainer = document.getElementById("starRating");
     for (let i = 1; i <= 5; i++) {
         const s = document.createElement("span");
-        s.textContent = "★";
+        s.innerHTML = "★";
+        s.style.display = "inline-block";
+        s.style.marginRight = "5px";
         s.onclick = () => { selectedRating = i; updateStars(); };
         starContainer.appendChild(s);
     }
+
     function updateStars() {
-        Array.from(starContainer.children).forEach((s, i) => s.className = i < selectedRating ? 'active' : '');
+        Array.from(starContainer.children).forEach((s, i) => {
+            s.className = (i < selectedRating) ? 'active' : '';
+        });
     }
+
     function loadSavedReview(title) {
         const saved = JSON.parse(localStorage.getItem("bookReviews") || "{}");
         selectedRating = saved[title]?.rating || 0;
         document.getElementById("userReview").value = saved[title]?.review || "";
         updateStars();
     }
+
     document.getElementById("saveReviewBtn").onclick = () => {
+        if (!window.currentSelectedBook) return;
         const saved = JSON.parse(localStorage.getItem("bookReviews") || "{}");
-        if (window.currentSelectedBook) {
-            saved[window.currentSelectedBook] = { rating: selectedRating, review: document.getElementById("userReview").value };
-            localStorage.setItem("bookReviews", JSON.stringify(saved));
-            alert("Review saved!");
-        }
+        saved[window.currentSelectedBook] = { rating: selectedRating, review: document.getElementById("userReview").value };
+        localStorage.setItem("bookReviews", JSON.stringify(saved));
+        alert("Review saved locally!");
     };
   </script>
 </body>
