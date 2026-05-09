@@ -298,6 +298,9 @@ The Catcher in the Rye</textarea>
     let holdInterval = null;
     let previewRotation = 0;
 
+    let lastHoveredBook = null;
+    let hoverTimeout = null;
+
     const colors = [
       '#ef4444','#f97316','#eab308','#22c55e',
       '#06b6d4','#3b82f6','#8b5cf6','#ec4899'
@@ -368,83 +371,32 @@ The Catcher in the Rye</textarea>
       ctx.fill();
     }
 
-    function spinWheel() {
-      if (spinning || items.length === 0) return;
+    /* GOOGLE BOOKS COVER FETCH */
+    async function fetchGoogleCover(title) {
+      try {
+        const url = `https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(title)}`;
+        const response = await fetch(url);
+        const data = await response.json();
 
-      spinning = true;
-      result.innerHTML = 'Spinning...';
+        if (!data.items || data.items.length === 0) return null;
 
-      const randomIndex = Math.floor(Math.random() * items.length);
-      const degreesPerSlice = 360 / items.length;
+        const info = data.items[0].volumeInfo;
 
-      const sliceStart = randomIndex * degreesPerSlice;
-      const slicePadding = degreesPerSlice * 0.15;
+        if (info.imageLinks) {
+          return (
+            info.imageLinks.large ||
+            info.imageLinks.medium ||
+            info.imageLinks.thumbnail ||
+            null
+          );
+        }
 
-      const randomOffset =
-        slicePadding +
-        Math.random() * (degreesPerSlice - slicePadding * 2);
-
-      const landingAngle = sliceStart + randomOffset;
-      const targetAngle = 270 - landingAngle;
-
-      const normalizedRotation = currentRotation % 360;
-      const extraSpins = 360 * 6;
-
-      const rotationAmount = extraSpins + (targetAngle - normalizedRotation);
-      currentRotation += rotationAmount;
-
-      canvas.style.transform = `rotate(${currentRotation}deg)`;
-
-      setTimeout(() => {
-        const winner = items[randomIndex];
-        result.innerHTML = `🎉 Winner: <strong>${winner}</strong>`;
-        window.currentSelectedBook = winner;
-        fetchBookMetadata(winner);
-        loadSavedReview(winner);
-        spinning = false;
-      }, 5000);
+        return null;
+      } catch (err) {
+        console.error("Google Books cover error:", err);
+        return null;
+      }
     }
-
-    const spinButton = document.getElementById('spinButton');
-
-    function startHoldSpin() {
-      if (spinning || holdInterval) return;
-
-      canvas.style.transition = 'none';
-
-      holdInterval = setInterval(() => {
-        previewRotation += 15;
-        canvas.style.transform = `rotate(${previewRotation}deg)`;
-      }, 16);
-    }
-
-    function releaseSpin() {
-      if (spinning || !holdInterval) return;
-
-      clearInterval(holdInterval);
-      holdInterval = null;
-
-      currentRotation = previewRotation;
-
-      void canvas.offsetWidth;
-
-      canvas.style.transition = 'transform 5s cubic-bezier(0.17, 0.67, 0.2, 1)';
-
-      setTimeout(() => {
-        spinWheel();
-      }, 10);
-    }
-
-    spinButton.addEventListener('mousedown', startHoldSpin);
-    window.addEventListener('mouseup', releaseSpin);
-    spinButton.addEventListener('mouseleave', releaseSpin);
-
-    spinButton.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      startHoldSpin();
-    });
-
-    spinButton.addEventListener('touchend', releaseSpin);
 
     /* FULL DESCRIPTION MODE — WORK-LEVEL FETCH */
     async function fetchWorkDescription(workKey) {
@@ -493,6 +445,7 @@ The Catcher in the Rye</textarea>
         const workKey = book.key;
 
         const fullDescription = await fetchWorkDescription(workKey);
+        const googleCover = await fetchGoogleCover(title);
 
         const metadata = {
           title: book.title || "Not available",
@@ -500,9 +453,7 @@ The Catcher in the Rye</textarea>
           year: book.first_publish_year || "Not available",
           rating: book.ratings_average ? `${book.ratings_average.toFixed(1)} / 5` : "Not available",
           description: fullDescription || "Not available",
-          cover: book.cover_i
-            ? `https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg`
-            : null,
+          cover: googleCover,
           link: `https://openlibrary.org${workKey}`
         };
 
@@ -591,6 +542,59 @@ The Catcher in the Rye</textarea>
 
       localStorage.setItem("bookReviews", JSON.stringify(saved));
     });
-  </script>
-</body>
-</html>
+
+    /* SPIN LOGIC */
+    function spinWheel() {
+      if (spinning || items.length === 0) return;
+
+      spinning = true;
+      result.innerHTML = 'Spinning...';
+
+      const randomIndex = Math.floor(Math.random() * items.length);
+      const degreesPerSlice = 360 / items.length;
+
+      const sliceStart = randomIndex * degreesPerSlice;
+      const slicePadding = degreesPerSlice * 0.15;
+
+      const randomOffset =
+        slicePadding +
+        Math.random() * (degreesPerSlice - slicePadding * 2);
+
+      const landingAngle = sliceStart + randomOffset;
+      const targetAngle = 270 - landingAngle;
+
+      const normalizedRotation = currentRotation % 360;
+      const extraSpins = 360 * 6;
+
+      const rotationAmount = extraSpins + (targetAngle - normalizedRotation);
+      currentRotation += rotationAmount;
+
+      canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+      setTimeout(() => {
+        const winner = items[randomIndex];
+        result.innerHTML = `🎉 Winner: <strong>${winner}</strong>`;
+        window.currentSelectedBook = winner;
+        fetchBookMetadata(winner);
+        loadSavedReview(winner);
+        spinning = false;
+      }, 5000);
+    }
+
+    const spinButton = document.getElementById('spinButton');
+
+    function startHoldSpin() {
+      if (spinning || holdInterval) return;
+
+      canvas.style.transition = 'none';
+
+      holdInterval = setInterval(() => {
+        previewRotation += 15;
+        canvas.style.transform = `rotate(${previewRotation}deg)`;
+      }, 16);
+    }
+
+    function releaseSpin() {
+      if (spinning || !holdInterval) return;
+
+      clearInterval(hold
