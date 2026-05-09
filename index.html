@@ -3,361 +3,197 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pro Book Spinner - Persistent Edition</title>
+  <title>Pro Book Spinner - History Edition</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #1e293b;
-      --accent: #3b82f6;
-      --success: #10b981;
-      --text: #f8fafc;
-      --border: rgba(255, 255, 255, 0.1);
+      --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; --success: #10b981;
+      --text: #f8fafc; --border: rgba(255, 255, 255, 0.1);
     }
-
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
     
-    body { 
-      background-color: var(--bg); 
-      color: var(--text); 
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-      min-height: 100vh; 
-      padding: 20px;
-    }
-
-    .container {
-      display: grid;
-      grid-template-columns: 320px 1fr 320px;
-      gap: 25px;
-      max-width: 1300px;
-      width: 100%;
-      margin-top: 20px;
-    }
-
-    .panel {
-      background: var(--card);
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-      border: 1px solid var(--border);
-    }
-
+    .container { display: grid; grid-template-columns: 320px 1fr 320px; gap: 25px; max-width: 1300px; width: 100%; margin-top: 20px; }
+    .panel { background: var(--card); padding: 20px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); border: 1px solid var(--border); }
     h2 { margin-bottom: 15px; font-size: 0.9rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; }
 
-    textarea {
-      width: 100%;
-      height: 250px;
-      background: #0a0f1d;
-      color: #cbd5e1;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      padding: 12px;
-      resize: none;
-      margin-bottom: 15px;
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    .btn {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-bottom: 10px;
-    }
-
+    textarea { width: 100%; height: 200px; background: #0a0f1d; color: #cbd5e1; border: 1px solid #334155; border-radius: 8px; padding: 12px; resize: none; margin-bottom: 15px; font-size: 14px; }
+    .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-bottom: 10px; }
     .btn-update { background: var(--accent); color: white; }
-    .btn-spin { 
-      background: var(--success); 
-      color: white; 
-      font-size: 1.2rem; 
-      height: 70px;
-      user-select: none;
-      touch-action: none;
-      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-    }
+    .btn-spin { background: var(--success); color: white; font-size: 1.2rem; height: 60px; user-select: none; touch-action: none; }
+    .btn-log { background: #6366f1; color: white; margin-top: 10px; display: none; }
+    
+    .wheel-area { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+    #canvas { max-width: 100%; filter: drop-shadow(0 0 30px rgba(0,0,0,0.6)); }
+    .pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 40px solid #ef4444; z-index: 10; }
+    .status { margin-top: 25px; font-size: 1.2rem; font-weight: 800; text-align: center; min-height: 1.5em; }
 
-    .btn:active { transform: scale(0.96); }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(1); }
-
-    .wheel-area {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
-
-    #canvas {
-      max-width: 100%;
-      filter: drop-shadow(0 0 30px rgba(0,0,0,0.6));
-    }
-
-    .pointer {
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 20px solid transparent;
-      border-right: 20px solid transparent;
-      border-top: 40px solid #ef4444;
-      z-index: 10;
-    }
-
-    .status {
-      margin-top: 25px;
-      font-size: 1.2rem;
-      font-weight: 800;
-      text-align: center;
-      min-height: 1.5em;
-    }
-
-    .book-cover {
-      width: 100%;
-      aspect-ratio: 2/3;
-      background: #0a0f1d;
-      border-radius: 12px;
-      margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      border: 1px solid #334155;
-    }
-
+    .book-cover { width: 100%; aspect-ratio: 2/3; background: #0a0f1d; border-radius: 12px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #334155; }
     .book-cover img { width: 100%; height: 100%; object-fit: cover; }
-    #bookTitle { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; line-height: 1.3; }
-    #bookAuthor { color: #94a3b8; font-size: 0.9rem; }
+    
+    /* Rating & History Styles */
+    .rating-select { width: 100%; padding: 10px; background: #0a0f1d; color: white; border: 1px solid #334155; border-radius: 8px; margin-top: 5px; }
+    .history-panel { width: 100%; max-width: 1300px; margin-top: 30px; }
+    table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; }
+    th, td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: rgba(255,255,255,0.05); color: var(--accent); text-transform: uppercase; font-size: 0.8rem; }
+    .clear-history { background: #ef4444; color: white; padding: 5px 10px; font-size: 0.7rem; float: right; border-radius: 4px; border: none; cursor: pointer; }
 
-    @media (max-width: 1000px) {
-      .container { grid-template-columns: 1fr; }
-      .wheel-area { order: -1; }
-    }
+    @media (max-width: 1000px) { .container { grid-template-columns: 1fr; } .wheel-area { order: -1; } }
   </style>
 </head>
 <body>
 
-  <h1 style="margin-bottom: 10px;">BOOK ROULETTE PRO</h1>
+  <h1>BOOK ROULETTE PRO</h1>
 
   <div class="container">
-    <!-- LEFT: INPUTS -->
     <div class="panel">
       <h2>Reading List</h2>
       <textarea id="listInput">Project Hail Mary
-The Seven Husbands of Evelyn Hugo
 Dune
-Dark Matter
-The Midnight Library
-Killers of the Flower Moon</textarea>
+Neuromancer</textarea>
       <button class="btn btn-update" onclick="wheel.updateItems()">Sync & Save</button>
       <button class="btn btn-spin" id="spinBtn">HOLD TO SPIN</button>
     </div>
 
-    <!-- CENTER: WHEEL -->
     <div class="wheel-area">
       <div class="pointer"></div>
       <canvas id="canvas" width="500" height="500"></canvas>
-      <div id="status" class="status">Hold the button to charge spin</div>
+      <div id="status" class="status">Hold button to charge</div>
     </div>
 
-    <!-- RIGHT: METADATA -->
     <div class="panel">
       <h2>Selection Info</h2>
-      <div class="book-cover" id="coverDiv">
-        <span style="color: #475569;">Spin the wheel!</span>
-      </div>
+      <div class="book-cover" id="coverDiv"><span style="color:#475569">Spin to start</span></div>
       <div id="bookTitle">---</div>
       <div id="bookAuthor">---</div>
+      
+      <div id="logArea" style="display:none; margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;">
+        <label style="font-size: 0.8rem;">Rating:</label>
+        <select id="ratingSelect" class="rating-select">
+          <option value="⭐⭐⭐⭐⭐">5 Stars - Amazing</option>
+          <option value="⭐⭐⭐⭐">4 Stars - Great</option>
+          <option value="⭐⭐⭐">3 Stars - Good</option>
+          <option value="⭐⭐">2 Stars - Okay</option>
+          <option value="⭐">1 Star - Poor</option>
+        </select>
+        <button class="btn btn-log" id="logBtn" onclick="wheel.logBook()">Log Completed Book</button>
+      </div>
     </div>
+  </div>
+
+  <div class="history-panel panel">
+    <h2>Reading History <button class="clear-history" onclick="wheel.clearHistory()">Clear All</button></h2>
+    <table>
+      <thead>
+        <tr><th>Book Title</th><th>Author</th><th>Rating</th><th>Date Logged</th></tr>
+      </thead>
+      <tbody id="historyBody"></tbody>
+    </table>
   </div>
 
   <script>
     const wheel = {
-      canvas: document.getElementById('canvas'),
-      ctx: document.getElementById('canvas').getContext('2d'),
-      status: document.getElementById('status'),
-      spinBtn: document.getElementById('spinBtn'),
+      canvas: document.getElementById('canvas'), ctx: document.getElementById('canvas').getContext('2d'),
+      status: document.getElementById('status'), spinBtn: document.getElementById('spinBtn'),
       input: document.getElementById('listInput'),
-      
-      items: [],
-      colors: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'],
-      
-      angle: 0,
-      velocity: 0,
-      isHolding: false,
-      isSpinning: false,
-      friction: 0.988, 
+      items: [], colors: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
+      angle: 0, velocity: 0, isHolding: false, isSpinning: false, friction: 0.988,
+      currentWinner: null,
 
       init() {
-        // 1. Load from LocalStorage if it exists
-        const savedBooks = localStorage.getItem('myBookList');
-        if (savedBooks) {
-          this.input.value = savedBooks;
-        }
-
-        // 2. Set up event listeners
+        const saved = localStorage.getItem('myBookList');
+        if (saved) this.input.value = saved;
         this.spinBtn.addEventListener('pointerdown', (e) => this.onPress(e));
         window.addEventListener('pointerup', () => this.onRelease());
-        
-        // 3. Initial draw
         this.updateItems();
+        this.renderHistory();
         this.loop();
       },
 
       updateItems() {
-        const textValue = this.input.value;
-        this.items = textValue.split('\n').map(item => item.trim()).filter(item => item !== "");
-        
-        // Save to LocalStorage
-        localStorage.setItem('myBookList', textValue);
-        
+        this.items = this.input.value.split('\n').map(item => item.trim()).filter(i => i !== "");
+        localStorage.setItem('myBookList', this.input.value);
         this.draw();
-        this.status.textContent = "Library synced and saved!";
-        setTimeout(() => { if(!this.isSpinning) this.status.textContent = "Ready to spin"; }, 2000);
       },
 
       draw() {
         const { ctx, canvas, items, colors, angle } = this;
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const radius = canvas.width / 2 - 20;
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        if (items.length === 0) return;
-
-        const sliceAngle = (Math.PI * 2) / items.length;
-
+        const centerX = canvas.width/2, centerY = canvas.height/2, radius = canvas.width/2 - 20;
+        ctx.clearRect(0,0,500,500);
+        if(!items.length) return;
+        const arc = (Math.PI*2)/items.length;
         items.forEach((text, i) => {
-          const startAngle = angle + (i * sliceAngle);
-          
-          ctx.beginPath();
-          ctx.fillStyle = colors[i % colors.length];
-          ctx.moveTo(centerX, centerY);
-          ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
-          ctx.fill();
-          ctx.strokeStyle = 'rgba(0,0,0,0.1)';
-          ctx.stroke();
-
-          ctx.save();
-          ctx.translate(centerX, centerY);
-          ctx.rotate(startAngle + sliceAngle / 2);
-          ctx.fillStyle = "white";
-          ctx.font = "bold 15px sans-serif";
-          ctx.textAlign = "right";
-          ctx.fillText(text.length > 20 ? text.substring(0, 17) + "..." : text, radius - 35, 6);
-          ctx.restore();
+          ctx.beginPath(); ctx.fillStyle = colors[i % colors.length];
+          ctx.moveTo(centerX, centerY); ctx.arc(centerX, centerY, radius, angle + i*arc, angle + (i+1)*arc); ctx.fill();
+          ctx.save(); ctx.translate(centerX, centerY); ctx.rotate(angle + i*arc + arc/2);
+          ctx.fillStyle = "white"; ctx.font = "bold 14px sans-serif"; ctx.textAlign = "right";
+          ctx.fillText(text.substring(0,18), radius-30, 5); ctx.restore();
         });
-
-        // Hub
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, 18, 0, Math.PI * 2);
-        ctx.fillStyle = "#1e293b";
-        ctx.fill();
-        ctx.strokeStyle = "white";
-        ctx.lineWidth = 3;
-        ctx.stroke();
       },
 
-      onPress(e) {
-        if (this.isSpinning || this.items.length === 0) return;
-        this.isHolding = true;
-        this.status.textContent = "POWERING UP...";
-      },
-
-      onRelease() {
-        if (!this.isHolding) return;
-        this.isHolding = false;
-        this.isSpinning = true;
-        this.spinBtn.disabled = true;
-        this.status.textContent = "SPINNING...";
-        if (this.velocity < 0.1) this.velocity = 0.25; 
-      },
+      onPress(e) { if(this.isSpinning) return; this.isHolding = true; document.getElementById('logArea').style.display = 'none'; },
+      onRelease() { if(!this.isHolding) return; this.isHolding = false; this.isSpinning = true; this.spinBtn.disabled = true; if(this.velocity < 0.1) this.velocity = 0.25; },
 
       loop() {
-        if (this.isHolding) {
-          this.velocity = Math.min(this.velocity + 0.008, 0.45);
-          this.angle += this.velocity;
-          this.draw();
-        } else if (this.isSpinning) {
-          this.velocity *= this.friction;
-          this.angle += this.velocity;
-          this.draw();
-          if (this.velocity < 0.001) {
-            this.velocity = 0;
-            this.isSpinning = false;
-            this.spinBtn.disabled = false;
-            this.calculateWinner();
-          }
+        if(this.isHolding) { this.velocity = Math.min(this.velocity + 0.008, 0.45); this.angle += this.velocity; this.draw(); }
+        else if(this.isSpinning) { this.velocity *= this.friction; this.angle += this.velocity; this.draw();
+          if(this.velocity < 0.001) { this.velocity = 0; this.isSpinning = false; this.spinBtn.disabled = false; this.calculateWinner(); }
         }
         requestAnimationFrame(() => this.loop());
       },
 
       calculateWinner() {
-        const sliceSize = (Math.PI * 2) / this.items.length;
-        let normalizedAngle = (1.5 * Math.PI - this.angle) % (Math.PI * 2);
-        if (normalizedAngle < 0) normalizedAngle += (Math.PI * 2);
-        
-        const index = Math.floor(normalizedAngle / sliceSize);
-        const winner = this.items[index];
-        
-        this.status.innerHTML = `WINNER: <span style="color:var(--success)">${winner}</span>`;
-        this.fetchMetadata(winner);
+        const arc = (Math.PI*2)/this.items.length;
+        let norm = (1.5 * Math.PI - this.angle) % (Math.PI*2);
+        if(norm < 0) norm += (Math.PI*2);
+        this.currentWinner = this.items[Math.floor(norm/arc)];
+        this.status.innerHTML = `WINNER: <span style="color:var(--success)">${this.currentWinner}</span>`;
+        this.fetchMetadata(this.currentWinner);
       },
 
       async fetchMetadata(title) {
-        document.getElementById('bookTitle').textContent = "Finding info...";
-        document.getElementById('bookAuthor').textContent = "---";
-        
+        document.getElementById('bookTitle').textContent = "Searching...";
         try {
-          const gUrl = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(title)}&maxResults=1`;
-          const gRes = await fetch(gUrl);
-          const gData = await gRes.json();
-          
-          if (gData.items && gData.items.length > 0) {
-            const b = gData.items[0].volumeInfo;
+          const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(title)}&maxResults=1`);
+          const data = await res.json();
+          if(data.items) {
+            const b = data.items[0].volumeInfo;
             this.renderUI(b.title, b.authors, b.imageLinks?.thumbnail);
-            return;
-          }
-        } catch (e) { console.warn("Google API error"); }
-
-        // Fallback
-        try {
-          const olUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&limit=1`;
-          const olRes = await fetch(olUrl);
-          const olData = await olRes.json();
-          
-          if (olData.docs && olData.docs.length > 0) {
-            const b = olData.docs[0];
-            const cover = b.cover_i ? `https://covers.openlibrary.org/b/id/${b.cover_i}-L.jpg` : null;
-            this.renderUI(b.title, b.author_name, cover);
-            return;
-          }
-        } catch (e) { console.error("API failure"); }
-
-        document.getElementById('bookTitle').textContent = title;
-        document.getElementById('bookAuthor').textContent = "Details not found";
+          } else { throw new Error(); }
+        } catch(e) { this.renderUI(title, ["Unknown Author"], null); }
+        document.getElementById('logArea').style.display = 'block';
+        document.getElementById('logBtn').style.display = 'block';
       },
 
-      renderUI(title, authors, coverUrl) {
-        document.getElementById('bookTitle').textContent = title;
-        document.getElementById('bookAuthor').textContent = authors ? authors.join(', ') : "Unknown Author";
-        
-        const coverDiv = document.getElementById('coverDiv');
-        if (coverUrl) {
-          const secureCover = coverUrl.replace('http:', 'https:');
-          coverDiv.innerHTML = `<img src="${secureCover}" alt="Cover">`;
-        } else {
-          coverDiv.innerHTML = `<span style="color: #475569;">No Image</span>`;
-        }
-      }
-    };
+      renderUI(t, a, c) {
+        document.getElementById('bookTitle').textContent = t;
+        document.getElementById('bookAuthor').textContent = a ? a.join(', ') : "---";
+        document.getElementById('coverDiv').innerHTML = c ? `<img src="${c.replace('http:','https:')}">` : "No Image";
+      },
 
+      logBook() {
+        const history = JSON.parse(localStorage.getItem('readingHistory') || '[]');
+        const newEntry = {
+          title: document.getElementById('bookTitle').textContent,
+          author: document.getElementById('bookAuthor').textContent,
+          rating: document.getElementById('ratingSelect').value,
+          date: new Date().toLocaleDateString()
+        };
+        history.unshift(newEntry);
+        localStorage.setItem('readingHistory', JSON.stringify(history));
+        this.renderHistory();
+        document.getElementById('logArea').style.display = 'none';
+        this.status.textContent = "Book Logged!";
+      },
+
+      renderHistory() {
+        const history = JSON.parse(localStorage.getItem('readingHistory') || '[]');
+        const body = document.getElementById('historyBody');
+        body.innerHTML = history.map(h => `<tr><td>${h.title}</td><td>${h.author}</td><td>${h.rating}</td><td>${h.date}</td></tr>`).join('');
+      },
+
+      clearHistory() { if(confirm("Clear your history?")) { localStorage.removeItem('readingHistory'); this.renderHistory(); } }
+    };
     wheel.init();
   </script>
 </body>
