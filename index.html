@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Book Roulette - Final Stable Version</title>
+  <title>Book Roulette - Absolute Fix</title>
   <style>
     :root {
       --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; --success: #10b981;
@@ -20,16 +20,15 @@
     .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-bottom: 10px; }
     .btn-update { background: var(--accent); color: white; }
     .btn-spin { background: var(--success); color: white; font-size: 1.2rem; height: 65px; }
-    .btn:active { transform: scale(0.97); }
-    .btn:disabled { opacity: 0.4; filter: grayscale(1); cursor: not-allowed; }
     
     .wheel-area { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
     #canvas { max-width: 100%; filter: drop-shadow(0 0 40px rgba(0,0,0,0.5)); }
     .pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 40px solid #ef4444; z-index: 10; }
     .status { margin-top: 25px; font-size: 1.2rem; font-weight: 800; text-align: center; min-height: 1.5em; }
 
-    .book-cover { width: 100%; aspect-ratio: 2/3; background: #0a0f1d; border-radius: 12px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #334155; }
+    .book-cover { width: 100%; aspect-ratio: 2/3; background: #0a0f1d; border-radius: 12px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #334155; position: relative; }
     .book-cover img { width: 100%; height: 100%; object-fit: cover; }
+    #cover-loader { position: absolute; color: #475569; font-size: 0.8rem; }
 
     @media (max-width: 1100px) { .container { grid-template-columns: 1fr; } .wheel-area { order: -1; } }
   </style>
@@ -39,7 +38,6 @@
   <h1 style="font-weight: 900; letter-spacing: -1px; margin-bottom: 10px;">BOOK ROULETTE</h1>
 
   <div class="container">
-    <!-- WHEEL INPUTS -->
     <div class="panel">
       <h2>Wheel Settings</h2>
       <textarea id="listInput">Project Hail Mary
@@ -50,18 +48,16 @@ Neuromancer</textarea>
       <button class="btn btn-spin" id="spinBtn">HOLD TO SPIN</button>
     </div>
 
-    <!-- CANVAS -->
     <div class="wheel-area">
       <div class="pointer"></div>
       <canvas id="canvas" width="500" height="500"></canvas>
       <div id="status" class="status">Ready to spin</div>
     </div>
 
-    <!-- SELECTION PREVIEW -->
     <div class="panel">
       <h2>Selection</h2>
       <div class="book-cover" id="coverDiv">
-        <span style="color:#475569">Spin to start</span>
+        <span id="cover-loader">Spin to start</span>
       </div>
       <div id="bookTitle" style="font-weight:800; font-size:1.1rem; margin-bottom:5px;">---</div>
       <div id="bookAuthor" style="color:#94a3b8; font-size:0.95rem;">---</div>
@@ -80,29 +76,22 @@ Neuromancer</textarea>
       angle: 0, velocity: 0, isHolding: false, isSpinning: false, friction: 0.988,
 
       init() {
-        const saved = localStorage.getItem('finalBookList');
+        const saved = localStorage.getItem('ultraBookList');
         if (saved) this.input.value = saved;
-
-        this.spinBtn.addEventListener('pointerdown', () => { 
-          if(!this.isSpinning) this.isHolding = true; 
-        });
-        
+        this.spinBtn.addEventListener('pointerdown', () => { if(!this.isSpinning) this.isHolding = true; });
         window.addEventListener('pointerup', () => { 
           if(this.isHolding) { 
-            this.isHolding = false; 
-            this.isSpinning = true; 
-            this.spinBtn.disabled = true; 
-            if(this.velocity < 0.1) this.velocity = 0.25; 
+            this.isHolding = false; this.isSpinning = true; 
+            this.spinBtn.disabled = true; if(this.velocity < 0.1) this.velocity = 0.25; 
           } 
         });
-
         this.updateItems();
         this.loop();
       },
 
       updateItems() {
         this.items = this.input.value.split('\n').map(item => item.trim()).filter(i => i !== "");
-        localStorage.setItem('finalBookList', this.input.value);
+        localStorage.setItem('ultraBookList', this.input.value);
         this.draw();
       },
 
@@ -116,33 +105,17 @@ Neuromancer</textarea>
           this.ctx.moveTo(centerX, centerY); 
           this.ctx.arc(centerX, centerY, radius, this.angle + i*arc, this.angle + (i+1)*arc); 
           this.ctx.fill();
-          this.ctx.save(); 
-          this.ctx.translate(centerX, centerY); 
-          this.ctx.rotate(this.angle + i*arc + arc/2);
-          this.ctx.fillStyle = "white"; 
-          this.ctx.font = "bold 14px sans-serif"; 
-          this.ctx.textAlign = "right";
-          this.ctx.fillText(text.substring(0,20), radius-30, 5); 
-          this.ctx.restore();
+          this.ctx.save(); this.ctx.translate(centerX, centerY); this.ctx.rotate(this.angle + i*arc + arc/2);
+          this.ctx.fillStyle = "white"; this.ctx.font = "bold 14px sans-serif"; this.ctx.textAlign = "right";
+          this.ctx.fillText(text.substring(0,20), radius-30, 5); this.ctx.restore();
         });
       },
 
       loop() {
-        if(this.isHolding) { 
-          this.velocity = Math.min(this.velocity + 0.008, 0.45); 
-          this.angle += this.velocity; 
-          this.draw(); 
-        }
+        if(this.isHolding) { this.velocity = Math.min(this.velocity + 0.008, 0.45); this.angle += this.velocity; this.draw(); }
         else if(this.isSpinning) { 
-          this.velocity *= this.friction; 
-          this.angle += this.velocity; 
-          this.draw();
-          if(this.velocity < 0.001) { 
-            this.velocity = 0; 
-            this.isSpinning = false; 
-            this.spinBtn.disabled = false; 
-            this.calculateWinner(); 
-          }
+          this.velocity *= this.friction; this.angle += this.velocity; this.draw();
+          if(this.velocity < 0.001) { this.velocity = 0; this.isSpinning = false; this.spinBtn.disabled = false; this.calculateWinner(); }
         }
         requestAnimationFrame(() => this.loop());
       },
@@ -158,40 +131,50 @@ Neuromancer</textarea>
 
       async fetchMetadata(title) {
         document.getElementById('bookTitle').textContent = "Searching...";
-        document.getElementById('coverDiv').innerHTML = "Searching...";
+        document.getElementById('coverDiv').innerHTML = '<span id="cover-loader">Searching...</span>';
         
         try {
-          // Attempt 1: Strict title search
-          let response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(title)}&maxResults=1`);
-          let data = await response.json();
+          // STEP 1: Try Google Books first
+          let res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(title)}&maxResults=1`);
+          let data = await res.json();
           
-          // Attempt 2: Fallback to general search if no items found
-          if (!data.items || data.items.length === 0) {
-            response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(title)}&maxResults=1`);
-            data = await response.json();
-          }
-
           if(data.items && data.items[0].volumeInfo) {
             const info = data.items[0].volumeInfo;
-            const img = info.imageLinks ? (info.imageLinks.thumbnail || info.imageLinks.smallThumbnail) : null;
-            const secureImg = img ? img.replace(/^http:\/\//i, 'https://') : null;
-            this.renderUI(info.title, info.authors, secureImg);
-          } else {
-            this.renderUI(title, ["Unknown Author"], null);
+            let img = info.imageLinks ? (info.imageLinks.thumbnail || info.imageLinks.smallThumbnail) : null;
+            
+            if (img) {
+              this.renderUI(info.title, info.authors, img.replace(/^http:/, 'https:'));
+              return;
+            }
           }
+
+          // STEP 2: Fallback to Open Library (If Google has no image)
+          const olRes = await fetch(`https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&limit=1`);
+          const olData = await olRes.json();
+          
+          if(olData.docs && olData.docs.length > 0) {
+            const doc = olData.docs[0];
+            const coverId = doc.cover_i;
+            const author = doc.author_name ? doc.author_name : ["Unknown"];
+            const coverUrl = coverId ? `https://covers.openlibrary.org/b/id/${coverId}-L.jpg` : null;
+            this.renderUI(doc.title, author, coverUrl);
+          } else {
+            this.renderUI(title, ["Not Found"], null);
+          }
+          
         } catch(e) {
-          console.error("API Error", e);
-          this.renderUI(title, ["Error loading data"], null);
+          this.renderUI(title, ["Error"], null);
         }
       },
 
       renderUI(t, a, c) {
         document.getElementById('bookTitle').textContent = t;
-        document.getElementById('bookAuthor').textContent = a ? a.join(', ') : "---";
+        document.getElementById('bookAuthor').textContent = a ? (Array.isArray(a) ? a.join(', ') : a) : "---";
         const coverDiv = document.getElementById('coverDiv');
         
         if (c) {
-          coverDiv.innerHTML = `<img src="${c}" referrerpolicy="no-referrer" alt="cover" onerror="this.parentElement.innerHTML='Image Not Available'">`;
+          // referrerpolicy="no-referrer" is mandatory for local file execution in 2026
+          coverDiv.innerHTML = `<img src="${c}" referrerpolicy="no-referrer" alt="cover" onerror="this.parentElement.innerHTML='Image Blocked'">`;
         } else {
           coverDiv.innerHTML = `<span style="color:#475569">No Cover Found</span>`;
         }
