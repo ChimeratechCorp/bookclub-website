@@ -167,7 +167,6 @@
       font-size: 1.5rem;
     }
 
-    /* REVIEW PANEL */
     .review-panel {
       margin-top: 20px;
       background: rgba(255,255,255,0.08);
@@ -236,7 +235,6 @@
 
   <div class="container">
 
-    <!-- LEFT PANEL -->
     <div class="panel">
       <h1>🎡 Spin Wheel</h1>
 
@@ -253,7 +251,6 @@ The Catcher in the Rye</textarea>
       <div class="result" id="result">Winner will appear here</div>
     </div>
 
-    <!-- WHEEL -->
     <div class="wheel-section">
       <div class="wheel-wrapper">
         <div class="pointer"></div>
@@ -261,7 +258,6 @@ The Catcher in the Rye</textarea>
       </div>
     </div>
 
-    <!-- METADATA PANEL -->
     <div class="metadata-panel" id="metadataPanel">
       <h2>📚 Book Details</h2>
       <div id="bookCover"></div>
@@ -273,7 +269,6 @@ The Catcher in the Rye</textarea>
       <p id="metaDescription">—</p>
       <p><a id="metaLink" href="#" target="_blank">More Info</a></p>
 
-      <!-- REVIEW PANEL -->
       <div class="review-panel">
         <h3>Your Rating</h3>
         <div id="starRating" class="stars"></div>
@@ -319,20 +314,18 @@ The Catcher in the Rye</textarea>
       localStorage.setItem("wheelChoices", choicesBox.value);
     });
 
-function updateWheel() {
-  const text = choicesBox.value;
+    function updateWheel() {
+      const text = choicesBox.value;
 
-  items = text
-    .split('\n')
-    .map(item => item.trim())
-    .filter(item => item.length > 0);
+      items = text
+        .split('\n')
+        .map(item => item.replace(/\s+/g, ' ').trim())
+        .filter(item => item !== "");
 
-  // Prevent hover from locking the wheel
-  lastHoveredBook = null;
+      lastHoveredBook = null;
 
-  drawWheel();
-}
-
+      drawWheel();
+    }
 
     function drawWheel() {
       const centerX = canvas.width / 2;
@@ -341,7 +334,13 @@ function updateWheel() {
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      if (items.length === 0) return;
+      if (items.length === 0) {
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+        return;
+      }
 
       const sliceAngle = (Math.PI * 2) / items.length;
 
@@ -375,7 +374,6 @@ function updateWheel() {
       ctx.fill();
     }
 
-    /* GOOGLE BOOKS COVER FETCH */
     async function fetchGoogleCover(title) {
       try {
         const url = `https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(title)}`;
@@ -402,7 +400,6 @@ function updateWheel() {
       }
     }
 
-    /* FULL DESCRIPTION MODE — WORK-LEVEL FETCH */
     async function fetchWorkDescription(workKey) {
       try {
         const url = `https://openlibrary.org${workKey}.json`;
@@ -433,7 +430,6 @@ function updateWheel() {
       }
     }
 
-    /* MAIN METADATA FETCH */
     async function fetchBookMetadata(title) {
       try {
         const url = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}`;
@@ -492,7 +488,6 @@ function updateWheel() {
       document.getElementById("metaLink").href = meta.link;
     }
 
-    /* STAR RATING SYSTEM */
     let selectedRating = 0;
 
     const starContainer = document.getElementById("starRating");
@@ -517,7 +512,6 @@ function updateWheel() {
       });
     }
 
-    /* REVIEW MEMORY */
     function loadSavedReview(bookTitle) {
       const saved = JSON.parse(localStorage.getItem("bookReviews") || "{}");
 
@@ -547,7 +541,6 @@ function updateWheel() {
       localStorage.setItem("bookReviews", JSON.stringify(saved));
     });
 
-    /* SPIN LOGIC */
     function spinWheel() {
       if (spinning || items.length === 0) return;
 
@@ -601,3 +594,62 @@ function updateWheel() {
     function releaseSpin() {
       if (spinning || !holdInterval) return;
 
+      clearInterval(holdInterval);
+      holdInterval = null;
+
+      currentRotation = previewRotation;
+
+      void canvas.offsetWidth;
+
+      canvas.style.transition = 'transform 5s cubic-bezier(0.17, 0.67, 0.2, 1)';
+
+      setTimeout(() => {
+        spinWheel();
+      }, 10);
+    }
+
+    spinButton.addEventListener('mousedown', startHoldSpin);
+    window.addEventListener('mouseup', releaseSpin);
+    spinButton.addEventListener('mouseleave', releaseSpin);
+
+    spinButton.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      startHoldSpin();
+    });
+
+    spinButton.addEventListener('touchend', releaseSpin);
+
+    canvas.addEventListener("mousemove", (e) => {
+      if (items.length === 0 || spinning) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left - canvas.width / 2;
+      const y = e.clientY - rect.top - canvas.height / 2;
+
+      let angle = Math.atan2(y, x) * (180 / Math.PI);
+      angle = (angle + 360) % 360;
+
+      const adjustedAngle = (angle - (currentRotation % 360) + 360) % 360;
+
+      const pointerAngle = 270;
+      const relativeAngle = (adjustedAngle - pointerAngle + 360) % 360;
+
+      const sliceAngle = 360 / items.length;
+      const index = Math.floor(relativeAngle / sliceAngle);
+
+      const hoveredBook = items[index];
+
+      if (!hoveredBook || hoveredBook === lastHoveredBook) return;
+
+      lastHoveredBook = hoveredBook;
+
+      clearTimeout(hoverTimeout);
+      hoverTimeout = setTimeout(() => {
+        window.currentSelectedBook = hoveredBook;
+        fetchBookMetadata(hoveredBook);
+        loadSavedReview(hoveredBook);
+      }, 120);
+    });
+  </script>
+</body>
+</html>
