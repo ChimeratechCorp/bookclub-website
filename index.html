@@ -325,13 +325,14 @@ function updateWheel() {
   items = text
     .split('\n')
     .map(item => item.trim())
-    .filter(item => item !== '');
+    .filter(item => item.length > 0);
+
+  // Prevent hover from locking the wheel
+  lastHoveredBook = null;
 
   drawWheel();
-
-  // Reset hover state so metadata updates correctly
-  lastHoveredBook = null;
 }
+
 
     function drawWheel() {
       const centerX = canvas.width / 2;
