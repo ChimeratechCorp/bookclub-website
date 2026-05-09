@@ -4,251 +4,45 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Spin Wheel – by Robert Cruz</title>
-
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
-
-    body {
-      background: linear-gradient(135deg, #111827, #1f2937);
-      color: white;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
-
-    .top-title {
-      width: 100%;
-      text-align: center;
-      font-size: 2.2rem;
-      font-weight: bold;
-      margin-bottom: 25px;
-      padding: 15px 0;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border-radius: 12px;
-    }
-
-    .container {
-      display: grid;
-      grid-template-columns: 320px 1fr 320px;
-      gap: 30px;
-      width: 100%;
-      max-width: 1400px;
-      align-items: start;
-    }
-
-    .panel {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      padding: 24px;
-      border-radius: 20px;
-    }
-
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 20px;
-    }
-
-    textarea {
-      width: 100%;
-      height: 240px;
-      background: #111827;
-      border: 1px solid #374151;
-      color: white;
-      border-radius: 12px;
-      padding: 12px;
-      resize: none;
-      font-size: 16px;
-      margin-bottom: 16px;
-    }
-
-    button {
-      width: 100%;
-      border: none;
-      padding: 14px;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.2s ease;
-      margin-bottom: 12px;
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-    }
-
-    .spin-btn {
-      background: #22c55e;
-      color: white;
-    }
-
-    .update-btn {
-      background: #3b82f6;
-      color: white;
-    }
-
-    .result {
-      margin-top: 20px;
-      padding: 16px;
-      background: rgba(255,255,255,0.08);
-      border-radius: 12px;
-      text-align: center;
-      font-size: 1.2rem;
-      min-height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .wheel-section {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-    }
-
-    .wheel-wrapper {
-      position: relative;
-      width: 520px;
-      height: 520px;
-    }
-
-    canvas {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: white;
-      transition: transform 5s cubic-bezier(0.17, 0.67, 0.2, 1);
-      box-shadow: 0 0 30px rgba(0,0,0,0.5);
-    }
-
-    .pointer {
-      position: absolute;
-      top: -10px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 20px solid transparent;
-      border-right: 20px solid transparent;
-      border-top: 40px solid #ef4444;
-      z-index: 10;
-    }
-
-    .metadata-panel {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      padding: 20px;
-      border-radius: 20px;
-      width: 320px;
-      height: 520px;
-      overflow-y: auto;
-    }
-
-    .metadata-panel img {
-      width: 100%;
-      border-radius: 12px;
-      margin-bottom: 15px;
-    }
-
-    .metadata-panel h2 {
-      margin-bottom: 15px;
-      font-size: 1.5rem;
-    }
-
-    .review-panel {
-      margin-top: 20px;
-      background: rgba(255,255,255,0.08);
-      padding: 15px;
-      border-radius: 12px;
-    }
-
-    .stars {
-      font-size: 28px;
-      cursor: pointer;
-      letter-spacing: 5px;
-      user-select: none;
-    }
-
-    .stars span {
-      color: gray;
-    }
-
-    .stars .active {
-      color: gold;
-    }
-
-    #userReview {
-      width: 100%;
-      height: 120px;
-      margin-top: 10px;
-      border-radius: 10px;
-      padding: 10px;
-      background: #111827;
-      color: white;
-      border: 1px solid #374151;
-    }
-
-    #saveReviewBtn {
-      margin-top: 10px;
-      width: 100%;
-      padding: 10px;
-      border-radius: 10px;
-      background: #3b82f6;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    @media (max-width: 900px) {
-      .container {
-        grid-template-columns: 1fr;
-      }
-
-      .wheel-wrapper {
-        width: 350px;
-        height: 350px;
-      }
-
-      .metadata-panel {
-        width: 100%;
-        height: auto;
-      }
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background: linear-gradient(135deg, #111827, #1f2937); color: white; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+    .top-title { width: 100%; text-align: center; font-size: 2.2rem; font-weight: bold; margin-bottom: 25px; padding: 15px 0; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 12px; }
+    .container { display: grid; grid-template-columns: 320px 1fr 320px; gap: 30px; width: 100%; max-width: 1400px; align-items: start; }
+    .panel { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 24px; border-radius: 20px; }
+    textarea { width: 100%; height: 240px; background: #111827; border: 1px solid #374151; color: white; border-radius: 12px; padding: 12px; resize: none; font-size: 16px; margin-bottom: 16px; }
+    button { width: 100%; border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s ease; margin-bottom: 12px; }
+    button:hover { transform: translateY(-2px); }
+    .spin-btn { background: #22c55e; color: white; }
+    .update-btn { background: #3b82f6; color: white; }
+    .result { margin-top: 20px; padding: 16px; background: rgba(255,255,255,0.08); border-radius: 12px; text-align: center; font-size: 1.2rem; min-height: 60px; display: flex; align-items: center; justify-content: center; }
+    .wheel-wrapper { position: relative; width: 500px; height: 500px; }
+    canvas { width: 100%; height: 100%; border-radius: 50%; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); box-shadow: 0 0 30px rgba(0,0,0,0.5); cursor: crosshair; }
+    .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 40px solid #ef4444; z-index: 10; }
+    .metadata-panel { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 20px; border-radius: 20px; height: 600px; overflow-y: auto; }
+    .metadata-panel img { width: 100%; border-radius: 12px; margin-bottom: 15px; }
+    .review-panel { margin-top: 20px; background: rgba(255,255,255,0.08); padding: 15px; border-radius: 12px; }
+    .stars { font-size: 28px; cursor: pointer; color: gray; margin-bottom: 10px; }
+    .stars .active { color: gold; }
+    #userReview { width: 100%; height: 80px; margin-top: 10px; border-radius: 10px; padding: 10px; background: #111827; color: white; border: 1px solid #374151; }
+    @media (max-width: 900px) { .container { grid-template-columns: 1fr; } .wheel-wrapper { width: 350px; height: 350px; } }
   </style>
 </head>
-
 <body>
 
   <div class="top-title">Spin Wheel – by Robert Cruz</div>
 
   <div class="container">
-
     <div class="panel">
       <h1>🎡 Spin Wheel</h1>
-
       <textarea id="choices">Dune
 The Hobbit
-Pride and Prejudice
-The Great Gatsby
 1984
+The Great Gatsby
 The Catcher in the Rye</textarea>
-
       <button class="update-btn" onclick="updateWheel()">Update Wheel</button>
-      <button class="spin-btn" id="spinButton">Press or Hold To Spin</button>
-
-      <div class="result" id="result">Winner will appear here</div>
+      <button class="spin-btn" id="spinButton">Hold to Spin / Click</button>
+      <div class="result" id="result">Hover or Spin for details</div>
     </div>
 
     <div class="wheel-section">
@@ -266,390 +60,199 @@ The Catcher in the Rye</textarea>
       <p><strong>Year:</strong> <span id="metaYear">—</span></p>
       <p><strong>Rating:</strong> <span id="metaRating">—</span></p>
       <p><strong>Description:</strong></p>
-      <p id="metaDescription">—</p>
-      <p><a id="metaLink" href="#" target="_blank">More Info</a></p>
+      <p id="metaDescription" style="font-size: 0.9rem; margin-top: 5px;">—</p>
+      <p style="margin-top:10px;"><a id="metaLink" href="#" target="_blank" style="color: #3b82f6;">Open Library Link</a></p>
 
       <div class="review-panel">
-        <h3>Your Rating</h3>
-        <div id="starRating" class="stars"></div>
-
         <h3>Your Review</h3>
-        <textarea id="userReview" placeholder="Write your thoughts..."></textarea>
-
-        <button id="saveReviewBtn">Save Review</button>
+        <div id="starRating" class="stars"></div>
+        <textarea id="userReview" placeholder="Thoughts..."></textarea>
+        <button id="saveReviewBtn" style="background:#3b82f6; color:white; margin-top:10px;">Save Review</button>
       </div>
     </div>
-
   </div>
 
   <script>
     const canvas = document.getElementById('wheel');
     const ctx = canvas.getContext('2d');
     const result = document.getElementById('result');
-
+    const choicesBox = document.getElementById("choices");
+    const spinButton = document.getElementById('spinButton');
+    
     let items = [];
     let currentRotation = 0;
     let spinning = false;
     let holdInterval = null;
-    let previewRotation = 0;
-
-    let lastHoveredBook = null;
+    let hoveredIndex = -1;
     let hoverTimeout = null;
+    const apiCache = new Map();
 
-    const colors = [
-      '#ef4444','#f97316','#eab308','#22c55e',
-      '#06b6d4','#3b82f6','#8b5cf6','#ec4899'
-    ];
+    const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'];
 
-    const choicesBox = document.getElementById("choices");
-
+    // Initialize
     const savedChoices = localStorage.getItem("wheelChoices");
-    if (savedChoices !== null) {
-      choicesBox.value = savedChoices;
-    }
-
+    if (savedChoices) choicesBox.value = savedChoices;
     updateWheel();
 
-    choicesBox.addEventListener("input", () => {
-      localStorage.setItem("wheelChoices", choicesBox.value);
-    });
-
     function updateWheel() {
-      const text = choicesBox.value;
-
-      items = text
-        .split('\n')
-        .map(item => item.replace(/\s+/g, ' ').trim())
-        .filter(item => item !== "");
-
-      lastHoveredBook = null;
-
-      drawWheel();
+        items = choicesBox.value.split('\n').map(i => i.trim()).filter(i => i.length > 0);
+        localStorage.setItem("wheelChoices", choicesBox.value);
+        drawWheel();
     }
 
     function drawWheel() {
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
-      const radius = 240;
+        const center = canvas.width / 2;
+        const radius = 240;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (items.length === 0) return;
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      if (items.length === 0) {
+        const sliceAngle = (Math.PI * 2) / items.length;
+        items.forEach((item, i) => {
+            const angle = i * sliceAngle;
+            ctx.beginPath();
+            ctx.moveTo(center, center);
+            ctx.arc(center, center, radius, angle, angle + sliceAngle);
+            ctx.fillStyle = colors[i % colors.length];
+            ctx.fill();
+            ctx.save();
+            ctx.translate(center, center);
+            ctx.rotate(angle + sliceAngle / 2);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'right';
+            ctx.fillText(item.length > 18 ? item.substring(0, 15) + "..." : item, radius - 20, 10);
+            ctx.restore();
+        });
         ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        ctx.fillStyle = "#ffffff";
+        ctx.arc(center, center, 40, 0, Math.PI * 2);
+        ctx.fillStyle = '#111827';
         ctx.fill();
-        return;
-      }
-
-      const sliceAngle = (Math.PI * 2) / items.length;
-
-      items.forEach((item, index) => {
-        const startAngle = index * sliceAngle;
-        const endAngle = startAngle + sliceAngle;
-
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-        ctx.closePath();
-
-        ctx.fillStyle = colors[index % colors.length];
-        ctx.fill();
-
-        ctx.save();
-        ctx.translate(centerX, centerY);
-        ctx.rotate(startAngle + sliceAngle / 2);
-
-        ctx.fillStyle = 'white';
-        ctx.font = 'bold 20px Arial';
-        ctx.textAlign = 'right';
-        ctx.fillText(item, radius - 20, 10);
-
-        ctx.restore();
-      });
-
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, 50, 0, Math.PI * 2);
-      ctx.fillStyle = '#111827';
-      ctx.fill();
     }
 
-    async function fetchGoogleCover(title) {
-      try {
-        const url = `https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(title)}`;
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if (!data.items || data.items.length === 0) return null;
-
-        const info = data.items[0].volumeInfo;
-
-        if (info.imageLinks) {
-          return (
-            info.imageLinks.large ||
-            info.imageLinks.medium ||
-            info.imageLinks.thumbnail ||
-            null
-          );
-        }
-
-        return null;
-      } catch (err) {
-        console.error("Google Books cover error:", err);
-        return null;
-      }
-    }
-
-    async function fetchWorkDescription(workKey) {
-      try {
-        const url = `https://openlibrary.org${workKey}.json`;
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if (!data) return "Not available";
-
-        if (typeof data.description === "string") {
-          return data.description;
-        }
-
-        if (data.description && data.description.value) {
-          return data.description.value;
-        }
-
-        if (data.first_sentence) {
-          return Array.isArray(data.first_sentence)
-            ? data.first_sentence[0]
-            : data.first_sentence;
-        }
-
-        return "Not available";
-
-      } catch (err) {
-        console.error("Work description error:", err);
-        return "Not available";
-      }
-    }
-
-    async function fetchBookMetadata(title) {
-      try {
-        const url = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}`;
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if (!data.docs || data.docs.length === 0) {
-          displayMetadata(null);
-          return;
-        }
-
-        const book = data.docs[0];
-        const workKey = book.key;
-
-        const fullDescription = await fetchWorkDescription(workKey);
-        const googleCover = await fetchGoogleCover(title);
-
-        const metadata = {
-          title: book.title || "Not available",
-          author: book.author_name ? book.author_name.join(", ") : "Not available",
-          year: book.first_publish_year || "Not available",
-          rating: book.ratings_average ? `${book.ratings_average.toFixed(1)} / 5` : "Not available",
-          description: fullDescription || "Not available",
-          cover: googleCover,
-          link: `https://openlibrary.org${workKey}`
-        };
-
-        displayMetadata(metadata);
-
-      } catch (error) {
-        console.error("Metadata fetch error:", error);
-        displayMetadata(null);
-      }
+    async function getBookData(title) {
+        if (apiCache.has(title)) return apiCache.get(title);
+        try {
+            const [olRes, gRes] = await Promise.all([
+                fetch(`https://openlibrary.org/search.json?title=${encodeURIComponent(title)}`).then(r => r.json()),
+                fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(title)}`).then(r => r.json())
+            ]);
+            const olDoc = olRes.docs?.[0];
+            const gItem = gRes.items?.[0]?.volumeInfo;
+            const data = {
+                title: olDoc?.title || title,
+                author: olDoc?.author_name?.join(", ") || "Unknown",
+                year: olDoc?.first_publish_year || "N/A",
+                rating: olDoc?.ratings_average ? `${olDoc.ratings_average.toFixed(1)}/5` : "N/A",
+                description: gItem?.description || "No description found.",
+                cover: gItem?.imageLinks?.thumbnail || "",
+                link: olDoc ? `https://openlibrary.org${olDoc.key}` : "#"
+            };
+            apiCache.set(title, data);
+            return data;
+        } catch (e) { return null; }
     }
 
     function displayMetadata(meta) {
-      if (!meta) {
-        document.getElementById("bookCover").innerHTML = "";
-        document.getElementById("metaTitle").textContent = "Not available";
-        document.getElementById("metaAuthor").textContent = "Not available";
-        document.getElementById("metaYear").textContent = "Not available";
-        document.getElementById("metaRating").textContent = "Not available";
-        document.getElementById("metaDescription").textContent = "Not available";
-        document.getElementById("metaLink").href = "#";
-        return;
-      }
-
-      document.getElementById("bookCover").innerHTML =
-        meta.cover ? `<img src="${meta.cover}" alt="Book Cover">` : "";
-
-      document.getElementById("metaTitle").textContent = meta.title;
-      document.getElementById("metaAuthor").textContent = meta.author;
-      document.getElementById("metaYear").textContent = meta.year;
-      document.getElementById("metaRating").textContent = meta.rating;
-      document.getElementById("metaDescription").textContent = meta.description;
-      document.getElementById("metaLink").href = meta.link;
+        if (!meta) return;
+        document.getElementById("metaTitle").textContent = meta.title;
+        document.getElementById("metaAuthor").textContent = meta.author;
+        document.getElementById("metaYear").textContent = meta.year;
+        document.getElementById("metaRating").textContent = meta.rating;
+        document.getElementById("metaDescription").textContent = meta.description;
+        document.getElementById("bookCover").innerHTML = meta.cover ? `<img src="${meta.cover}">` : "";
+        document.getElementById("metaLink").href = meta.link;
     }
 
-    let selectedRating = 0;
+    // Hover Listener
+    canvas.addEventListener('mousemove', (e) => {
+        if (spinning || items.length === 0) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left - canvas.width / 2;
+        const y = e.clientY - rect.top - canvas.height / 2;
+        let angle = Math.atan2(y, x);
+        if (angle < 0) angle += Math.PI * 2;
+        const currentRotationRad = (currentRotation * Math.PI) / 180;
+        let adjustedAngle = (angle - (currentRotationRad % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+        const sliceAngle = (Math.PI * 2) / items.length;
+        const index = Math.floor(adjustedAngle / sliceAngle);
 
-    const starContainer = document.getElementById("starRating");
-
-    for (let i = 1; i <= 5; i++) {
-      const star = document.createElement("span");
-      star.textContent = "★";
-      star.dataset.value = i;
-
-      star.addEventListener("click", () => {
-        selectedRating = i;
-        updateStarDisplay();
-      });
-
-      starContainer.appendChild(star);
-    }
-
-    function updateStarDisplay() {
-      const stars = starContainer.querySelectorAll("span");
-      stars.forEach(star => {
-        star.classList.toggle("active", star.dataset.value <= selectedRating);
-      });
-    }
-
-    function loadSavedReview(bookTitle) {
-      const saved = JSON.parse(localStorage.getItem("bookReviews") || "{}");
-
-      if (saved[bookTitle]) {
-        selectedRating = saved[bookTitle].rating;
-        document.getElementById("userReview").value = saved[bookTitle].review;
-      } else {
-        selectedRating = 0;
-        document.getElementById("userReview").value = "";
-      }
-
-      updateStarDisplay();
-    }
-
-    document.getElementById("saveReviewBtn").addEventListener("click", () => {
-      const reviewText = document.getElementById("userReview").value.trim();
-      const saved = JSON.parse(localStorage.getItem("bookReviews") || "{}");
-
-      const currentBook = window.currentSelectedBook;
-      if (!currentBook) return;
-
-      saved[currentBook] = {
-        rating: selectedRating,
-        review: reviewText
-      };
-
-      localStorage.setItem("bookReviews", JSON.stringify(saved));
+        if (index !== hoveredIndex && items[index]) {
+            hoveredIndex = index;
+            clearTimeout(hoverTimeout);
+            hoverTimeout = setTimeout(async () => {
+                const data = await getBookData(items[index]);
+                displayMetadata(data);
+                loadSavedReview(items[index]);
+                window.currentSelectedBook = items[index];
+            }, 100);
+        }
     });
 
     function spinWheel() {
-      if (spinning || items.length === 0) return;
+        if (spinning || items.length === 0) return;
+        spinning = true;
+        canvas.style.transition = 'transform 5s cubic-bezier(0.15, 0, 0.15, 1)';
+        const randomIndex = Math.floor(Math.random() * items.length);
+        const degreesPerSlice = 360 / items.length;
+        const targetAngle = 270 - (randomIndex * degreesPerSlice + (degreesPerSlice / 2));
+        currentRotation += (360 * 10) + (targetAngle - (currentRotation % 360));
+        canvas.style.transform = `rotate(${currentRotation}deg)`;
 
-      spinning = true;
-      result.innerHTML = 'Spinning...';
-
-      const randomIndex = Math.floor(Math.random() * items.length);
-      const degreesPerSlice = 360 / items.length;
-
-      const sliceStart = randomIndex * degreesPerSlice;
-      const slicePadding = degreesPerSlice * 0.15;
-
-      const randomOffset =
-        slicePadding +
-        Math.random() * (degreesPerSlice - slicePadding * 2);
-
-      const landingAngle = sliceStart + randomOffset;
-      const targetAngle = 270 - landingAngle;
-
-      const normalizedRotation = currentRotation % 360;
-      const extraSpins = 360 * 6;
-
-      const rotationAmount = extraSpins + (targetAngle - normalizedRotation);
-      currentRotation += rotationAmount;
-
-      canvas.style.transform = `rotate(${currentRotation}deg)`;
-
-      setTimeout(() => {
-        const winner = items[randomIndex];
-        result.innerHTML = `🎉 Winner: <strong>${winner}</strong>`;
-        window.currentSelectedBook = winner;
-        fetchBookMetadata(winner);
-        loadSavedReview(winner);
-        spinning = false;
-      }, 5000);
+        setTimeout(async () => {
+            const winner = items[randomIndex];
+            result.innerHTML = `🎉 Winner: <strong>${winner}</strong>`;
+            window.currentSelectedBook = winner;
+            const data = await getBookData(winner);
+            displayMetadata(data);
+            loadSavedReview(winner);
+            spinning = false;
+        }, 5000);
     }
 
-    const spinButton = document.getElementById('spinButton');
-
-    function startHoldSpin() {
-      if (spinning || holdInterval) return;
-
-      canvas.style.transition = 'none';
-
-      holdInterval = setInterval(() => {
-        previewRotation += 15;
-        canvas.style.transform = `rotate(${previewRotation}deg)`;
-      }, 16);
-    }
-
-    function releaseSpin() {
-      if (spinning || !holdInterval) return;
-
-      clearInterval(holdInterval);
-      holdInterval = null;
-
-      currentRotation = previewRotation;
-
-      void canvas.offsetWidth;
-
-      canvas.style.transition = 'transform 5s cubic-bezier(0.17, 0.67, 0.2, 1)';
-
-      setTimeout(() => {
-        spinWheel();
-      }, 10);
-    }
-
-    spinButton.addEventListener('mousedown', startHoldSpin);
-    window.addEventListener('mouseup', releaseSpin);
-    spinButton.addEventListener('mouseleave', releaseSpin);
-
-    spinButton.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      startHoldSpin();
+    // Hold Logic
+    spinButton.addEventListener('mousedown', () => {
+        if (spinning) return;
+        canvas.style.transition = 'none';
+        holdInterval = setInterval(() => {
+            currentRotation += 15;
+            canvas.style.transform = `rotate(${currentRotation}deg)`;
+        }, 16);
     });
 
-    spinButton.addEventListener('touchend', releaseSpin);
-
-    canvas.addEventListener("mousemove", (e) => {
-      if (items.length === 0 || spinning) return;
-
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left - canvas.width / 2;
-      const y = e.clientY - rect.top - canvas.height / 2;
-
-      let angle = Math.atan2(y, x) * (180 / Math.PI);
-      angle = (angle + 360) % 360;
-
-      const adjustedAngle = (angle - (currentRotation % 360) + 360) % 360;
-
-      const pointerAngle = 270;
-      const relativeAngle = (adjustedAngle - pointerAngle + 360) % 360;
-
-      const sliceAngle = 360 / items.length;
-      const index = Math.floor(relativeAngle / sliceAngle);
-
-      const hoveredBook = items[index];
-
-      if (!hoveredBook || hoveredBook === lastHoveredBook) return;
-
-      lastHoveredBook = hoveredBook;
-
-      clearTimeout(hoverTimeout);
-      hoverTimeout = setTimeout(() => {
-        window.currentSelectedBook = hoveredBook;
-        fetchBookMetadata(hoveredBook);
-        loadSavedReview(hoveredBook);
-      }, 120);
+    window.addEventListener('mouseup', () => {
+        if (holdInterval) {
+            clearInterval(holdInterval);
+            holdInterval = null;
+            spinWheel();
+        }
     });
+
+    // Star Rating & Reviews
+    let selectedRating = 0;
+    const starContainer = document.getElementById("starRating");
+    for (let i = 1; i <= 5; i++) {
+        const s = document.createElement("span");
+        s.textContent = "★";
+        s.onclick = () => { selectedRating = i; updateStars(); };
+        starContainer.appendChild(s);
+    }
+    function updateStars() {
+        Array.from(starContainer.children).forEach((s, i) => s.className = i < selectedRating ? 'active' : '');
+    }
+    function loadSavedReview(title) {
+        const saved = JSON.parse(localStorage.getItem("bookReviews") || "{}");
+        selectedRating = saved[title]?.rating || 0;
+        document.getElementById("userReview").value = saved[title]?.review || "";
+        updateStars();
+    }
+    document.getElementById("saveReviewBtn").onclick = () => {
+        const saved = JSON.parse(localStorage.getItem("bookReviews") || "{}");
+        if (window.currentSelectedBook) {
+            saved[window.currentSelectedBook] = { rating: selectedRating, review: document.getElementById("userReview").value };
+            localStorage.setItem("bookReviews", JSON.stringify(saved));
+            alert("Review saved!");
+        }
+    };
   </script>
 </body>
 </html>
