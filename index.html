@@ -23,7 +23,6 @@
       padding: 20px;
     }
 
-    /* 🔥 Top Title Bar */
     .top-title {
       width: 100%;
       text-align: center;
@@ -146,7 +145,6 @@
       z-index: 10;
     }
 
-    /* 📚 Metadata Panel */
     .metadata-panel {
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -218,7 +216,7 @@ The Catcher in the Rye</textarea>
       </div>
     </div>
 
-    <!-- 📚 METADATA PANEL -->
+    <!-- METADATA PANEL -->
     <div class="metadata-panel" id="metadataPanel">
       <h2>📚 Book Details</h2>
       <div id="bookCover"></div>
@@ -392,7 +390,38 @@ The Catcher in the Rye</textarea>
 
     spinButton.addEventListener('touchend', releaseSpin);
 
-    /* 📚 FETCH BOOK METADATA */
+    /* FULL DESCRIPTION MODE — WORK-LEVEL FETCH */
+    async function fetchWorkDescription(workKey) {
+      try {
+        const url = `https://openlibrary.org${workKey}.json`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (!data) return "Not available";
+
+        if (typeof data.description === "string") {
+          return data.description;
+        }
+
+        if (data.description && data.description.value) {
+          return data.description.value;
+        }
+
+        if (data.first_sentence) {
+          return Array.isArray(data.first_sentence)
+            ? data.first_sentence[0]
+            : data.first_sentence;
+        }
+
+        return "Not available";
+
+      } catch (err) {
+        console.error("Work description error:", err);
+        return "Not available";
+      }
+    }
+
+    /* MAIN METADATA FETCH */
     async function fetchBookMetadata(title) {
       try {
         const url = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}`;
@@ -405,6 +434,9 @@ The Catcher in the Rye</textarea>
         }
 
         const book = data.docs[0];
+        const workKey = book.key;
+
+        const fullDescription = await fetchWorkDescription(workKey);
 
         const metadata = {
           title: book.title || "Not available",
@@ -413,11 +445,11 @@ The Catcher in the Rye</textarea>
           genres: book.subject ? book.subject.slice(0, 5).join(", ") : "Not available",
           rating: book.ratings_average ? `${book.ratings_average.toFixed(1)} / 5` : "Not available",
           isbn: book.isbn ? book.isbn[0] : "Not available",
-          description: book.first_sentence ? book.first_sentence : "No description available.",
+          description: fullDescription || "Not available",
           cover: book.cover_i
             ? `https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg`
             : null,
-          link: book.key ? `https://openlibrary.org${book.key}` : "#"
+          link: `https://openlibrary.org${workKey}`
         };
 
         displayMetadata(metadata);
