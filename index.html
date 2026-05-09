@@ -195,6 +195,19 @@ Steak
       '#ec4899'
     ];
 
+    // --- SAVE & RESTORE TEXTAREA CONTENT ---
+    const choicesBox = document.getElementById("choices");
+
+    const savedChoices = localStorage.getItem("wheelChoices");
+    if (savedChoices) {
+      choicesBox.value = savedChoices;
+    }
+
+    choicesBox.addEventListener("input", () => {
+      localStorage.setItem("wheelChoices", choicesBox.value);
+    });
+    // ----------------------------------------
+
     function updateWheel() {
       const text = document.getElementById('choices').value;
 
@@ -257,7 +270,6 @@ Steak
       const randomIndex = Math.floor(Math.random() * items.length);
       const degreesPerSlice = 360 / items.length;
 
-      // Pick a random landing position INSIDE the winning slice
       const sliceStart = randomIndex * degreesPerSlice;
       const slicePadding = degreesPerSlice * 0.15;
 
@@ -267,16 +279,12 @@ Steak
 
       const landingAngle = sliceStart + randomOffset;
 
-      // Pointer is at top of wheel
       const targetAngle = 270 - landingAngle;
 
-      // Normalize current rotation
       const normalizedRotation = currentRotation % 360;
 
-      // Add full spins for animation
       const extraSpins = 360 * 6;
 
-      // Calculate new rotation
       const rotationAmount = extraSpins + (targetAngle - normalizedRotation);
 
       currentRotation += rotationAmount;
@@ -310,7 +318,6 @@ Steak
 
       currentRotation = previewRotation;
 
-      // Force reflow so transition comes back
       void canvas.offsetWidth;
 
       canvas.style.transition = 'transform 5s cubic-bezier(0.17, 0.67, 0.2, 1)';
@@ -331,6 +338,7 @@ Steak
 
     spinButton.addEventListener('touchend', releaseSpin);
 
+    // IMPORTANT: update wheel AFTER restoring textarea
     updateWheel();
   </script>
 </body>
