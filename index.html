@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pro Book Spinner - Physics & Metadata Edition</title>
+  <title>Pro Book Spinner - Persistent Edition</title>
   <style>
     :root {
       --bg: #0f172a;
@@ -43,7 +43,7 @@
       border: 1px solid var(--border);
     }
 
-    h2 { margin-bottom: 15px; font-size: 1rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; }
+    h2 { margin-bottom: 15px; font-size: 0.9rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; }
 
     textarea {
       width: 100%;
@@ -112,7 +112,7 @@
 
     .status {
       margin-top: 25px;
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       font-weight: 800;
       text-align: center;
       min-height: 1.5em;
@@ -133,7 +133,7 @@
 
     .book-cover img { width: 100%; height: 100%; object-fit: cover; }
     #bookTitle { font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; line-height: 1.3; }
-    #bookAuthor { color: #94a3b8; font-size: 0.95rem; }
+    #bookAuthor { color: #94a3b8; font-size: 0.9rem; }
 
     @media (max-width: 1000px) {
       .container { grid-template-columns: 1fr; }
@@ -143,7 +143,7 @@
 </head>
 <body>
 
-  <h1 style="letter-spacing: -1px; margin-bottom: 10px;">BOOK ROULETTE PRO</h1>
+  <h1 style="margin-bottom: 10px;">BOOK ROULETTE PRO</h1>
 
   <div class="container">
     <!-- LEFT: INPUTS -->
@@ -155,7 +155,7 @@ Dune
 Dark Matter
 The Midnight Library
 Killers of the Flower Moon</textarea>
-      <button class="btn btn-update" onclick="wheel.updateItems()">Add Books</button>
+      <button class="btn btn-update" onclick="wheel.updateItems()">Sync & Save</button>
       <button class="btn btn-spin" id="spinBtn">HOLD TO SPIN</button>
     </div>
 
@@ -163,16 +163,16 @@ Killers of the Flower Moon</textarea>
     <div class="wheel-area">
       <div class="pointer"></div>
       <canvas id="canvas" width="500" height="500"></canvas>
-      <div id="status" class="status">Press & hold to start</div>
+      <div id="status" class="status">Hold the button to charge spin</div>
     </div>
 
     <!-- RIGHT: METADATA -->
     <div class="panel">
       <h2>Selection Info</h2>
       <div class="book-cover" id="coverDiv">
-        <span style="color: #475569;">No Selection Yet</span>
+        <span style="color: #475569;">Spin the wheel!</span>
       </div>
-      <div id="bookTitle">Ready for your spin</div>
+      <div id="bookTitle">---</div>
       <div id="bookAuthor">---</div>
     </div>
   </div>
@@ -183,6 +183,7 @@ Killers of the Flower Moon</textarea>
       ctx: document.getElementById('canvas').getContext('2d'),
       status: document.getElementById('status'),
       spinBtn: document.getElementById('spinBtn'),
+      input: document.getElementById('listInput'),
       
       items: [],
       colors: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'],
@@ -194,16 +195,31 @@ Killers of the Flower Moon</textarea>
       friction: 0.988, 
 
       init() {
+        // 1. Load from LocalStorage if it exists
+        const savedBooks = localStorage.getItem('myBookList');
+        if (savedBooks) {
+          this.input.value = savedBooks;
+        }
+
+        // 2. Set up event listeners
         this.spinBtn.addEventListener('pointerdown', (e) => this.onPress(e));
         window.addEventListener('pointerup', () => this.onRelease());
+        
+        // 3. Initial draw
         this.updateItems();
         this.loop();
       },
 
       updateItems() {
-        const input = document.getElementById('listInput').value;
-        this.items = input.split('\n').map(item => item.trim()).filter(item => item !== "");
+        const textValue = this.input.value;
+        this.items = textValue.split('\n').map(item => item.trim()).filter(item => item !== "");
+        
+        // Save to LocalStorage
+        localStorage.setItem('myBookList', textValue);
+        
         this.draw();
+        this.status.textContent = "Library synced and saved!";
+        setTimeout(() => { if(!this.isSpinning) this.status.textContent = "Ready to spin"; }, 2000);
       },
 
       draw() {
@@ -226,7 +242,6 @@ Killers of the Flower Moon</textarea>
           ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
           ctx.fill();
           ctx.strokeStyle = 'rgba(0,0,0,0.1)';
-          ctx.lineWidth = 2;
           ctx.stroke();
 
           ctx.save();
@@ -239,7 +254,7 @@ Killers of the Flower Moon</textarea>
           ctx.restore();
         });
 
-        // Center hub
+        // Hub
         ctx.beginPath();
         ctx.arc(centerX, centerY, 18, 0, Math.PI * 2);
         ctx.fillStyle = "#1e293b";
@@ -252,7 +267,7 @@ Killers of the Flower Moon</textarea>
       onPress(e) {
         if (this.isSpinning || this.items.length === 0) return;
         this.isHolding = true;
-        this.status.textContent = "CHARGING SPEED...";
+        this.status.textContent = "POWERING UP...";
       },
 
       onRelease() {
@@ -296,10 +311,9 @@ Killers of the Flower Moon</textarea>
       },
 
       async fetchMetadata(title) {
-        document.getElementById('bookTitle').textContent = "Searching...";
+        document.getElementById('bookTitle').textContent = "Finding info...";
         document.getElementById('bookAuthor').textContent = "---";
         
-        // 1. Try Google Books
         try {
           const gUrl = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(title)}&maxResults=1`;
           const gRes = await fetch(gUrl);
@@ -310,9 +324,9 @@ Killers of the Flower Moon</textarea>
             this.renderUI(b.title, b.authors, b.imageLinks?.thumbnail);
             return;
           }
-        } catch (e) { console.warn("Google API error, trying fallback..."); }
+        } catch (e) { console.warn("Google API error"); }
 
-        // 2. Try Open Library Fallback
+        // Fallback
         try {
           const olUrl = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&limit=1`;
           const olRes = await fetch(olUrl);
@@ -324,7 +338,7 @@ Killers of the Flower Moon</textarea>
             this.renderUI(b.title, b.author_name, cover);
             return;
           }
-        } catch (e) { console.error("Metadata failure:", e); }
+        } catch (e) { console.error("API failure"); }
 
         document.getElementById('bookTitle').textContent = title;
         document.getElementById('bookAuthor').textContent = "Details not found";
