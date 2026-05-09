@@ -18,12 +18,12 @@
       color: white;
       min-height: 100vh;
       display: flex;
-      flex-direction: column; /* allow top title + content */
+      flex-direction: column;
       align-items: center;
       padding: 20px;
     }
 
-    /* 🔥 NEW: Top Title Bar */
+    /* 🔥 Top Title Bar */
     .top-title {
       width: 100%;
       text-align: center;
@@ -39,11 +39,11 @@
 
     .container {
       display: grid;
-      grid-template-columns: 320px 1fr;
+      grid-template-columns: 320px 1fr 320px;
       gap: 30px;
       width: 100%;
-      max-width: 1200px;
-      align-items: center;
+      max-width: 1400px;
+      align-items: start;
     }
 
     .panel {
@@ -146,6 +146,29 @@
       z-index: 10;
     }
 
+    /* 📚 Metadata Panel */
+    .metadata-panel {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      border-radius: 20px;
+      width: 320px;
+      height: 520px;
+      overflow-y: auto;
+    }
+
+    .metadata-panel img {
+      width: 100%;
+      border-radius: 12px;
+      margin-bottom: 15px;
+    }
+
+    .metadata-panel h2 {
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+    }
+
     @media (max-width: 900px) {
       .container {
         grid-template-columns: 1fr;
@@ -155,24 +178,31 @@
         width: 350px;
         height: 350px;
       }
+
+      .metadata-panel {
+        width: 100%;
+        height: auto;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <!-- 🔥 NEW: Visible Top Title -->
   <div class="top-title">Spin Wheel – by Robert Cruz</div>
 
   <div class="container">
+
+    <!-- LEFT PANEL -->
     <div class="panel">
       <h1>🎡 Spin Wheel</h1>
 
-      <textarea id="choices">Add
-Your
-Books
-Here
-</textarea>
+      <textarea id="choices">Dune
+The Hobbit
+Pride and Prejudice
+The Great Gatsby
+1984
+The Catcher in the Rye</textarea>
 
       <button class="update-btn" onclick="updateWheel()">Update Wheel</button>
       <button class="spin-btn" id="spinButton">Press or Hold To Spin</button>
@@ -180,12 +210,29 @@ Here
       <div class="result" id="result">Winner will appear here</div>
     </div>
 
+    <!-- WHEEL -->
     <div class="wheel-section">
       <div class="wheel-wrapper">
         <div class="pointer"></div>
         <canvas id="wheel" width="500" height="500"></canvas>
       </div>
     </div>
+
+    <!-- 📚 METADATA PANEL -->
+    <div class="metadata-panel" id="metadataPanel">
+      <h2>📚 Book Details</h2>
+      <div id="bookCover"></div>
+      <p><strong>Title:</strong> <span id="metaTitle">—</span></p>
+      <p><strong>Author:</strong> <span id="metaAuthor">—</span></p>
+      <p><strong>Year:</strong> <span id="metaYear">—</span></p>
+      <p><strong>Genres:</strong> <span id="metaGenres">—</span></p>
+      <p><strong>Rating:</strong> <span id="metaRating">—</span></p>
+      <p><strong>ISBN:</strong> <span id="metaISBN">—</span></p>
+      <p><strong>Description:</strong></p>
+      <p id="metaDescription">—</p>
+      <p><a id="metaLink" href="#" target="_blank">More Info</a></p>
+    </div>
+
   </div>
 
   <script>
@@ -297,7 +344,9 @@ Here
       canvas.style.transform = `rotate(${currentRotation}deg)`;
 
       setTimeout(() => {
-        result.innerHTML = `🎉 Winner: <strong>${items[randomIndex]}</strong>`;
+        const winner = items[randomIndex];
+        result.innerHTML = `🎉 Winner: <strong>${winner}</strong>`;
+        fetchBookMetadata(winner);
         spinning = false;
       }, 5000);
     }
@@ -342,6 +391,69 @@ Here
     });
 
     spinButton.addEventListener('touchend', releaseSpin);
+
+    /* 📚 FETCH BOOK METADATA */
+    async function fetchBookMetadata(title) {
+      try {
+        const url = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (!data.docs || data.docs.length === 0) {
+          displayMetadata(null);
+          return;
+        }
+
+        const book = data.docs[0];
+
+        const metadata = {
+          title: book.title || "Not available",
+          author: book.author_name ? book.author_name.join(", ") : "Not available",
+          year: book.first_publish_year || "Not available",
+          genres: book.subject ? book.subject.slice(0, 5).join(", ") : "Not available",
+          rating: book.ratings_average ? `${book.ratings_average.toFixed(1)} / 5` : "Not available",
+          isbn: book.isbn ? book.isbn[0] : "Not available",
+          description: book.first_sentence ? book.first_sentence : "No description available.",
+          cover: book.cover_i
+            ? `https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg`
+            : null,
+          link: book.key ? `https://openlibrary.org${book.key}` : "#"
+        };
+
+        displayMetadata(metadata);
+
+      } catch (error) {
+        console.error("Metadata fetch error:", error);
+        displayMetadata(null);
+      }
+    }
+
+    function displayMetadata(meta) {
+      if (!meta) {
+        document.getElementById("bookCover").innerHTML = "";
+        document.getElementById("metaTitle").textContent = "Not available";
+        document.getElementById("metaAuthor").textContent = "Not available";
+        document.getElementById("metaYear").textContent = "Not available";
+        document.getElementById("metaGenres").textContent = "Not available";
+        document.getElementById("metaRating").textContent = "Not available";
+        document.getElementById("metaISBN").textContent = "Not available";
+        document.getElementById("metaDescription").textContent = "Not available";
+        document.getElementById("metaLink").href = "#";
+        return;
+      }
+
+      document.getElementById("bookCover").innerHTML =
+        meta.cover ? `<img src="${meta.cover}" alt="Book Cover">` : "";
+
+      document.getElementById("metaTitle").textContent = meta.title;
+      document.getElementById("metaAuthor").textContent = meta.author;
+      document.getElementById("metaYear").textContent = meta.year;
+      document.getElementById("metaGenres").textContent = meta.genres;
+      document.getElementById("metaRating").textContent = meta.rating;
+      document.getElementById("metaISBN").textContent = meta.isbn;
+      document.getElementById("metaDescription").textContent = meta.description;
+      document.getElementById("metaLink").href = meta.link;
+    }
   </script>
 </body>
 </html>
