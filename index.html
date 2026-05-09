@@ -1,33 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!--
-    ULTRA TEACHING VERSION
-    ======================
-    This file is meant to TEACH you how everything works.
-
-    - Every major section is commented.
-    - JavaScript has deep explanations + diagrams.
-    - You can open this in the browser and it will still work.
-  -->
-
   <meta charset="UTF-8" />
-  <!--
-    meta viewport:
-    Tells mobile browsers how to scale the page.
-    "width=device-width" → match screen width.
-    "initial-scale=1.0" → no zoom by default.
-  -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Spin Wheel - Teaching Version</title>
+  <title>Spin Wheel – by Robert Cruz</title>
 
   <style>
-    /* 
-      GLOBAL RESET
-      ------------
-      Remove default margins/padding and use border-box so
-      width/height include padding and border.
-    */
     * {
       margin: 0;
       padding: 0;
@@ -35,13 +13,6 @@
       font-family: Arial, sans-serif;
     }
 
-    /*
-      BODY LAYOUT
-      -----------
-      - Full viewport height
-      - Center content horizontally and vertically
-      - Dark gradient background
-    */
     body {
       background: linear-gradient(135deg, #111827, #1f2937);
       color: white;
@@ -52,13 +23,6 @@
       padding: 20px;
     }
 
-    /*
-      MAIN CONTAINER
-      --------------
-      Two-column grid:
-      - Left: control panel
-      - Right: wheel
-    */
     .container {
       display: grid;
       grid-template-columns: 320px 1fr;
@@ -68,11 +32,6 @@
       align-items: center;
     }
 
-    /*
-      LEFT PANEL
-      ----------
-      Glassmorphism style: translucent, blurred background.
-    */
     .panel {
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -86,11 +45,6 @@
       margin-bottom: 20px;
     }
 
-    /*
-      TEXTAREA
-      --------
-      Where user types the list of choices.
-    */
     textarea {
       width: 100%;
       height: 240px;
@@ -104,11 +58,6 @@
       margin-bottom: 16px;
     }
 
-    /*
-      BUTTONS
-      -------
-      Shared base styles.
-    */
     button {
       width: 100%;
       border: none;
@@ -135,11 +84,6 @@
       color: white;
     }
 
-    /*
-      RESULT BOX
-      ----------
-      Shows the winner text.
-    */
     .result {
       margin-top: 20px;
       padding: 16px;
@@ -153,11 +97,6 @@
       justify-content: center;
     }
 
-    /*
-      WHEEL SECTION
-      -------------
-      Right side: wheel + pointer.
-    */
     .wheel-section {
       display: flex;
       justify-content: center;
@@ -165,24 +104,12 @@
       position: relative;
     }
 
-    /*
-      WHEEL WRAPPER
-      -------------
-      Fixed size container for the circular canvas.
-    */
     .wheel-wrapper {
       position: relative;
       width: 520px;
       height: 520px;
     }
 
-    /*
-      CANVAS
-      ------
-      - Circle (border-radius: 50%)
-      - White background
-      - Transition on transform for spin animation
-    */
     canvas {
       width: 100%;
       height: 100%;
@@ -192,12 +119,6 @@
       box-shadow: 0 0 30px rgba(0,0,0,0.5);
     }
 
-    /*
-      POINTER
-      -------
-      Triangle at the top center, pointing down.
-      This is the "selection" indicator.
-    */
     .pointer {
       position: absolute;
       top: -10px;
@@ -211,11 +132,6 @@
       z-index: 10;
     }
 
-    /*
-      RESPONSIVE
-      ----------
-      On small screens, stack columns vertically and shrink wheel.
-    */
     @media (max-width: 900px) {
       .container {
         grid-template-columns: 1fr;
@@ -230,22 +146,10 @@
 </head>
 
 <body>
-  <!--
-    PAGE STRUCTURE
-    ==============
-    Left: control panel (textarea + buttons + result)
-    Right: wheel (canvas + pointer)
-  -->
   <div class="container">
     <div class="panel">
-      <h1>🎡 Spin Wheel (Teaching Version)</h1>
+      <h1>🎡 Spin Wheel – by Robert Cruz</h1>
 
-      <!--
-        TEXTAREA CONTENT
-        ----------------
-        Default choices. Each line is one item.
-        These will be parsed into an array in JavaScript.
-      -->
       <textarea id="choices">Pizza
 Burger
 Tacos
@@ -253,30 +157,12 @@ Sushi
 Pasta
 Steak</textarea>
 
-      <!--
-        "Update Wheel" button:
-        Calls updateWheel() to re-parse textarea and redraw wheel.
-      -->
       <button class="update-btn" onclick="updateWheel()">Update Wheel</button>
-
-      <!--
-        "Press or Hold To Spin" button:
-        - mousedown / touchstart → startHoldSpin()
-        - mouseup / touchend → releaseSpin() → spinWheel()
-      -->
       <button class="spin-btn" id="spinButton">Press or Hold To Spin</button>
 
-      <!--
-        RESULT BOX:
-        Shows the winner after a spin.
-      -->
       <div class="result" id="result">Winner will appear here</div>
     </div>
 
-    <!--
-      WHEEL SECTION:
-      Contains the pointer and the canvas.
-    -->
     <div class="wheel-section">
       <div class="wheel-wrapper">
         <div class="pointer"></div>
@@ -286,343 +172,159 @@ Steak</textarea>
   </div>
 
   <script>
-    // ============================================================
-    // 1. CORE DOM REFERENCES
-    // ============================================================
-
-    // Get the <canvas> element where we draw the wheel.
     const canvas = document.getElementById('wheel');
-
-    // Get the 2D drawing context.
-    // This is the "pen" we use to draw shapes, text, arcs, etc.
     const ctx = canvas.getContext('2d');
-
-    // Get the result <div> where we show the winner.
     const result = document.getElementById('result');
 
-
-    // ============================================================
-    // 2. STATE VARIABLES (THE "BRAIN" OF THE APP)
-    // ============================================================
-
-    // items: array of strings, each one is a choice on the wheel.
     let items = [];
-
-    // currentRotation: total rotation applied to the wheel (in degrees).
-    // We keep adding to this so the wheel appears to keep spinning forward.
     let currentRotation = 0;
-
-    // spinning: true while a spin animation is in progress.
-    // Prevents overlapping spins.
     let spinning = false;
-
-    // holdInterval: ID of the interval used during "hold to spin" preview.
     let holdInterval = null;
-
-    // previewRotation: rotation angle used during hold-to-spin preview.
-    // When you release, this becomes the starting angle for the real spin.
     let previewRotation = 0;
 
-
-    // ============================================================
-    // 3. COLOR PALETTE FOR SLICES
-    // ============================================================
-
-    // We cycle through these colors for each slice.
     const colors = [
-      '#ef4444', // red
-      '#f97316', // orange
-      '#eab308', // yellow
-      '#22c55e', // green
-      '#06b6d4', // cyan
-      '#3b82f6', // blue
-      '#8b5cf6', // purple
-      '#ec4899'  // pink
+      '#ef4444','#f97316','#eab308','#22c55e',
+      '#06b6d4','#3b82f6','#8b5cf6','#ec4899'
     ];
 
-
-    // ============================================================
-    // 4. TEXTAREA + LOCALSTORAGE (PERSISTING CHOICES)
-    // ============================================================
-
-    // Get the textarea element.
     const choicesBox = document.getElementById("choices");
 
-    // Try to load previously saved choices from localStorage.
-    // localStorage stores key-value pairs as strings in the browser.
     const savedChoices = localStorage.getItem("wheelChoices");
-
-    // If we found saved choices, use them instead of the default text.
     if (savedChoices !== null) {
       choicesBox.value = savedChoices;
     }
 
-    // IMPORTANT:
-    // We call updateWheel() AFTER restoring textarea content,
-    // so the wheel is drawn with the correct items on first load.
     updateWheel();
 
-    // Whenever the user types in the textarea, save the content.
     choicesBox.addEventListener("input", () => {
       localStorage.setItem("wheelChoices", choicesBox.value);
     });
 
-
-    // ============================================================
-    // 5. FUNCTION: updateWheel()
-    // PURPOSE: Read textarea → build items[] → redraw wheel
-    // ============================================================
     function updateWheel() {
-      // Get the raw text from the textarea.
       const text = choicesBox.value;
 
-      // Convert the text into an array of clean items:
-      // 1. Split by newline.
-      // 2. Trim whitespace.
-      // 3. Remove empty lines.
       items = text
         .split('\n')
         .map(item => item.trim())
         .filter(item => item !== '');
 
-      // Now that items[] is updated, redraw the wheel.
       drawWheel();
     }
 
-
-    // ============================================================
-    // 6. FUNCTION: drawWheel()
-    // PURPOSE: Draw the wheel slices and labels on the canvas
-    // ============================================================
     function drawWheel() {
-      // Compute center of the canvas.
       const centerX = canvas.width / 2;
       const centerY = canvas.height / 2;
-
-      // Radius of the wheel.
       const radius = 240;
 
-      // Clear previous drawing.
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // If no items, nothing to draw.
       if (items.length === 0) return;
 
-      // Each slice angle in radians:
-      // full circle = 2π
-      // sliceAngle = 2π / number of items
       const sliceAngle = (Math.PI * 2) / items.length;
 
-      // --------------------------------------------------------
-      // DIAGRAM: ANGLES AROUND A CIRCLE (RADIANS)
-      //
-      //          270° (3π/2)
-      //              ↑
-      //              |
-      // 180° (π) ←   ●   → 0° (0 or 2π)
-      //              |
-      //              ↓
-      //          90° (π/2)
-      //
-      // --------------------------------------------------------
-
-      // Loop over each item and draw its slice + label.
       items.forEach((item, index) => {
-        // Start and end angles for this slice.
         const startAngle = index * sliceAngle;
         const endAngle = startAngle + sliceAngle;
 
-        // Draw the slice as a wedge from center to arc.
         ctx.beginPath();
         ctx.moveTo(centerX, centerY);
         ctx.arc(centerX, centerY, radius, startAngle, endAngle);
         ctx.closePath();
 
-        // Fill slice with color.
         ctx.fillStyle = colors[index % colors.length];
         ctx.fill();
 
-        // Save context state before transforming.
         ctx.save();
-
-        // Move origin to center of wheel.
         ctx.translate(centerX, centerY);
-
-        // Rotate so text is centered in the slice.
-        // Middle of slice = startAngle + sliceAngle / 2
         ctx.rotate(startAngle + sliceAngle / 2);
 
-        // Set text style.
         ctx.fillStyle = 'white';
         ctx.font = 'bold 20px Arial';
         ctx.textAlign = 'right';
-
-        // Draw text near outer edge, slightly inward.
         ctx.fillText(item, radius - 20, 10);
 
-        // Restore context to original state.
         ctx.restore();
       });
 
-      // Draw center circle for aesthetics.
       ctx.beginPath();
       ctx.arc(centerX, centerY, 50, 0, Math.PI * 2);
       ctx.fillStyle = '#111827';
       ctx.fill();
     }
 
-
-    // ============================================================
-    // 7. FUNCTION: spinWheel()
-    // PURPOSE: Animate wheel to land on a random item
-    // ============================================================
     function spinWheel() {
-      // Guard: if already spinning or no items, do nothing.
       if (spinning || items.length === 0) return;
 
       spinning = true;
       result.innerHTML = 'Spinning...';
 
-      // STEP 1: Choose a random item index.
       const randomIndex = Math.floor(Math.random() * items.length);
-
-      // Degrees per slice (for angle math in degrees).
       const degreesPerSlice = 360 / items.length;
 
-      // Starting angle of chosen slice (in degrees).
       const sliceStart = randomIndex * degreesPerSlice;
-
-      // Padding inside slice to avoid landing exactly on borders.
       const slicePadding = degreesPerSlice * 0.15;
 
-      // Random offset inside the slice, away from edges.
       const randomOffset =
         slicePadding +
         Math.random() * (degreesPerSlice - slicePadding * 2);
 
-      // Final angle (0–360°) where we want the pointer to hit inside that slice.
       const landingAngle = sliceStart + randomOffset;
-
-      // --------------------------------------------------------
-      // POINTER ALIGNMENT MATH
-      // --------------------------------------------------------
-      //
-      // CSS rotation:
-      //   0°   → right
-      //   90°  → down
-      //   180° → left
-      //   270° → up (top)
-      //
-      // Our pointer triangle is at the TOP of the wheel.
-      // So we treat the pointer as being at 270°.
-      //
-      // We want:
-      //   (currentRotation + landingAngle) ≡ 270 (mod 360)
-      //
-      // Solve for currentRotation (targetAngle):
-      //   currentRotation ≡ 270 - landingAngle (mod 360)
-      //
-      // So:
       const targetAngle = 270 - landingAngle;
 
-      // Normalize currentRotation to [0, 360) for easier math.
       const normalizedRotation = currentRotation % 360;
+      const extraSpins = 360 * 6;
 
-      // Extra full spins for satisfying animation.
-      const extraSpins = 360 * 6; // 6 full rotations
-
-      // Total rotation to add:
-      //   extraSpins → multiple full spins
-      //   (targetAngle - normalizedRotation) → align chosen slice under pointer
       const rotationAmount = extraSpins + (targetAngle - normalizedRotation);
-
-      // Update global rotation.
       currentRotation += rotationAmount;
 
-      // Apply rotation via CSS transform.
       canvas.style.transform = `rotate(${currentRotation}deg)`;
 
-      // After 5 seconds (CSS transition duration), show winner.
       setTimeout(() => {
         result.innerHTML = `🎉 Winner: <strong>${items[randomIndex]}</strong>`;
         spinning = false;
       }, 5000);
     }
 
-
-    // ============================================================
-    // 8. HOLD-TO-SPIN LOGIC
-    // PURPOSE: Let user hold button to preview rotation, then spin
-    // ============================================================
-
-    // Get the spin button.
     const spinButton = document.getElementById('spinButton');
 
-    // startHoldSpin:
-    // Called on mousedown / touchstart.
     function startHoldSpin() {
-      // If already spinning or preview running, do nothing.
       if (spinning || holdInterval) return;
 
-      // Disable transition so rotation changes are instant during preview.
       canvas.style.transition = 'none';
 
-      // Start interval ~60 FPS (16ms).
       holdInterval = setInterval(() => {
-        // Increase preview rotation by 15° each frame.
         previewRotation += 15;
-
-        // Apply preview rotation.
         canvas.style.transform = `rotate(${previewRotation}deg)`;
       }, 16);
     }
 
-    // releaseSpin:
-    // Called on mouseup / mouseleave / touchend.
     function releaseSpin() {
-      // If spinning or no preview, do nothing.
       if (spinning || !holdInterval) return;
 
-      // Stop preview interval.
       clearInterval(holdInterval);
       holdInterval = null;
 
-      // Sync main rotation with preview rotation.
       currentRotation = previewRotation;
 
-      // Force reflow so browser applies style changes immediately.
       void canvas.offsetWidth;
 
-      // Re-enable transition for real spin animation.
       canvas.style.transition = 'transform 5s cubic-bezier(0.17, 0.67, 0.2, 1)';
 
-      // Small delay so transition is applied before spinWheel changes transform.
       setTimeout(() => {
         spinWheel();
       }, 10);
     }
 
-
-    // ============================================================
-    // 9. EVENT LISTENERS (CONNECTING UI TO LOGIC)
-    // ============================================================
-
-    // Desktop: hold with mouse.
     spinButton.addEventListener('mousedown', startHoldSpin);
     window.addEventListener('mouseup', releaseSpin);
     spinButton.addEventListener('mouseleave', releaseSpin);
 
-    // Mobile: hold with touch.
     spinButton.addEventListener('touchstart', (e) => {
-      e.preventDefault(); // prevent scroll / tap highlight
+      e.preventDefault();
       startHoldSpin();
     });
 
     spinButton.addEventListener('touchend', releaseSpin);
-
-    // ============================================================
-    // END OF TEACHING VERSION
-    // ============================================================
   </script>
 </body>
 </html>
