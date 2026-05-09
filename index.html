@@ -43,7 +43,6 @@
       background: var(--panel-bg); 
       border: 1px solid var(--border-color); 
       backdrop-filter: blur(12px); 
-      -webkit-backdrop-filter: blur(12px);
       border-radius: 16px; 
       box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     }
@@ -61,13 +60,9 @@
       background: var(--panel-bg); 
       border: 1px solid var(--border-color); 
       backdrop-filter: blur(12px); 
-      -webkit-backdrop-filter: blur(12px);
       padding: 1.5rem; 
       border-radius: 16px; 
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     }
-
-    h1, h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem; }
 
     textarea { 
       width: 100%; 
@@ -79,12 +74,9 @@
       padding: 1rem; 
       resize: vertical; 
       font-size: 0.95rem; 
-      line-height: 1.5;
       margin-bottom: 1rem; 
       outline: none; 
-      transition: border-color 0.2s;
     }
-    textarea:focus { border-color: var(--primary); }
 
     .btn { 
       width: 100%; 
@@ -97,79 +89,42 @@
       transition: all 0.2s ease; 
       margin-bottom: 0.75rem; 
     }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
-    .btn:active:not(:disabled) { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-update { background: var(--primary); color: white; }
-    .btn-update:hover:not(:disabled) { background: var(--primary-hover); }
-    .btn-spin { background: var(--success); color: white; font-size: 1.1rem; padding: 1rem; }
-    .btn-spin:hover:not(:disabled) { background: var(--success-hover); box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+    .btn-spin { background: var(--success); color: white; font-size: 1.1rem; padding: 1rem; user-select: none; }
 
     .status-box { 
-      margin-top: 1rem; 
-      padding: 1rem; 
+      margin-top: 1rem; padding: 1rem; 
       background: rgba(0,0,0,0.4); 
       border-radius: 8px; 
       text-align: center; 
-      font-size: 1.1rem; 
-      font-weight: 500;
       min-height: 60px; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
+      display: flex; align-items: center; justify-content: center; 
       border: 1px dashed rgba(255,255,255,0.2); 
     }
 
-    .wheel-container { display: flex; justify-content: center; align-items: center; padding: 2rem 0; }
-    .wheel-wrapper { position: relative; width: 500px; height: 500px; }
-    
+    .wheel-wrapper { position: relative; width: 500px; height: 500px; margin: 0 auto; }
     .pointer { 
-      position: absolute; 
-      top: -20px; 
-      left: 50%; 
-      transform: translateX(-50%); 
-      width: 0; 
-      height: 0; 
-      border-left: 20px solid transparent; 
-      border-right: 20px solid transparent; 
-      border-top: 45px solid #ef4444; 
+      position: absolute; top: -20px; left: 50%; transform: translateX(-50%); 
+      width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 45px solid #ef4444; 
       z-index: 10; 
-      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); 
     }
 
-    canvas { 
-      width: 100% !important; 
-      height: 100% !important; 
-      border-radius: 50%; 
-      box-shadow: 0 0 40px var(--wheel-shadow); 
-      will-change: transform; 
-    }
+    canvas { width: 100% !important; height: 100% !important; border-radius: 50%; will-change: transform; }
 
-    .metadata-panel { height: 650px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--primary) var(--bg-dark); }
-    .metadata-panel::-webkit-scrollbar { width: 6px; }
-    .metadata-panel::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
-
+    .metadata-panel { height: 650px; overflow-y: auto; }
     .cover-wrapper { width: 100%; aspect-ratio: 2/3; background: rgba(0,0,0,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; overflow: hidden; border: 1px solid var(--border-color); }
     #bookCover img { width: 100%; height: 100%; object-fit: cover; }
     
     .meta-grid { display: grid; grid-template-columns: 80px 1fr; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.9rem; }
-    .meta-label { color: var(--text-muted); font-weight: 500; }
-    .meta-value { color: var(--text-main); font-weight: 600; word-break: break-word; }
+    .meta-label { color: var(--text-muted); }
+    .meta-value { color: var(--text-main); font-weight: 600; }
     
     .desc-box { font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
-    .external-link { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--primary); text-decoration: none; font-weight: 600; font-size: 0.9rem; margin-bottom: 1.5rem; transition: color 0.2s; }
-    .external-link:hover { color: var(--text-main); }
-
-    .review-section { background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
     .stars { font-size: 1.8rem; cursor: pointer; color: #475569; margin-bottom: 0.5rem; display: flex; gap: 0.25rem; }
-    .stars span { transition: color 0.2s, transform 0.1s; }
-    .stars span:hover { transform: scale(1.1); }
-    .stars span.active { color: #fbbf24; text-shadow: 0 0 12px rgba(251, 191, 36, 0.4); }
+    .stars span.active { color: #fbbf24; }
 
-    @media (max-width: 1100px) { 
-      .layout-grid { grid-template-columns: 1fr; max-width: 600px; margin: 0 auto; } 
-      .wheel-wrapper { width: 100%; max-width: 400px; height: 400px; } 
-      .metadata-panel { height: auto; }
-    }
+    @media (max-width: 1100px) { .layout-grid { grid-template-columns: 1fr; } .wheel-wrapper { width: 350px; height: 350px; } }
   </style>
 </head>
 <body>
@@ -177,21 +132,18 @@
   <header class="header">Spin Wheel – Pro Edition</header>
 
   <main class="layout-grid">
-    <!-- Left Panel: Controls -->
     <aside class="card">
       <h1>🎡 My Library</h1>
-      <textarea id="choicesInput" placeholder="Enter book titles here, one per line...">Dune
+      <textarea id="choicesInput">Dune
 The Hobbit
 1984
 The Great Gatsby
-The Catcher in the Rye
-Project Hail Mary</textarea>
+The Catcher in the Rye</textarea>
       <button class="btn btn-update" id="btnUpdate">Save & Update Wheel</button>
-      <button class="btn btn-spin" id="btnSpin">Spin the Wheel</button>
+      <button class="btn btn-spin" id="btnSpin">HOLD TO SPIN</button>
       <div class="status-box" id="statusBox">Ready to spin!</div>
     </aside>
 
-    <!-- Center Panel: The Wheel -->
     <section class="wheel-container">
       <div class="wheel-wrapper">
         <div class="pointer"></div>
@@ -199,34 +151,23 @@ Project Hail Mary</textarea>
       </div>
     </section>
 
-    <!-- Right Panel: Metadata & Reviews -->
     <aside class="card metadata-panel">
       <h2>📚 Book Details</h2>
-      <div class="cover-wrapper" id="bookCover"><span style="color:var(--text-muted)">No Book Selected</span></div>
-      
+      <div class="cover-wrapper" id="bookCover"></div>
       <div class="meta-grid">
         <div class="meta-label">Title:</div><div class="meta-value" id="metaTitle">—</div>
         <div class="meta-label">Author:</div><div class="meta-value" id="metaAuthor">—</div>
-        <div class="meta-label">Year:</div><div class="meta-value" id="metaYear">—</div>
-        <div class="meta-label">Rating:</div><div class="meta-value" id="metaRating">—</div>
       </div>
-      
-      <div class="desc-box" id="metaDescription">Spin the wheel to select a book and view its details.</div>
-      <a id="metaLink" href="#" target="_blank" class="external-link" style="display: none;">↗ View on Open Library</a>
-
-      <div class="review-section">
-        <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">Your Personal Review</h3>
-        <div id="starContainer" class="stars"></div>
-        <textarea id="reviewInput" style="height: 80px; margin-bottom: 0.5rem;" placeholder="What did you think of this book?"></textarea>
-        <button class="btn btn-update" id="btnSaveReview" style="margin-bottom: 0;">Save Thoughts</button>
-      </div>
+      <div class="desc-box" id="metaDescription">Select a book to view details.</div>
+      <div id="starContainer" class="stars"></div>
+      <textarea id="reviewInput" style="height: 80px;" placeholder="Your review..."></textarea>
+      <button class="btn btn-update" id="btnSaveReview">Save Thoughts</button>
     </aside>
   </main>
 
   <script>
     class BookWheelApp {
       constructor() {
-        // DOM Elements
         this.ui = {
           canvas: document.getElementById('wheelCanvas'),
           ctx: document.getElementById('wheelCanvas').getContext('2d'),
@@ -234,31 +175,16 @@ Project Hail Mary</textarea>
           btnUpdate: document.getElementById('btnUpdate'),
           btnSpin: document.getElementById('btnSpin'),
           statusBox: document.getElementById('statusBox'),
-          meta: {
-            title: document.getElementById('metaTitle'),
-            author: document.getElementById('metaAuthor'),
-            year: document.getElementById('metaYear'),
-            rating: document.getElementById('metaRating'),
-            desc: document.getElementById('metaDescription'),
-            cover: document.getElementById('bookCover'),
-            link: document.getElementById('metaLink')
-          },
-          review: {
-            stars: document.getElementById('starContainer'),
-            input: document.getElementById('reviewInput'),
-            btnSave: document.getElementById('btnSaveReview')
-          }
+          meta: { title: document.getElementById('metaTitle'), author: document.getElementById('metaAuthor'), desc: document.getElementById('metaDescription'), cover: document.getElementById('bookCover') },
+          review: { stars: document.getElementById('starContainer'), input: document.getElementById('reviewInput'), btnSave: document.getElementById('btnSaveReview') }
         };
 
-        // State
         this.items = [];
         this.currentRotation = 0;
         this.isSpinning = false;
-        this.selectedBook = null;
-        this.selectedRating = 0;
+        this.isHolding = false;
+        this.holdInterval = null;
         this.apiCache = new Map();
-        
-        // Colors palette
         this.colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'];
 
         this.init();
@@ -274,15 +200,17 @@ Project Hail Mary</textarea>
 
       bindEvents() {
         this.ui.btnUpdate.addEventListener('click', () => this.updateWheel());
-        this.ui.btnSpin.addEventListener('click', () => this.spin());
         this.ui.btnSaveReview.addEventListener('click', () => this.saveReview());
         
-        window.addEventListener('resize', () => {
-          if (!this.isSpinning) {
-            this.setupCanvas();
-            this.drawWheel();
-          }
-        });
+        // Hold logic
+        this.ui.btnSpin.addEventListener('mousedown', (e) => this.startHold(e));
+        window.addEventListener('mouseup', () => this.endHold());
+        
+        // Touch support
+        this.ui.btnSpin.addEventListener('touchstart', (e) => { e.preventDefault(); this.startHold(e); });
+        window.addEventListener('touchend', () => this.endHold());
+
+        window.addEventListener('resize', () => { if (!this.isSpinning) { this.setupCanvas(); this.drawWheel(); } });
       }
 
       loadChoices() {
@@ -293,193 +221,126 @@ Project Hail Mary</textarea>
       setupCanvas() {
         const dpr = window.devicePixelRatio || 1;
         const rect = this.ui.canvas.parentElement.getBoundingClientRect();
-        
         this.ui.canvas.width = rect.width * dpr;
         this.ui.canvas.height = rect.height * dpr;
-        
         this.ui.ctx.scale(dpr, dpr);
-        
         this.ui.canvas.style.width = `${rect.width}px`;
         this.ui.canvas.style.height = `${rect.height}px`;
-        
         this.canvasSize = rect.width;
       }
 
       updateWheel() {
-        const rawItems = this.ui.choicesInput.value.split('\n');
-        this.items = rawItems.map(i => i.trim()).filter(i => i.length > 0);
+        this.items = this.ui.choicesInput.value.split('\n').map(i => i.trim()).filter(i => i.length > 0);
         localStorage.setItem('proWheelChoices', this.ui.choicesInput.value);
-        
-        this.ui.statusBox.textContent = `${this.items.length} items loaded. Ready!`;
         this.drawWheel();
       }
 
       drawWheel() {
         const ctx = this.ui.ctx;
         const center = this.canvasSize / 2;
-        const radius = center - 10; 
-        
+        const radius = center - 10;
         ctx.clearRect(0, 0, this.canvasSize, this.canvasSize);
         if (this.items.length === 0) return;
-
         const sliceAngle = (Math.PI * 2) / this.items.length;
 
         this.items.forEach((item, i) => {
           const angle = i * sliceAngle;
-          
           ctx.beginPath();
           ctx.moveTo(center, center);
           ctx.arc(center, center, radius, angle, angle + sliceAngle);
           ctx.fillStyle = this.colors[i % this.colors.length];
           ctx.fill();
-          
-          ctx.lineWidth = 2;
-          ctx.strokeStyle = '#0f172a';
-          ctx.stroke();
-
           ctx.save();
           ctx.translate(center, center);
           ctx.rotate(angle + sliceAngle / 2);
           ctx.fillStyle = '#ffffff';
           ctx.font = '600 16px Inter, sans-serif';
           ctx.textAlign = 'right';
-          ctx.textBaseline = 'middle';
-          
-          const displayText = item.length > 20 ? item.substring(0, 17) + "..." : item;
-          ctx.fillText(displayText, radius - 25, 0);
+          ctx.fillText(item.length > 18 ? item.substring(0, 15) + "..." : item, radius - 25, 0);
           ctx.restore();
         });
-
-        ctx.beginPath();
-        ctx.arc(center, center, 20, 0, Math.PI * 2);
-        ctx.fillStyle = '#1e293b';
-        ctx.fill();
-        ctx.lineWidth = 4;
-        ctx.strokeStyle = '#ffffff';
-        ctx.stroke();
       }
 
-      spin() {
+      startHold(e) {
         if (this.isSpinning || this.items.length === 0) return;
+        this.isHolding = true;
+        this.ui.canvas.style.transition = 'none';
+        this.ui.statusBox.textContent = "Powering up...";
         
-        this.setSpinState(true);
-        this.ui.statusBox.innerHTML = "Spinning... 🎲";
+        this.holdInterval = setInterval(() => {
+          this.currentRotation += 12; // Rotate while holding
+          this.ui.canvas.style.transform = `rotate(${this.currentRotation}deg)`;
+        }, 16);
+      }
+
+      endHold() {
+        if (!this.isHolding) return;
+        this.isHolding = false;
+        clearInterval(this.holdInterval);
+        this.finalizeSpin();
+      }
+
+      finalizeSpin() {
+        this.isSpinning = true;
+        this.ui.btnSpin.disabled = true;
+        this.ui.statusBox.textContent = "Spinning...";
 
         const randomIndex = Math.floor(Math.random() * this.items.length);
         const degreesPerSlice = 360 / this.items.length;
         const targetAngle = 270 - (randomIndex * degreesPerSlice + (degreesPerSlice / 2));
         
-        const spins = 8;
-        this.currentRotation += (360 * spins) + (targetAngle - (this.currentRotation % 360));
+        // Add 5 more full spins to the current holding rotation for the "finish"
+        this.currentRotation += (360 * 5) + (targetAngle - (this.currentRotation % 360));
 
-        this.ui.canvas.style.transition = 'transform 4.5s cubic-bezier(0.2, 0.8, 0.2, 1)';
+        this.ui.canvas.style.transition = 'transform 4s cubic-bezier(0.15, 0, 0.15, 1)';
         this.ui.canvas.style.transform = `rotate(${this.currentRotation}deg)`;
 
-        setTimeout(() => this.handleSpinComplete(this.items[randomIndex]), 4600);
+        setTimeout(() => {
+          const winner = this.items[randomIndex];
+          this.ui.statusBox.innerHTML = `🎉 Winner: <strong>${winner}</strong>`;
+          this.handleWinner(winner);
+          this.isSpinning = false;
+          this.ui.btnSpin.disabled = false;
+        }, 4100);
       }
 
-      setSpinState(isSpinning) {
-        this.isSpinning = isSpinning;
-        this.ui.btnSpin.disabled = isSpinning;
-        this.ui.btnUpdate.disabled = isSpinning;
-        this.ui.choicesInput.disabled = isSpinning;
-      }
-
-      async handleSpinComplete(winner) {
+      async handleWinner(winner) {
         this.selectedBook = winner;
-        this.ui.statusBox.innerHTML = `🎉 Winner: <strong>${winner}</strong>`;
-        
-        this.ui.meta.desc.innerHTML = "<em>Fetching book data...</em>";
-        
         const data = await this.fetchBookData(winner);
-        this.renderMetadata(data);
+        this.ui.meta.title.textContent = data.title;
+        this.ui.meta.author.textContent = data.author;
+        this.ui.meta.desc.textContent = data.description;
+        this.ui.meta.cover.innerHTML = data.cover ? `<img src="${data.cover}" onerror="this.style.display='none'">` : '';
         this.loadReview(winner);
-        
-        this.setSpinState(false);
       }
 
       async fetchBookData(title) {
         if (this.apiCache.has(title)) return this.apiCache.get(title);
-        
         try {
-          const [olRes, gRes] = await Promise.all([
-            fetch(`https://openlibrary.org/search.json?title=${encodeURIComponent(title)}`).then(r => r.json()),
-            fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(title)}`).then(r => r.json())
-          ]);
-          
-          const olDoc = olRes.docs?.[0];
-          const gItem = gRes.items?.[0]?.volumeInfo;
-          
-          let coverUrl = "";
-
-          // Fallback System 1: Try Google Books first
-          if (gItem?.imageLinks?.thumbnail) {
-            coverUrl = gItem.imageLinks.thumbnail.replace("http://", "https://");
-            coverUrl = coverUrl.replace("&zoom=1", "&zoom=2"); // Try to get higher res
-          } 
-          // Fallback System 2: Try Open Library Covers API
-          else if (olDoc?.cover_i) {
-            coverUrl = `https://covers.openlibrary.org/b/id/${olDoc.cover_i}-L.jpg`;
-          }
-
+          const gRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(title)}`).then(r => r.json());
+          const item = gRes.items?.[0]?.volumeInfo;
           const data = {
-            title: olDoc?.title || gItem?.title || title,
-            author: olDoc?.author_name?.join(", ") || gItem?.authors?.join(", ") || "Unknown",
-            year: olDoc?.first_publish_year || gItem?.publishedDate?.substring(0,4) || "N/A",
-            rating: olDoc?.ratings_average ? `${olDoc.ratings_average.toFixed(1)}/5` : "N/A",
-            description: gItem?.description || "No description available for this work.",
-            cover: coverUrl,
-            link: olDoc ? `https://openlibrary.org${olDoc.key}` : "#"
+            title: item?.title || title,
+            author: item?.authors?.join(", ") || "Unknown",
+            description: item?.description || "No description.",
+            cover: item?.imageLinks?.thumbnail?.replace("http://", "https://") || ""
           };
-          
           this.apiCache.set(title, data);
           return data;
-        } catch (e) {
-          console.error("API Error:", e);
-          return { title, author: "Error loading data", year: "—", rating: "—", description: "Failed to fetch details.", cover: "", link: "#" };
-        }
-      }
-
-      renderMetadata(meta) {
-        this.ui.meta.title.textContent = meta.title;
-        this.ui.meta.author.textContent = meta.author;
-        this.ui.meta.year.textContent = meta.year;
-        this.ui.meta.rating.textContent = meta.rating;
-        this.ui.meta.desc.textContent = meta.description;
-        
-        if (meta.cover) {
-          // Added an onerror fallback so broken links show text instead of a broken image icon
-          this.ui.meta.cover.innerHTML = `<img src="${meta.cover}" alt="Cover" onerror="this.onerror=null; this.parentElement.innerHTML='<span style=\\'color:var(--text-muted)\\'>No Cover Found</span>';">`;
-        } else {
-          this.ui.meta.cover.innerHTML = `<span style="color:var(--text-muted)">No Cover Found</span>`;
-        }
-
-        if (meta.link !== "#") {
-          this.ui.meta.link.style.display = "inline-flex";
-          this.ui.meta.link.href = meta.link;
-        } else {
-          this.ui.meta.link.style.display = "none";
-        }
+        } catch (e) { return { title, author: "Error", description: "Failed to load.", cover: "" }; }
       }
 
       setupStars() {
-        this.ui.review.stars.innerHTML = '';
         for (let i = 1; i <= 5; i++) {
           const s = document.createElement("span");
           s.innerHTML = "★";
-          s.dataset.val = i;
-          s.addEventListener('click', () => {
-            this.selectedRating = i;
-            this.updateStarUI();
-          });
+          s.onclick = () => { this.selectedRating = i; this.updateStarUI(); };
           this.ui.review.stars.appendChild(s);
         }
       }
 
       updateStarUI() {
-        Array.from(this.ui.review.stars.children).forEach((s, i) => {
-          s.className = (i < this.selectedRating) ? 'active' : '';
-        });
+        Array.from(this.ui.review.stars.children).forEach((s, i) => s.className = (i < this.selectedRating) ? 'active' : '');
       }
 
       loadReview(title) {
@@ -490,30 +351,15 @@ Project Hail Mary</textarea>
       }
 
       saveReview() {
-        if (!this.selectedBook) {
-          alert("Please spin the wheel to select a book first!");
-          return;
-        }
+        if (!this.selectedBook) return;
         const saved = JSON.parse(localStorage.getItem("proBookReviews") || "{}");
-        saved[this.selectedBook] = { 
-          rating: this.selectedRating, 
-          review: this.ui.review.input.value.trim() 
-        };
+        saved[this.selectedBook] = { rating: this.selectedRating, review: this.ui.review.input.value };
         localStorage.setItem("proBookReviews", JSON.stringify(saved));
-        
-        const originalText = this.ui.btnSaveReview.textContent;
-        this.ui.btnSaveReview.textContent = "Saved! ✓";
-        this.ui.btnSaveReview.style.background = "var(--success)";
-        setTimeout(() => {
-          this.ui.btnSaveReview.textContent = originalText;
-          this.ui.btnSaveReview.style.background = "var(--primary)";
-        }, 2000);
+        alert("Saved!");
       }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      window.app = new BookWheelApp();
-    });
+    document.addEventListener('DOMContentLoaded', () => { new BookWheelApp(); });
   </script>
 </body>
 </html>
