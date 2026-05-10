@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+  <h2>Book Picker</h2>
+  
+  <!-- 1. The Input -->
+  <textarea id="bookList" rows="5">
+The Hobbit
+1984
+The Great Gatsby
+Dune</textarea>
+  <br>
+
+  <!-- 2. The Trigger -->
+  <button onclick="pickBook()">Pick a Random Book</button>
+
+  <!-- 3. The Output -->
+  <h1 id="result">---</h1>
+
+  <script>
+    function pickBook() {
+      // Step A: Get the text from the box
+      const text = document.getElementById("bookList").value;
+
+      // Step B: Turn that text into a List (Array) by splitting at every new line
+      const books = text.split("\n");
+
+      // Step C: Generate a random number between 0 and the length of the list
+      const randomIndex = Math.floor(Math.random() * books.length);
+
+      // Step D: Show the book at that random position
+      document.getElementById("result").innerText = books[randomIndex];
+    }
+  </script>
+
+</body>
+</html>
