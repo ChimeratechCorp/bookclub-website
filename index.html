@@ -2,36 +2,38 @@
 <html>
 <body>
 
-  <h2>Book Picker</h2>
+  <h2>PROJECT BOOK CLUB 
+  <br>By: Robert Cruz</h2> 
   
-  <!-- 1. The Input -->
-  <textarea id="bookList" rows="5">
-The Hobbit
-1984
-The Great Gatsby
-Dune</textarea>
+  
+  <h3>Add books to the textbook below each on a newline</h3>
+  <textarea id="bookList" rows="3">Add 
+Books 
+Here</textarea>
   <br>
-
-  <!-- 2. The Trigger -->
-  <button onclick="pickBook()">Pick a Random Book</button>
-
-  <!-- 3. The Output -->
+  
+  <button onclick="pickBook()">Click</button>
   <h1 id="result">---</h1>
 
   <script>
+    
     function pickBook() {
-      // Step A: Get the text from the box
       const text = document.getElementById("bookList").value;
-
-      // Step B: Turn that text into a List (Array) by splitting at every new line
       const books = text.split("\n");
-
-      // Step C: Generate a random number between 0 and the length of the list
+      
+      
+      /* Math.random(): Generates a floating-point number between 0 (inclusive) and 1 (exclusive). 
+      Think of it as a percentage, like 0.65.
+      Multiplies that decimal by the number of items in your list. 
+      If you have 10 books, the result will be between 0 and 9.999....
+      Math.floor(): Chops off the decimals (rounds down to the nearest whole number).
+      This ensures you get a valid integer that maps perfectly to array indices (which start at 0).*/
+      
       const randomIndex = Math.floor(Math.random() * books.length);
-
-      // Step D: Show the book at that random position
       document.getElementById("result").innerText = books[randomIndex];
+
     }
+    
   </script>
 
 </body>
