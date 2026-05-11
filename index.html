@@ -1,42 +1,63 @@
 <!DOCTYPE html>
 <html>
-<body>
-<head>
+  <head>
     <title>Project Bookclub</title>
-</head>
+  </head>
+  <body>
   <h2>PROJECT BOOKCLUB 
   <br>By: Robert Cruz</h2> 
   
   
   <h3>Add books to the textbook below each on a newline</h3>
-  <textarea id="bookList" rows="3">Add 
-Books 
-Here</textarea>
-  <br>
+  <textarea id="bookList" rows="5">Book A
+Book B
+Book C</textarea>
+  <button onclick="pickAndDraw()">Click</button>
   
-  <button onclick="pickBook()">Click</button>
   <h1 id="result">---</h1>
+  <canvas id="wheelCanvas" width="200" height="200"></canvas>
 
   <script>
-    
-    function pickBook() {
-      const text = document.getElementById("bookList").value;
-      const books = text.split("\n");
-      
-      
-      /* Math.random(): Generates a floating-point number between 0 (inclusive) and 1 (exclusive). 
-      Think of it as a percentage, like 0.65.
-      Multiplies that decimal by the number of items in your list. 
-      If you have 10 books, the result will be between 0 and 9.999....
-      Math.floor(): Chops off the decimals (rounds down to the nearest whole number).
-      This ensures you get a valid integer that maps perfectly to array indices (which start at 0).*/
-      
-      const randomIndex = Math.floor(Math.random() * books.length);
-      document.getElementById("result").innerText = "The winner is: " + books[randomIndex];
+    function pickAndDraw() {
+      const books = document.getElementById("bookList").value.split("\n").filter(b => b.trim() !== "");
+      if (books.length === 0) { 
+        document.getElementById("result").innerText = "Please add some books!";
+        return;
+      }
+      const winnerIndex = Math.floor(Math.random() * books.length);
+      document.getElementById("result").innerText = "Winner: " + books[winnerIndex];
 
+      // 2. DRAWING LOGIC (The "Math" part)
+      const canvas = document.getElementById("wheelCanvas");
+      const ctx = canvas.getContext("2d");
+      
+      const totalCircle = Math.PI * 2;       
+      // A full circle in radians (approx 6.28)
+      // Why radians? Because the arc function uses radians, not degrees.
+
+      const sliceSize = totalCircle / books.length; 
+      // Divide circle by number of books
+      // Each slice will be this big in radians
+
+      ctx.clearRect(0, 0, 200, 200); 
+      // Wipe the canvas clean
+
+      for (let i = 0; i < books.length; i++) {
+        const startAngle = i * sliceSize;     // Where the slice starts
+        const endAngle = (i + 1) * sliceSize; // Where the slice ends
+
+        ctx.beginPath();
+        ctx.moveTo(100, 100);                 // Move to center of canvas
+        ctx.arc(100, 100, 80, startAngle, endAngle); // Draw the curve
+        ctx.lineTo(100, 100);                 // Line back to center to close the "triangle"
+        
+        // Logic: If this slice is the winner, make it gray. Else, make it white.
+        ctx.fillStyle = (i === winnerIndex) ? "gray" : "white";
+        
+        //ctx.fill();   // Color the inside
+        ctx.stroke(); // Draw the black outline
+      }
     }
-    
   </script>
-
-</body>
+  </body>
 </html>
