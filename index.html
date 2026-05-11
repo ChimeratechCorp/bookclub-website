@@ -16,6 +16,7 @@ Book C</textarea>
   <br><button onclick="pickAndDraw()">Click to Spin!</button>
   
   <h1 id="result">Spin the Wheel!</h1>
+  <h1 id="angle">---</h1>
   <canvas id="wheelCanvas" width="200" height="200"></canvas>
   USING MATH TO DRAW A WHEEL
   360 degrees is 2pie radians
@@ -54,6 +55,25 @@ Book C</textarea>
       // Divide circle by number of books
       // Each slice will be this big in radians
 
+// Calculate the fraction of Pi
+// We want to show (2 / books.length) * PI
+let numerator = 2;
+let denominator = books.length;
+
+// Simple simplification: if the number of books is even, 
+// we can divide both by 2 to make it look cleaner
+if (denominator % 2 === 0) {
+    numerator /= 2;
+    denominator /= 2;
+}
+
+// Format the string
+let pieString = (numerator === 1 ? "" : numerator) + "π";
+if (denominator !== 1) {
+    pieString += " / " + denominator;
+}
+
+document.getElementById("angle").innerText = "Each slice in degrees: " + (sliceSize * (180 / Math.PI)).toFixed(2) + " degrees, which is " + pieString + " radians";
       ctx.clearRect(0, 0, 200, 200); 
       // Wipe the canvas clean before drawing the new wheel
       // or it will just draw on top of the old one and look messy
