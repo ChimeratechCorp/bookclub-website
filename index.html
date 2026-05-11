@@ -3,6 +3,7 @@
   <head>
     <title>Project Bookclub</title>
   </head>
+  
   <body>
   <h2>PROJECT BOOKCLUB 
   <br>By: Robert Cruz</h2> 
@@ -12,35 +13,50 @@
   <textarea id="bookList" rows="5">Book A
 Book B
 Book C</textarea>
-  <button onclick="pickAndDraw()">Click</button>
+  <br><button onclick="pickAndDraw()">Click to Spin!</button>
   
-  <h1 id="result">---</h1>
+  <h1 id="result">Spin the Wheel!</h1>
   <canvas id="wheelCanvas" width="200" height="200"></canvas>
-
+  USING MATH TO DRAW A WHEEL
+  360 degrees is 2pie radians
+  If we have 3 books, each slice is 120 degrees, which is 2pie/3 radians
+  If we have 4 books, each slice is 90 degrees, which is 2pie/4 radians
+  If we have 5 books, each slice is 72 degrees, which is 2pie/5 radians
+  So the formula for slice size is 2pie / number of books in arrary! 
+  
   <script>
     function pickAndDraw() {
+
+      //add everything in the textarea to an array, split by newlines, and filter out empty lines
       const books = document.getElementById("bookList").value.split("\n").filter(b => b.trim() !== "");
+
+      // If there are no books, show a message and exit the function
       if (books.length === 0) { 
         document.getElementById("result").innerText = "Please add some books!";
         return;
       }
-      const winnerIndex = Math.floor(Math.random() * books.length);
-      document.getElementById("result").innerText = "Winner: " + books[winnerIndex];
 
-      // 2. DRAWING LOGIC (The "Math" part)
+      // Logic to pick a random winner from the array of books
+      // That number will be between 0 and the length of the books array
+      // Lining up with the index of the array, we can use that random number to pick a winner
+      const winnerIndex = Math.floor(Math.random() * books.length);
+
+      // Display the winner in the result element
+      document.getElementById("result").innerText = "The winner is: " + books[winnerIndex];
+      
+      // 
       const canvas = document.getElementById("wheelCanvas");
       const ctx = canvas.getContext("2d");
       
-      const totalCircle = Math.PI * 2;       
+      const sliceSize = (Math.PI * 2) / books.length; 
       // A full circle in radians (approx 6.28)
       // Why radians? Because the arc function uses radians, not degrees.
-
-      const sliceSize = totalCircle / books.length; 
       // Divide circle by number of books
       // Each slice will be this big in radians
 
       ctx.clearRect(0, 0, 200, 200); 
-      // Wipe the canvas clean
+      // Wipe the canvas clean before drawing the new wheel
+      // or it will just draw on top of the old one and look messy
 
       for (let i = 0; i < books.length; i++) {
         const startAngle = i * sliceSize;     // Where the slice starts
@@ -48,10 +64,15 @@ Book C</textarea>
 
         ctx.beginPath();
         ctx.moveTo(100, 100);                 // Move to center of canvas
-        ctx.arc(100, 100, 80, startAngle, endAngle); // Draw the curve
-        ctx.lineTo(100, 100);                 // Line back to center to close the "triangle"
-        
-        // Logic: If this slice is the winner, make it gray. Else, make it white.
+        ctx.arc(100, 100, 80, startAngle, endAngle);
+        // From center (100,100) with radius 80, draw arc from startAngle to endAngle
+        // This creates a "slice" of the wheel for each book
+
+        ctx.lineTo(100, 100);
+        // Line back to center to close the "triangle"
+        // Now we have a slice drawn from the center out to the edge of the circle
+      
+        //Logic: If this slice is the winner, make it gray. Else, make it white.
         ctx.fillStyle = (i === winnerIndex) ? "gray" : "white";
         
         //ctx.fill();   // Color the inside
