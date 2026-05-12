@@ -13,7 +13,7 @@
   <textarea id="bookList" rows="5">Book A
 Book B
 Book C</textarea>
-  <br><button onclick="pickAndDraw()">Click to Spin!</button>
+  <br><button onclick="dostuff()">Click to Spin!</button>
   
   <h1 id="result">Spin the Wheel!</h1>
   <h1 id="angle">---</h1>
@@ -27,7 +27,7 @@ Book C</textarea>
   n = number of books in arrary! 
   
   <script>
-    function pickAndDraw() {
+    function dostuff() {
 
       //add everything in the textarea to an array, split by newlines, and filter out empty lines
       const books = document.getElementById("bookList").value.split("\n").filter(b => b.trim() !== "");
@@ -56,29 +56,29 @@ Book C</textarea>
       // Divide circle by number of books
       // Each slice will be this big in radians
 
-// Calculate the fraction of Pi
-// We want to show (2 / books.length) * PI
-let numerator = 2;
-let denominator = books.length;
+      // Calculate the fraction of Pi
+      // We want to show (2 / books.length) * PI
+      let numerator = 2;
+      let denominator = books.length;
 
-// Simple simplification: if the number of books is even, 
-// we can divide both by 2 to make it look cleaner
-if (denominator % 2 === 0) {
-    numerator /= 2;
-    denominator /= 2;
-}
-
-// Format the string
-let pieString = (numerator === 1 ? "" : numerator) + "π";
-if (denominator !== 1) {
-    pieString += " / " + denominator;
-}
-
-document.getElementById("angle").innerText = "Each slice in degrees: " + (sliceSize * (180 / Math.PI)).toFixed(2) + " degrees, which is " + pieString + " radians";
+      // Simple simplification: if the number of books is even, 
+      // we can divide both by 2 to make it look cleaner
+      if (denominator % 2 === 0) {
+        numerator /= 2;
+        denominator /= 2;
+      }
+      
+      // Format the string
+      let pieString = (numerator === 1 ? "" : numerator) + "π";
+      if (denominator !== 1) {
+        pieString += " / " + denominator;
+      }
+      
+      document.getElementById("angle").innerText = "Each slice in degrees: " + (sliceSize * (180 / Math.PI)).toFixed(2) + " degrees, which is " + pieString + " radians";
       ctx.clearRect(0, 0, 200, 200); 
       // Wipe the canvas clean before drawing the new wheel
       // or it will just draw on top of the old one and look messy
-
+    
       for (let i = 0; i < books.length; i++) {
         const startAngle = i * sliceSize;     // Where the slice starts
         const endAngle = (i + 1) * sliceSize; // Where the slice ends
@@ -96,10 +96,11 @@ document.getElementById("angle").innerText = "Each slice in degrees: " + (sliceS
         //Logic: If this slice is the winner, make it gray. Else, make it white.
         ctx.fillStyle = (i === winnerIndex) ? "gray" : "white";
         
-        //ctx.fill();   // Color the inside
+        ctx.fill();   // Color the inside
         ctx.stroke(); // Draw the black outline
       }
     }
-  </script>
-  </body>
-</html>
+
+    </script>
+    </body>
+    </html>
