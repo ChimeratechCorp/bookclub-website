@@ -7,8 +7,9 @@
   <body>
   <h2>PROJECT BOOKCLUB 
   <br>By: Robert Cruz</h2> 
-  <h3>Add books to the textbook below each on a newline</h3>
   
+  
+  <h3>Add books to the textbook below each on a newline</h3>
   <textarea id="bookList" rows="5">Book A
 Book B
 Book C</textarea>
@@ -24,56 +25,11 @@ Book C</textarea>
   If we have 5 books, each slice is 72 degrees, which is 2π/5 radians<br>
   So the formula for slice size is 2π / n <br>
   n = number of books in arrary! 
-
   <script>
-    let spinning = false;
-    let winnerIndex = -1;
-    let books = [];
-
-    function drawWheel(rotation) {
-      const canvas = document.getElementById("wheelCanvas");
-      const ctx = canvas.getContext("2d");
-      
-      const sliceSize = (Math.PI * 2) / books.length; 
-
-      // Calculate the fraction of Pi
-      let numerator = 2;
-      let denominator = books.length;
-      if (denominator % 2 === 0) {
-        numerator /= 2;
-        denominator /= 2;
-      }
-      let pieString = (numerator === 1 ? "" : numerator) + "π";
-      if (denominator !== 1) {
-        pieString += " / " + denominator;
-      }
-      document.getElementById("angle").innerText = "Each slice in degrees: " + (sliceSize * (180 / Math.PI)).toFixed(2) + " degrees, which is " + pieString + " radians";
-      
-      
-      ctx.clearRect(0, 0, 200, 200); 
-    
-      for (let i = 0; i < books.length; i++) {
-        const startAngle = i * sliceSize + rotation; 
-        const endAngle = (i + 1) * sliceSize + rotation;
-
-        ctx.beginPath();
-        ctx.moveTo(100, 100);
-        ctx.arc(100, 100, 80, startAngle, endAngle);
-        ctx.lineTo(100, 100);
-      
-        // If not spinning and this slice is the winner, make it gray. Else, make it white.
-        ctx.fillStyle = (!spinning && i === winnerIndex) ? "gray" : "white";
-        
-        ctx.fill();   
-        ctx.stroke(); 
-      }
-    }
-
     function getWinner() {
-      if (spinning) return; // prevent multiple clicks
 
       //add everything in the textarea to an array, split by newlines, and filter out empty lines
-      books = document.getElementById("bookList").value.split("\n").filter(b => b.trim() !== "");
+      const books = document.getElementById("bookList").value.split("\n").filter(b => b.trim() !== "");
 
       // If there are no books, show a message and exit the function
       if (books.length === 0) { 
@@ -82,36 +38,67 @@ Book C</textarea>
       }
 
       // Logic to pick a random winner from the array of books
-      winnerIndex = Math.floor(Math.random() * books.length);
+      // That number will be between 0 and the length of the books array
+      // Lining up with the index of the array, we can use that random number to pick a winner
+      const winnerIndex = Math.floor(Math.random() * books.length);
 
-      // Start spinning
-      spinning = true;
-      let spinSpeed = 0.3; // initial speed
-      let totalRotation = 0;
-      const spinDuration = 2000; // milliseconds
-      const startTime = Date.now();
+      // Display the winner in the result element
+      document.getElementById("result").innerText = "The winner is: " + books[winnerIndex];
+      
+      const canvas = document.getElementById("wheelCanvas");
+      const ctx = canvas.getContext("2d");
+      
+      const sliceSize = (Math.PI * 2) / books.length; 
+      // A full circle in radians (approx 6.28)
+      // Why radians? Because the arc function uses radians, not degrees.
+      // Divide circle by number of books
+      // Each slice will be this big in radians
 
-      function animate() {
-        const elapsed = Date.now() - startTime;
-        if (elapsed < spinDuration) {
-          totalRotation += spinSpeed;
-          spinSpeed *= 0.995; // slow down gradually
-          drawWheel(totalRotation);
-          requestAnimationFrame(animate);
-        } else {
-          // Stop spinning and align to winner
-          spinning = false;
-          // Pointer at top: -Math.PI/2
-          const pointerAngle = -Math.PI / 2;
-          const sliceSize = (Math.PI * 2) / books.length;
-          const winnerAngle = winnerIndex * sliceSize + sliceSize / 2; // middle of winner slice
-          totalRotation = pointerAngle - winnerAngle;
-          drawWheel(totalRotation);
-          // Display the winner
-          document.getElementById("result").innerText = "The winner is: " + books[winnerIndex];
-        }
+      // Calculate the fraction of Pi
+      // We want to show (2 / books.length) * PI
+      let numerator = 2;
+      let denominator = books.length;
+
+      // Simple simplification: if the number of books is even, 
+      // we can divide both by 2 to make it look cleaner
+      if (denominator % 2 === 0) {
+        numerator /= 2;
+        denominator /= 2;
       }
-      animate();
+      
+      // Format the string
+      let pieString = (numerator === 1 ? "" : numerator) + "π";
+      if (denominator !== 1) {
+        pieString += " / " + denominator;
+      }
+      document.getElementById("angle").innerText = "Each slice in degrees: " + (sliceSize * (180 / Math.PI)).toFixed(2) + " degrees, which is " + pieString + " radians";
+      
+      
+      
+      ctx.clearRect(0, 0, 200, 200); 
+      // Wipe the canvas clean before drawing the new wheel
+      // or it will just draw on top of the old one and look messy
+    
+      for (let i = 0; i < books.length; i++) {
+        const startAngle = i * sliceSize; 
+        const endAngle = (i + 1) * sliceSize;
+
+        ctx.beginPath();
+        ctx.moveTo(100, 100);
+        ctx.arc(100, 100, 80, startAngle, endAngle);
+        // From center (100,100) with radius 80, draw arc from startAngle to endAngle
+        // This creates a "slice" of the wheel for each book
+
+        ctx.lineTo(100, 100);
+        // Line back to center to close the "triangle"
+        // Now we have a slice drawn from the center out to the edge of the circle
+      
+        //If this slice is the winner, make it gray. Else, make it white.
+        ctx.fillStyle = (i === winnerIndex) ? "gray" : "white";
+        
+        ctx.fill();   // Color the inside
+        ctx.stroke(); // Draw the black outline
+      }
     }
 
     </script>
