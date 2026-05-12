@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cinema Book Roulette</title>
+  <title>Project Bookclub</title>
   <style>
     :root {
       --bg: #020617;
@@ -172,12 +172,12 @@
 </head>
 <body>
 
-  <h1>Book Roulette</h1>
+  <h1>Project Bookclub</h1>
 
   <div class="container">
     <!-- LEFT PANEL: SETTINGS -->
     <div class="panel">
-      <h2>Curate Library</h2>
+      <h2>Library</h2>
       <textarea id="listInput">Project Hail Mary
 The Great Gatsby
 Dune
@@ -306,7 +306,7 @@ Foundation</textarea>
         let norm = (1.5 * Math.PI - this.angle) % (Math.PI*2);
         if(norm < 0) norm += (Math.PI*2);
         const winner = this.items[Math.floor(norm/arc)];
-        this.status.innerHTML = `DESTINY: <span style="color:var(--accent)">${winner}</span>`;
+        this.status.innerHTML = `Winner: <span style="color:var(--accent)">${winner}</span>`;
         this.fetchMetadata(winner);
       },
 
