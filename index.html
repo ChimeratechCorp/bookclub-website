@@ -46,7 +46,7 @@ Book C</textarea>
       document.getElementById("result").innerText = "The winner is: " + books[winnerIndex];
       
       const canvas = document.getElementById("wheelCanvas");
-      const ct = canvas.getContext("2d");
+      const ctx = canvas.getContext("2d");
       
       const sliceSize = (Math.PI * 2) / books.length; 
       // A full circle in radians (approx 6.28)
@@ -81,21 +81,21 @@ Book C</textarea>
         const startAngle = i * sliceSize;     // Where the slice starts
         const endAngle = (i + 1) * sliceSize; // Where the slice ends
 
-        ct.beginPath();
-        ct.moveTo(100, 100);                 // Move to center of canvas
-        ct.arc(100, 100, 80, startAngle, endAngle);
+        ctx.beginPath();
+        ctx.moveTo(100, 100);                 // Move to center of canvas
+        ctx.arc(100, 100, 80, startAngle, endAngle);
         // From center (100,100) with radius 80, draw arc from startAngle to endAngle
         // This creates a "slice" of the wheel for each book
 
-        ct.lineTo(100, 100);
+        ctx.lineTo(100, 100);
         // Line back to center to close the "triangle"
         // Now we have a slice drawn from the center out to the edge of the circle
       
         //If this slice is the winner, make it gray. Else, make it white.
-        ct.fillStyle = (i === winnerIndex) ? "gray" : "white";
+        ctx.fillStyle = (i === winnerIndex) ? "gray" : "white";
         
-        ct.fill();   // Color the inside
-        ct.stroke(); // Draw the black outline
+        ctx.fill();   // Color the inside
+        ctx.stroke(); // Draw the black outline
       }
     }
 
