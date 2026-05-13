@@ -17,7 +17,7 @@ Book C</textarea>
   
   <h1 id="result">Spin the Wheel!</h1>
   <h1 id="angle">---</h1>
-  <canvas id="wheelCanvas" width="200" height="200"></canvas><br>
+  <canvas id="wheelCanvas" width="500" height="500"></canvas><br>
   USING MATH TO DRAW A WHEEL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! <br>
   360 degrees is 2π radians<br>
   If we have 3 books, each slice is 120 degrees, which is 2π/3 radians<br>
@@ -28,79 +28,156 @@ Book C</textarea>
   <script>
     function getWinner() {
 
-      //add everything in the textarea to an array, split by newlines, and filter out empty lines
+      // Get the textarea element with id="bookList"
+      // .value gives us the text the user typed inside it
+      // .split("\n") breaks that text into an array, splitting at each newline
+      // .filter(b => b.trim() !== "") removes empty or blank lines
       const books = document.getElementById("bookList").value.split("\n").filter(b => b.trim() !== "");
 
-      // If there are no books, show a message and exit the function
+      // If the array has no books (length is 0), show a message and stop the function
       if (books.length === 0) { 
         document.getElementById("result").innerText = "Please add some books!";
-        return;
+        return; // exit the function early so nothing else runs
       }
 
-      // Logic to pick a random winner from the array of books
-      // That number will be between 0 and the length of the books array
-      // Lining up with the index of the array, we can use that random number to pick a winner
+      // Pick a random index number between 0 and books.length - 1
+      // Math.random() gives a number between 0 and 1
+      // Multiply by books.length to scale it up
+      // Math.floor() removes decimals so we get a whole number
       const winnerIndex = Math.floor(Math.random() * books.length);
 
-      // Display the winner in the result element
-      document.getElementById("result").innerText = "The winner is: " + books[winnerIndex];
+
+      // Hide the result immediately
+      document.getElementById("result").innerText = "Spinning...";
+
+      // Wait 1 second (1000 milliseconds) before showing the winner
+      setTimeout(() => {
+        document.getElementById("result").innerText = "The winner is: " + books[winnerIndex];
+      }, 1000);
       
+      // Get the canvas element where the wheel will be drawn
       const canvas = document.getElementById("wheelCanvas");
+
+      // Get the 2D drawing tools for the canvas
       const ctx = canvas.getContext("2d");
       
+      // Calculate how big each slice of the wheel should be
+      // A full circle is 2 * PI radians (about 6.28)
+      // Divide that by the number of books to get the size of each slice
       const sliceSize = (Math.PI * 2) / books.length; 
-      // A full circle in radians (approx 6.28)
-      // Why radians? Because the arc function uses radians, not degrees.
-      // Divide circle by number of books
-      // Each slice will be this big in radians
 
-      // Calculate the fraction of Pi
-      // We want to show (2 / books.length) * PI
-      let numerator = 2;
-      let denominator = books.length;
+      // We want to show the slice size as a fraction of π (like π/3 or 2π/5)
+      let numerator = 2;          // starts as 2 (because 2π)
+      let denominator = books.length; // number of slices
 
-      // Simple simplification: if the number of books is even, 
-      // we can divide both by 2 to make it look cleaner
+      // If denominator is even, divide both numbers by 2 to simplify the fraction
       if (denominator % 2 === 0) {
         numerator /= 2;
         denominator /= 2;
       }
       
-      // Format the string
+      // Build a string like "π/3" or "2π/5"
       let pieString = (numerator === 1 ? "" : numerator) + "π";
       if (denominator !== 1) {
         pieString += " / " + denominator;
       }
-      document.getElementById("angle").innerText = "Each slice in degrees: " + (sliceSize * (180 / Math.PI)).toFixed(2) + " degrees, which is " + pieString + " radians";
+
+      // Convert radians to degrees for display
+      // Multiply by (180 / PI) to convert
+      // .toFixed(2) keeps only 2 decimal places
+      document.getElementById("angle").innerText =
+        "Each slice in degrees: " +
+        (sliceSize * (180 / Math.PI)).toFixed(2) +
+        " degrees, which is " +
+        pieString +
+        " radians";
       
-      
-      
-      ctx.clearRect(0, 0, 200, 200); 
-      // Wipe the canvas clean before drawing the new wheel
-      // or it will just draw on top of the old one and look messy
+      // Clear the canvas before drawing a new wheel
+      // Otherwise old drawings stay on the screen
+      ctx.clearRect(0, 0, 500, 500); 
     
+      // Loop through each book and draw one slice per book
       for (let i = 0; i < books.length; i++) {
+
+        // Calculate where this slice starts and ends in radians
         const startAngle = i * sliceSize; 
         const endAngle = (i + 1) * sliceSize;
 
+        // Start drawing a new slice
         ctx.beginPath();
-        ctx.moveTo(100, 100);
-        ctx.arc(100, 100, 80, startAngle, endAngle);
-        // From center (100,100) with radius 80, draw arc from startAngle to endAngle
-        // This creates a "slice" of the wheel for each book
 
-        ctx.lineTo(100, 100);
-        // Line back to center to close the "triangle"
-        // Now we have a slice drawn from the center out to the edge of the circle
-      
-        //If this slice is the winner, make it gray. Else, make it white.
-        ctx.fillStyle = (i === winnerIndex) ? "gray" : "white";
+        // Move the drawing cursor to the center of the wheel
+        ctx.moveTo(250, 250);
+
+        // Draw the curved outer edge of the slice
+        // arc(centerX, centerY, radius, startAngle, endAngle)
+        ctx.arc(250, 250, 200, startAngle, endAngle);
+
+        // Draw a line back to the center to complete the slice shape
+        ctx.lineTo(250, 250);
+
+        // If this slice is the winner, color it grey; otherwise white
+        ctx.fillStyle = (i === winnerIndex) ? "grey" : "white";
         
-        ctx.fill();   // Color the inside
-        ctx.stroke(); // Draw the black outline
-      }
-    }
+        // Fill the slice with the chosen color
+        ctx.fill();
 
-    </script>
-    </body>
-    </html>
+        // Draw the outline of the slice
+        ctx.stroke();
+
+        // Save the current drawing state so rotations don't stack
+        ctx.save();
+
+        // Move the origin (0,0) to the center of the wheel
+        ctx.translate(250, 250);
+
+        // Rotate so the text is centered inside the slice
+        ctx.rotate(startAngle + sliceSize / 2);
+
+        // Center the text horizontally
+        ctx.textAlign = "center";
+
+        // Set text color
+        ctx.fillStyle = "black";
+
+        // Set font size and style
+        ctx.font = "12px Arial";
+
+        // Draw the text (currently drawing the index number)
+        // x = 50 moves text outward toward the edge of the wheel
+        // y = 5 moves text slightly down so it doesn't sit on the line
+        ctx.fillText(books[i], 50, 5);
+
+        // Restore the canvas rotation and position
+        ctx.restore();
+
+        // just test to see first slice is 0, second is 1, etc. We will replace this with book titles later
+      }
+
+        // Draw the pointer arrow at the top of the wheel
+        ctx.beginPath();
+
+        // Tip of the arrow (pointing downward)
+        ctx.moveTo(250, 60);
+
+        // Left corner of the arrow
+        ctx.lineTo(230, 10);
+
+        // Right corner of the arrow
+        ctx.lineTo(270, 10); 
+
+        // Close the triangle shape
+        ctx.closePath();
+
+        // Fill the arrow with red
+        ctx.fillStyle = "red";
+
+        // Fill the inside of the arrow
+        ctx.fill();
+
+        // Draw the outline of the arrow
+        ctx.stroke();
+    }
+  </script>
+  </body>
+  </html>
