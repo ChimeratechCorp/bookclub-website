@@ -3,27 +3,81 @@
   <head>
     <title>Project Bookclub</title>
     <style>
-    #wheelCanvas {
-      /* This is the magic line that makes it spin smoothly */
-      transition: transform 4s ease-out;
-      border-radius: 50%; /* Just makes the edges look cleaner */
-    }
+      /* Layout styling to split the screen left and right */
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        min-height: 90vh;
+        margin: 20px;
+      }
+
+      /* Container for all the text controls on the left */
+      .controls-container {
+        flex: 1;
+        max-width: 400px;
+        padding: 20px;
+      }
+
+      /* Container for the wheel on the right */
+      .wheel-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      textarea {
+        width: 100%;
+        margin-bottom: 15px;
+        padding: 10px;
+        font-size: 16px;
+      }
+
+      /*button {
+        padding: 10px 20px;
+        font-size: 18px;
+        cursor: pointer;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }*/
+
+      #wheelCanvas {
+        /* This is the magic line that makes it spin smoothly */
+        transition: transform 4s ease-out;
+        border-radius: 50%; /* Just makes the edges look cleaner */
+        margin-top: 20px;
+      }
     </style>
   </head>
   <body>
-  <h2>PROJECT BOOKCLUB 
-  <br>By: Robert Cruz</h2> 
-  
-  
-  <h3>Add books to the textbook below each on a newline</h3>
-  <textarea id="bookList" rows="5" oninput = "drawWheel()">Book A
+
+  <!-- LEFT SIDE: Controls and Inputs -->
+  <div class="controls-container">
+    <h2>PROJECT BOOKCLUB <br>By: Robert Cruz</h2> 
+    
+    <h3>Add books to the textbox below each on a newline</h3>
+    <textarea id="bookList" rows="5" oninput="drawWheel()">Book A
 Book B
 Book C</textarea>
-  <br><button onclick="getWinner(checkForBooks())">Click to Spin!</button>
-  
-  <h1 id="result">Spin the Wheel!</h1>
-  <canvas id="wheelCanvas" width="500" height="500"></canvas>
+    <br>
+    <button onclick="getWinner(checkForBooks())">Click to Spin!</button>
+  </div>
 
+  <!-- RIGHT SIDE: Result and Wheel -->
+  <div class="wheel-container">
+    <h1 id="result">Spin the Wheel!</h1>
+    <canvas id="wheelCanvas" width="700" height="700"></canvas>
+  </div>
 
   <script>
     // This variable stays OUTSIDE the function so it remembers the total rotation
@@ -38,21 +92,20 @@ Book C</textarea>
       const books = checkForBooks();
       const circle = canvas.getContext("2d");
       const angleOfSlice = (Math.PI * 2) / books.length;
-      circle.clearRect(0, 0, 500, 500);
+      circle.clearRect(0, 0, 700, 700);
 
       for (let i = 0; i < books.length; i++) {
         const startAngle = i * angleOfSlice;
         const endAngle = (i + 1) * angleOfSlice;
 
         circle.beginPath();
-        circle.moveTo(250, 250);
-        circle.arc(250, 250, 200, startAngle, endAngle);
-        circle.lineTo(250, 250);
+        circle.moveTo(350, 350);
+        circle.arc(350, 350, 300, startAngle, endAngle);
+        circle.lineTo(350, 350);
         circle.stroke();
 
-        // Draw the book names
         circle.save();
-        circle.translate(250, 250);
+        circle.translate(350, 350);
         circle.rotate(startAngle + angleOfSlice / 2);
         circle.textAlign = "center";
         circle.fillStyle = "black";
@@ -71,16 +124,17 @@ Book C</textarea>
       const spinAmount = 1440 + Math.floor(Math.random() * 360);
       currentRotation += spinAmount;
       canvas.style.transform = "rotate(" + currentRotation + "deg)";
+      
       const winnerIndex = Math.floor(Math.random() * bookArray.length);
+
       document.getElementById("result").innerText = "Spinning...";
       setTimeout(() => {
         document.getElementById("result").innerText = "The winner is: " + bookArray[winnerIndex];
       }, 4000); 
     }
 
-    
+    // Initial draw
     drawWheel();
-
   </script>
   </body>
-  </html>
+</html>
