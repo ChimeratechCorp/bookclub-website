@@ -9,7 +9,6 @@
         display: flex;
         flex-direction: row;
         justify-content: space-around;
-        align-items: center;
         min-height: 90vh;
         margin: 20px;
       }
@@ -37,7 +36,8 @@
         font-size: 16px;
       }
 
-      /*button {
+      /*
+      button {
         padding: 10px 20px;
         font-size: 18px;
         cursor: pointer;
@@ -49,7 +49,8 @@
 
       button:hover {
         background-color: #45a049;
-      }*/
+      }
+        */
 
       #wheelCanvas {
         /* This is the magic line that makes it spin smoothly */
@@ -58,6 +59,9 @@
         margin-top: 20px;
       }
     </style>
+    
+    <!-- We load the confetti script here in the head -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   </head>
   <body>
 
@@ -121,6 +125,7 @@ Book C</textarea>
         return;
       }
 
+
       const spinAmount = 1440 + Math.floor(Math.random() * 360);
       currentRotation += spinAmount;
       canvas.style.transform = "rotate(" + currentRotation + "deg)";
@@ -130,10 +135,15 @@ Book C</textarea>
       document.getElementById("result").innerText = "Spinning...";
       setTimeout(() => {
         document.getElementById("result").innerText = "The winner is: " + bookArray[winnerIndex];
+        
+        confetti({
+          particleCount: 150,
+          spread: 80,
+          origin: { y: 0.6 } // Launches it slightly above the bottom of the screen
+        });
+
       }, 4000); 
     }
-
-    // Initial draw
     drawWheel();
   </script>
   </body>
