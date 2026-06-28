@@ -3,146 +3,358 @@
   <head>
     <title>Project Bookclub</title>
     <style>
-      /* Layout styling to split the screen left and right */
       body {
         font-family: Arial, sans-serif;
         display: flex;
         flex-direction: row;
         justify-content: space-around;
-        min-height: 90vh;
+        align-items: center;
+        min-height: 95vh;
         margin: 20px;
+        user-select: none;
+        background-color: #f9f9f9;
       }
 
-      /* Container for all the text controls on the left */
       .controls-container {
         flex: 1;
         max-width: 400px;
         padding: 20px;
+        background: #ffffff;
+        border: 2px solid #000000;
+        border-radius: 8px;
       }
 
-      /* Container for the wheel on the right */
       .wheel-container {
         flex: 1;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        position: relative;
+      }
+
+      /* SMALLER WHEEL */
+      .wheel-wrapper {
+        position: relative;
+        width: 500px;
+        height: 500px;
+        margin-top: 20px;
+      }
+
+      .ticker {
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 20px solid transparent;
+        border-right: 20px solid transparent;
+        border-top: 30px solid #000000;
+        z-index: 10;
       }
 
       textarea {
         width: 100%;
-        margin-bottom: 15px;
-        padding: 10px;
+        margin: 10px 0 20px 0;
+        padding: 12px;
         font-size: 16px;
+        box-sizing: border-box;
+        border: 2px solid #000000;
+        border-radius: 4px;
+        resize: vertical;
       }
 
-      button {
-        padding: 10px 20px;
-        font-size: 18px;
+      #spinBtn {
+        padding: 15px 30px;
+        font-size: 20px;
+        font-weight: bold;
         cursor: pointer;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
+        border: 2px solid #000000;
+        background-color: #000000;
+        color: #ffffff;
         border-radius: 5px;
+        transition: transform 0.1s, background-color 0.2s;
+        width: 100%;
       }
 
-      button:hover {
-        background-color: #45a049;
+      #spinBtn:hover {
+        background-color: #333333;
+      }
+
+      #spinBtn:active {
+        transform: scale(0.98);
+      }
+
+      #spinBtn:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
       }
 
       #wheelCanvas {
-        /* This is the magic line that makes it spin smoothly */
-        transition: transform 4s ease-out;
-        border-radius: 50%; /* Just makes the edges look cleaner */
-        margin-top: 20px;
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+      }
+
+      /* IMAGE COLUMN */
+      .image-container {
+        flex: 1;
+        max-width: 350px;
+        padding: 20px;
+        background: #ffffff;
+        border: 2px solid #000000;
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      #bookImage {
+        max-width: 300px;
+        border: 2px solid #000;
+        border-radius: 4px;
+        display: none; /* hidden until loaded */
+      }
+
+      #imagePlaceholder {
+        font-size: 14px;
+        color: #555555;
       }
     </style>
-    
-    <!-- We load the confetti script here in the head -->
+
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   </head>
+
   <body>
 
-  <!-- LEFT SIDE: Controls and Inputs -->
-  <div class="controls-container">
-    <h2>PROJECT BOOKCLUB <br>By: Robert Cruz</h2> 
-    
-    <h3>Add books to the textbox below each on a newline</h3>
-    <textarea id="bookList" rows="5" oninput="drawWheel()">Book A
-Book B
-Book C</textarea>
-    <br>
-    <button onclick="getWinner(checkForBooks())">Click to Spin!</button>
-  </div>
+    <div class="controls-container">
+      <h2>PROJECT BOOKCLUB <br>By: Robert Cruz</h2>
+      <hr style="border: 1px solid #000000; margin-bottom: 20px;">
+      <label for="bookList"><strong>Book List:</strong></label>
 
-  <!-- RIGHT SIDE: Result and Wheel -->
-  <div class="wheel-container">
-    <h1 id="result">Spin the Wheel!</h1>
-    <canvas id="wheelCanvas" width="700" height="700"></canvas>
-  </div>
+      <!-- LOCAL STORAGE SAVING -->
+      <textarea id="bookList" rows="10" placeholder="List your books here..."
+        oninput="saveBooks(); drawWheel()"></textarea>
 
-  <script>
-    // This variable stays OUTSIDE the function so it remembers the total rotation
-    let currentRotation = 0;
-    const canvas = document.getElementById("wheelCanvas");
+      <button id="spinBtn">Spin the Wheel!</button>
+    </div>
 
-    function checkForBooks(){
-      return document.getElementById("bookList").value.split("\n").filter(b => b.trim() !== "");
-    }
+    <div class="wheel-container">
+      <h1 id="result">Spin the Wheel!</h1>
+      <div class="wheel-wrapper">
+        <div class="ticker"></div>
+        <canvas id="wheelCanvas" width="500" height="500"></canvas>
+      </div>
+    </div>
 
-    function drawWheel() {
-      const books = checkForBooks();
-      const circle = canvas.getContext("2d");
-      const angleOfSlice = (Math.PI * 2) / books.length;
-      circle.clearRect(0, 0, 700, 700);
+    <div class="image-container">
+      <h2>Selected Book Cover</h2>
+      <div id="bookImageBox">
+        <p id="imagePlaceholder">Spin the wheel to see the book cover here.</p>
+        <img id="bookImage" src="" alt="">
+      </div>
+    </div>
 
-      for (let i = 0; i < books.length; i++) {
-        const startAngle = i * angleOfSlice;
-        const endAngle = (i + 1) * angleOfSlice;
+    <script>
+      let currentRotation = 0;
+      let isSpinning = false;
+      let isHolding = false;
+      let holdStartTime = 0;
+      let spinLoopInterval = null;
 
-        circle.beginPath();
-        circle.moveTo(350, 350);
-        circle.arc(350, 350, 300, startAngle, endAngle);
-        circle.lineTo(350, 350);
-        circle.stroke();
+      const canvas = document.getElementById("wheelCanvas");
+      const spinButton = document.getElementById("spinBtn");
 
-        circle.save();
-        circle.translate(350, 350);
-        circle.rotate(startAngle + angleOfSlice / 2);
-        circle.textAlign = "center";
-        circle.fillStyle = "black";
-        circle.font = "16px Arial";
-        circle.fillText(books[i], 200, 5);
-        circle.restore();
-      }
-    }
-
-    function getWinner(bookArray) {
-      if (bookArray.length === 0) {
-        document.getElementById("result").innerText = "Please add some books!";
-        return;
+      /* SAVE BOOK LIST TO LOCAL STORAGE */
+      function saveBooks() {
+        const books = document.getElementById("bookList").value;
+        localStorage.setItem("bookListData", books);
       }
 
+      /* LOAD BOOK LIST FROM LOCAL STORAGE */
+      function loadBooks() {
+        const saved = localStorage.getItem("bookListData");
+        if (saved && saved.trim() !== "") {
+          document.getElementById("bookList").value = saved;
+        } else {
+          document.getElementById("bookList").value =
+`The Great Gatsby
+To Kill a Mockingbird
+1984
+Pride and Prejudice
+The Catcher in the Rye`;
+        }
+      }
 
-      const spinAmount = 1440 + Math.floor(Math.random() * 360);
-      currentRotation += spinAmount;
-      canvas.style.transform = "rotate(" + currentRotation + "deg)";
-      
-      const winnerIndex = Math.floor(Math.random() * bookArray.length);
+      function checkForBooks() {
+        return document.getElementById("bookList").value
+          .split("\n")
+          .map(b => b.replace(/^["'\s]+|["'\s]+$/g, '').trim())
+          .filter(b => b !== "");
+      }
 
-      document.getElementById("result").innerText = "Spinning...";
-      setTimeout(() => {
-        document.getElementById("result").innerText = "The winner is: " + bookArray[winnerIndex];
-        
-        confetti({
-          particleCount: 150,
-          spread: 80,
-          origin: { y: 0.6 } // Launches it slightly above the bottom of the screen
-        });
+      function drawWheel() {
+        const books = checkForBooks();
+        const ctx = canvas.getContext("2d");
+        const totalSlices = books.length;
 
-      }, 4000); 
-    }
-    drawWheel();
-  </script>
+        ctx.clearRect(0, 0, 500, 500);
+        if (totalSlices === 0) return;
+
+        const angleOfSlice = (Math.PI * 2) / totalSlices;
+        const radius = 230;
+
+        ctx.beginPath();
+        ctx.arc(250, 250, radius, 0, Math.PI * 2);
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "#000000";
+        ctx.stroke();
+
+        for (let i = 0; i < totalSlices; i++) {
+          const startAngle = i * angleOfSlice;
+
+          ctx.beginPath();
+          ctx.moveTo(250, 250);
+          ctx.lineTo(250 + Math.cos(startAngle) * radius, 250 + Math.sin(startAngle) * radius);
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = "#000000";
+          ctx.stroke();
+
+          ctx.save();
+          ctx.translate(250, 250);
+          ctx.rotate(startAngle + angleOfSlice / 2);
+          ctx.textAlign = "right";
+          ctx.textBaseline = "middle";
+          ctx.fillStyle = "#000000";
+
+          let fontSize = 18;
+          if (totalSlices > 15) fontSize = 14;
+          if (totalSlices > 30) fontSize = 12;
+          ctx.font = `bold ${fontSize}px Arial`;
+
+          let title = books[i];
+          if (title.length > 25) {
+            title = title.substring(0, 22) + "...";
+          }
+
+          ctx.fillText(title, radius - 20, 0);
+          ctx.restore();
+        }
+      }
+
+      spinButton.addEventListener("mousedown", startSpinAction);
+      window.addEventListener("mouseup", stopSpinAction);
+
+      spinButton.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        startSpinAction();
+      });
+      window.addEventListener("touchend", stopSpinAction);
+
+      function startSpinAction() {
+        const bookArray = checkForBooks();
+        if (bookArray.length === 0) {
+          document.getElementById("result").innerText = "The list box is empty!";
+          return;
+        }
+        if (isSpinning) return;
+
+        isHolding = true;
+        holdStartTime = Date.now();
+        document.getElementById("result").innerText = "Charging up spin...";
+
+        canvas.style.transition = "none";
+
+        spinLoopInterval = setInterval(() => {
+          currentRotation += 18;
+          canvas.style.transform = "rotate(" + (currentRotation % 360) + "deg)";
+        }, 16.67);
+      }
+
+      function stopSpinAction() {
+        if (!isHolding) return;
+        isHolding = false;
+        isSpinning = true;
+        spinButton.disabled = true;
+
+        clearInterval(spinLoopInterval);
+
+        const bookArray = checkForBooks();
+        const totalSlices = bookArray.length;
+        document.getElementById("result").innerText = "Spinning...";
+
+        canvas.style.transition = "transform 4s cubic-bezier(0.1, 0.8, 0.25, 1)";
+
+        const winnerIndex = Math.floor(Math.random() * totalSlices);
+        const sliceDegrees = 360 / totalSlices;
+
+        const currentSliceCenterDegree = (winnerIndex * sliceDegrees) + (sliceDegrees / 2);
+        const targetDegreeStop = (270 - currentSliceCenterDegree + 360) % 360;
+
+        const durationHeld = Date.now() - holdStartTime;
+        const fullSpins = durationHeld > 400 ? 1440 : 2160;
+
+        const baseNormalizedRotation = currentRotation - (currentRotation % 360);
+        currentRotation = baseNormalizedRotation + fullSpins + targetDegreeStop;
+
+        canvas.style.transform = "rotate(" + currentRotation + "deg)";
+
+        setTimeout(() => {
+          const selectedBook = bookArray[winnerIndex];
+          document.getElementById("result").innerText = selectedBook;
+
+          loadBookImage(selectedBook);
+
+          confetti({
+            particleCount: 150,
+            spread: 80,
+            origin: { y: 0.6 }
+          });
+
+          isSpinning = false;
+          spinButton.disabled = false;
+        }, 4000);
+      }
+
+      function loadBookImage(title) {
+        const imageElement = document.getElementById("bookImage");
+        const placeholder = document.getElementById("imagePlaceholder");
+        const query = encodeURIComponent(title);
+
+        placeholder.textContent = "Loading cover...";
+        imageElement.style.display = "none";
+        imageElement.src = "";
+        imageElement.alt = "";
+
+        const url = `https://openlibrary.org/search.json?title=${query}`;
+
+        fetch(url)
+          .then(response => response.json())
+          .then(data => {
+            if (data.docs && data.docs.length > 0 && data.docs[0].cover_i) {
+              const coverId = data.docs[0].cover_i;
+              const coverUrl = `https://covers.openlibrary.org/b/id/${coverId}-L.jpg`;
+              imageElement.src = coverUrl;
+              imageElement.alt = title;
+              imageElement.style.display = "block";
+              placeholder.textContent = "";
+            } else {
+              imageElement.src = "";
+              imageElement.alt = "";
+              imageElement.style.display = "none";
+              placeholder.textContent = "No cover found for this title.";
+            }
+          })
+          .catch(() => {
+            imageElement.src = "";
+            imageElement.alt = "";
+            imageElement.style.display = "none";
+            placeholder.textContent = "Error loading cover.";
+          });
+      }
+
+      /* LOAD SAVED BOOKS ON STARTUP */
+      loadBooks();
+      drawWheel();
+    </script>
   </body>
 </html>
