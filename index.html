@@ -12,7 +12,7 @@
         min-height: 95vh;
         margin: 20px;
         user-select: none;
-        background-color: #f9f9f9;
+        background-color: #ffffff;
       }
 
       .controls-container {
@@ -62,6 +62,8 @@
         border: 2px solid #000000;
         border-radius: 4px;
         resize: vertical;
+        background-color: #ffffff;
+        color: #000000;
       }
 
       #spinBtn {
@@ -91,35 +93,43 @@
         opacity: 0.5;
       }
 
-      #syncBtn {
-        padding: 10px 20px;
+      .sync-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-top: 8px;
+      }
+
+      .sync-btn {
+        padding: 10px 15px;
         font-size: 14px;
         font-weight: bold;
         cursor: pointer;
         border: 2px solid #000000;
-        background-color: #ffffff;
-        color: #000000;
         border-radius: 5px;
         transition: all 0.2s;
         width: 100%;
-        margin-top: 8px;
+        text-align: center;
+        background-color: #ffffff;
+        color: #000000;
       }
 
-      #syncBtn:hover {
+      .sync-btn:hover {
         background-color: #f0f0f0;
         transform: scale(0.98);
       }
 
-      #syncBtn:disabled {
+      .sync-btn:disabled {
         opacity: 0.5;
         cursor: not-allowed;
       }
 
       #syncStatus {
         font-size: 12px;
-        color: #555;
+        color: #555555;
         margin-top: 5px;
         text-align: center;
+        min-height: 20px;
       }
 
       #wheelCanvas {
@@ -140,7 +150,7 @@
 
       #bookImage {
         max-width: 300px;
-        border: 2px solid #000;
+        border: 2px solid #000000;
         border-radius: 4px;
         display: none;
       }
@@ -154,14 +164,39 @@
         margin-top: 15px;
         padding: 10px;
         background: #f5f5f5;
-        border: 1px solid #ddd;
+        border: 1px solid #000000;
         border-radius: 4px;
         font-size: 12px;
+        color: #000000;
       }
 
       #spinCount {
         font-weight: bold;
-        color: #000;
+        color: #000000;
+      }
+
+      .current-picks {
+        font-size: 11px;
+        color: #555555;
+        margin-top: 4px;
+      }
+
+      .divider {
+        border: none;
+        border-top: 2px dashed #000000;
+        margin: 6px 0;
+      }
+
+      h1, h2 {
+        color: #000000;
+      }
+
+      hr {
+        border: 1px solid #000000;
+      }
+
+      label {
+        color: #000000;
       }
     </style>
 
@@ -171,24 +206,31 @@
   <body>
 
     <div class="controls-container">
-      <h2>PROJECT BOOKCLUB <br>By: Robert Cruz</h2>
-      <hr style="border: 1px solid #000000; margin-bottom: 20px;">
+      <h2>PROJECT BOOKCLUB</h2>
+      <p style="margin: -5px 0 10px 0; font-size: 14px; color: #555555;">By: Robert Cruz</p>
+      <hr>
       
       <label for="bookList"><strong>Book List:</strong></label>
       <textarea id="bookList" rows="10" placeholder="List your books here..."
         oninput="saveBooks(); drawWheel()"></textarea>
 
-      <button id="spinBtn">Spin the Wheel!</button>
+      <button id="spinBtn">Spin the Wheel</button>
       
       <!-- Google Sheets sync buttons -->
-      <button id="syncBtn">🔄 Sync from Google Sheets</button>
+      <div class="sync-buttons">
+        <button id="syncFullBtn" class="sync-btn">Sync Full TBR</button>
+        <button id="syncWheelBtn" class="sync-btn">Sync Wheel Picks</button>
+      </div>
       <div id="syncStatus">Click to load books from your spreadsheet</div>
       
       <!-- Spin statistics -->
       <div class="stats-container">
-        <strong>📊 Stats:</strong><br>
-        Total spins: <span id="spinCount">0</span> &nbsp;|&nbsp; 
+        <strong>Stats:</strong><br>
+        Total spins: <span id="spinCount">0</span> | 
         Last spun: <span id="lastSpin">Never</span>
+        <div class="current-picks">
+          Current: <span id="currentSource">Not synced</span>
+        </div>
       </div>
     </div>
 
@@ -211,7 +253,7 @@
     <script>
       // ===== CONFIGURATION =====
       // REPLACE THIS WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
-      const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyrbKISuS-vtHb5fHwts3D3316ID1PWYGMxOzeaG-ykQU6IGzS37R0aSp4eDNmhmnFpsQ/exec';
+      const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzKACLXJp52Vd-n6olp0ts1qDvBiApf-nPPS3BOO-rl-ALihFrzlm9pryihQaREYVSiiA/exec';
       
       // ===== STATE =====
       let currentRotation = 0;
@@ -221,18 +263,22 @@
       let spinLoopInterval = null;
       let totalSpins = parseInt(localStorage.getItem('totalSpins') || '0');
       let lastSpinBook = localStorage.getItem('lastSpinBook') || 'Never';
+      let currentSource = localStorage.getItem('currentSource') || 'Not synced';
 
       const canvas = document.getElementById("wheelCanvas");
       const spinButton = document.getElementById("spinBtn");
-      const syncButton = document.getElementById("syncBtn");
+      const syncFullBtn = document.getElementById("syncFullBtn");
+      const syncWheelBtn = document.getElementById("syncWheelBtn");
       const syncStatus = document.getElementById("syncStatus");
       const spinCountEl = document.getElementById("spinCount");
       const lastSpinEl = document.getElementById("lastSpin");
+      const currentSourceEl = document.getElementById("currentSource");
 
       // Update stats display
       function updateStats() {
         spinCountEl.textContent = totalSpins;
         lastSpinEl.textContent = lastSpinBook;
+        currentSourceEl.textContent = currentSource;
       }
       updateStats();
 
@@ -270,7 +316,14 @@ The Catcher in the Rye`;
         const totalSlices = books.length;
 
         ctx.clearRect(0, 0, 500, 500);
-        if (totalSlices === 0) return;
+        if (totalSlices === 0) {
+          ctx.font = 'bold 20px Arial';
+          ctx.fillStyle = '#999999';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('Add books or sync', 250, 250);
+          return;
+        }
 
         const angleOfSlice = (Math.PI * 2) / totalSlices;
         const radius = 230;
@@ -348,7 +401,8 @@ The Catcher in the Rye`;
         isHolding = false;
         isSpinning = true;
         spinButton.disabled = true;
-        syncButton.disabled = true;
+        syncFullBtn.disabled = true;
+        syncWheelBtn.disabled = true;
 
         clearInterval(spinLoopInterval);
 
@@ -386,9 +440,6 @@ The Catcher in the Rye`;
           // Load book cover
           loadBookImage(selectedBook);
 
-          // Log spin to Google Sheets
-          logSpinToSheets(selectedBook);
-
           confetti({
             particleCount: 150,
             spread: 80,
@@ -397,78 +448,75 @@ The Catcher in the Rye`;
 
           isSpinning = false;
           spinButton.disabled = false;
-          syncButton.disabled = false;
+          syncFullBtn.disabled = false;
+          syncWheelBtn.disabled = false;
         }, 4000);
       }
 
       // ===== GOOGLE SHEETS INTEGRATION =====
 
-      // 1. Auto-sync books from Google Sheets
-      async function syncFromGoogleSheets() {
+      // Sync Full TBR
+      async function syncFullTBR() {
+        await syncFromGoogleSheets('full', 'Full TBR');
+      }
+
+      // Sync Wheel Picks
+      async function syncWheelPicks() {
+        await syncFromGoogleSheets('wheel', 'Wheel Picks');
+      }
+
+      async function syncFromGoogleSheets(type, sourceName) {
         if (!GOOGLE_SHEETS_URL || GOOGLE_SHEETS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
-          syncStatus.textContent = '⚠️ Please set your Google Sheets URL first!';
-          syncStatus.style.color = '#cc0000';
+          syncStatus.textContent = 'Please set your Google Sheets URL first!';
+          syncStatus.style.color = '#000000';
           return;
         }
 
-        syncButton.disabled = true;
-        syncButton.textContent = '⏳ Syncing...';
-        syncStatus.textContent = 'Loading books from spreadsheet...';
-        syncStatus.style.color = '#555';
+        syncFullBtn.disabled = true;
+        syncWheelBtn.disabled = true;
+        syncStatus.textContent = `Loading ${sourceName}...`;
+        syncStatus.style.color = '#000000';
 
         try {
-          const response = await fetch(`${GOOGLE_SHEETS_URL}?action=getBooks`);
-          if (!response.ok) throw new Error('Network error');
+          const url = `${GOOGLE_SHEETS_URL}?action=getBooks&type=${type}`;
+          console.log('Fetching:', url);
+          
+          const response = await fetch(url);
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
           
           const data = await response.json();
-          if (data.books && data.books.length > 0) {
+          console.log('Data received:', data);
+          
+          if (data.success && data.books && data.books.length > 0) {
             document.getElementById("bookList").value = data.books.join('\n');
             saveBooks();
             drawWheel();
-            syncStatus.textContent = `✅ Synced ${data.books.length} books from spreadsheet!`;
-            syncStatus.style.color = '#008800';
             
-            // Also update stats if provided
-            if (data.totalSpins !== undefined) {
-              totalSpins = data.totalSpins;
-              localStorage.setItem('totalSpins', totalSpins.toString());
-              updateStats();
-            }
+            currentSource = sourceName;
+            localStorage.setItem('currentSource', currentSource);
+            updateStats();
+            
+            syncStatus.textContent = `Synced ${data.books.length} books from ${sourceName}!`;
+            syncStatus.style.color = '#000000';
           } else {
-            syncStatus.textContent = '⚠️ No books found in spreadsheet!';
-            syncStatus.style.color = '#cc0000';
+            syncStatus.textContent = `${data.error || 'No books found!'}`;
+            syncStatus.style.color = '#000000';
           }
         } catch (error) {
           console.error('Sync error:', error);
-          syncStatus.textContent = '❌ Failed to sync. Check URL and try again.';
-          syncStatus.style.color = '#cc0000';
+          syncStatus.textContent = `Failed to sync: ${error.message}`;
+          syncStatus.style.color = '#000000';
         } finally {
-          syncButton.disabled = false;
-          syncButton.textContent = '🔄 Sync from Google Sheets';
+          syncFullBtn.disabled = false;
+          syncWheelBtn.disabled = false;
         }
       }
 
-      // 2. Log spin history to Google Sheets
-      async function logSpinToSheets(bookTitle) {
-        if (!GOOGLE_SHEETS_URL || GOOGLE_SHEETS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
-          console.log('Spin logged locally only (no Google Sheets URL configured)');
-          return;
-        }
+      // Sync button events
+      syncFullBtn.addEventListener('click', syncFullTBR);
+      syncWheelBtn.addEventListener('click', syncWheelPicks);
 
-        try {
-          const timestamp = new Date().toLocaleString();
-          await fetch(`${GOOGLE_SHEETS_URL}?action=logSpin&book=${encodeURIComponent(bookTitle)}&timestamp=${encodeURIComponent(timestamp)}`);
-          console.log(`✅ Spin logged: "${bookTitle}" at ${timestamp}`);
-        } catch (error) {
-          console.error('Failed to log spin:', error);
-          // Silent fail - don't disrupt user experience
-        }
-      }
-
-      // Sync button event
-      syncButton.addEventListener('click', syncFromGoogleSheets);
-
-      // ===== BOOK COVER LOADER (Option 3 from before) =====
+      // ===== BOOK COVER LOADER =====
       function loadBookImage(title) {
         const imageElement = document.getElementById("bookImage");
         const placeholder = document.getElementById("imagePlaceholder");
@@ -479,7 +527,6 @@ The Catcher in the Rye`;
         imageElement.src = "";
         imageElement.alt = "";
 
-        // Try Google Books first
         fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=1`)
           .then(response => response.json())
           .then(data => {
