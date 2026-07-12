@@ -24,6 +24,38 @@
         border-radius: 8px;
       }
 
+      /* ===== BANNER STYLES ===== */
+      .banner {
+        background-color: #000000;
+        color: #ffffff;
+        text-align: center;
+        padding: 14px 10px;
+        margin: -20px -20px 15px -20px;
+        border-radius: 8px 8px 0 0;
+        font-size: 18px;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+        border-bottom: 3px solid #000000;
+      }
+
+      .banner a {
+        color: #ffffff;
+        text-decoration: underline;
+        font-weight: bold;
+      }
+
+      .banner a:hover {
+        color: #cccccc;
+      }
+
+      .banner-sub {
+        font-size: 12px;
+        font-weight: normal;
+        opacity: 0.8;
+        display: block;
+        margin-top: 2px;
+      }
+
       .wheel-container {
         flex: 1;
         display: flex;
@@ -206,13 +238,19 @@
   <body>
 
     <div class="controls-container">
-      <h2>PROJECT BOOKCLUB</h2>
-      <p style="margin: -5px 0 10px 0; font-size: 14px; color: #555555;">By: Robert Cruz</p>
-      <hr>
+      <!-- ===== BANNER ===== -->
+      <div class="banner">
+        PROJECT BOOKCLUB
+        <span class="banner-sub">
+          <a href="https://docs.google.com/spreadsheets/d/1ie6_uo8E5rhwOxDqyKT6phaFex-8er-Kpfao2tUXNcA/edit?gid=737109426#gid=737109426" target="_blank">Open Google Sheet</a>
+        </span>
+      </div>
+
+      <p style="margin: -5px 0 10px 0; font-size: 14px; color: #555555; text-align: center;">By: Robert Cruz</p>
       
       <label for="bookList"><strong>Book List:</strong></label>
       <textarea id="bookList" rows="10" placeholder="List your books here..."
-        oninput="saveBooks(); drawWheel()"></textarea>
+        oninput="onBookListChange(); saveBooks(); drawWheel()"></textarea>
 
       <button id="spinBtn">Spin the Wheel</button>
       
@@ -229,7 +267,7 @@
         Total spins: <span id="spinCount">0</span> | 
         Last spun: <span id="lastSpin">Never</span>
         <div class="current-picks">
-          Current: <span id="currentSource">Not synced</span>
+          Current List Loaded: <span id="currentSource">Not synced</span>
         </div>
       </div>
     </div>
@@ -264,6 +302,7 @@
       let totalSpins = parseInt(localStorage.getItem('totalSpins') || '0');
       let lastSpinBook = localStorage.getItem('lastSpinBook') || 'Never';
       let currentSource = localStorage.getItem('currentSource') || 'Not synced';
+      let isCustomList = false;
 
       const canvas = document.getElementById("wheelCanvas");
       const spinButton = document.getElementById("spinBtn");
@@ -273,6 +312,7 @@
       const spinCountEl = document.getElementById("spinCount");
       const lastSpinEl = document.getElementById("lastSpin");
       const currentSourceEl = document.getElementById("currentSource");
+      const bookListTextarea = document.getElementById("bookList");
 
       // Update stats display
       function updateStats() {
@@ -281,6 +321,27 @@
         currentSourceEl.textContent = currentSource;
       }
       updateStats();
+
+      // ===== BOOK LIST CHANGE DETECTION =====
+      function onBookListChange() {
+        // Check if the current text matches what was synced
+        const currentText = bookListTextarea.value;
+        const savedSyncedText = localStorage.getItem('syncedBookListData');
+        
+        // If the text is different from what was synced, mark as custom
+        if (savedSyncedText && currentText !== savedSyncedText) {
+          currentSource = 'Custom';
+          localStorage.setItem('currentSource', currentSource);
+          currentSourceEl.textContent = currentSource;
+          isCustomList = true;
+        } else if (!savedSyncedText && currentText.trim() !== '') {
+          // If there's no synced text but there is content, it's custom
+          currentSource = 'Custom';
+          localStorage.setItem('currentSource', currentSource);
+          currentSourceEl.textContent = currentSource;
+          isCustomList = true;
+        }
+      }
 
       // ===== LOCAL STORAGE =====
       function saveBooks() {
@@ -299,6 +360,18 @@ To Kill a Mockingbird
 1984
 Pride and Prejudice
 The Catcher in the Rye`;
+        }
+        
+        // Check if this is a custom list or synced list
+        const syncedText = localStorage.getItem('syncedBookListData');
+        if (syncedText && document.getElementById("bookList").value === syncedText) {
+          // It matches what was synced, keep the current source
+        } else if (document.getElementById("bookList").value.trim() !== '') {
+          // It's custom content
+          currentSource = 'Custom';
+          localStorage.setItem('currentSource', currentSource);
+          currentSourceEl.textContent = currentSource;
+          isCustomList = true;
         }
       }
 
@@ -488,13 +561,19 @@ The Catcher in the Rye`;
           console.log('Data received:', data);
           
           if (data.success && data.books && data.books.length > 0) {
-            document.getElementById("bookList").value = data.books.join('\n');
+            const bookList = data.books.join('\n');
+            document.getElementById("bookList").value = bookList;
             saveBooks();
+            
+            // Store the synced text so we can detect custom changes later
+            localStorage.setItem('syncedBookListData', bookList);
+            
             drawWheel();
             
             currentSource = sourceName;
             localStorage.setItem('currentSource', currentSource);
             updateStats();
+            isCustomList = false;
             
             syncStatus.textContent = `Synced ${data.books.length} books from ${sourceName}!`;
             syncStatus.style.color = '#000000';
