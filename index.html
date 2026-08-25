@@ -12,14 +12,14 @@
         margin: 20px;
         user-select: none;
         background-color: #17140F;
+        overflow-x: hidden;
       }
 
-      /* ===== HERO ===== */
+      /* ===== HERO BANNER ===== */
       .hero {
-        width: 100%;
-        max-width: 1100px;
-        margin-bottom: 4px;
-        text-align: center;
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-bottom: 10px;
       }
 
       .hero img {
@@ -228,7 +228,6 @@
 
       #spinCount {
         font-weight: bold;
-        color: #000000;
       }
 
       .current-picks {
@@ -237,22 +236,12 @@
         margin-top: 4px;
       }
 
-      .divider {
-        border: none;
-        border-top: 2px dashed #000000;
-        margin: 6px 0;
-      }
-
       h1 {
         color: #E8DFC4;
       }
 
       h2 {
         color: #000000;
-      }
-
-      hr {
-        border: 1px solid #000000;
       }
 
       label {
@@ -267,7 +256,7 @@
 
     <!-- ===== HERO ===== -->
     <div class="hero">
-      <img src="who-spunnit.jpg" alt="Who Spunnit? Spin the wheel. Find your next great read.">
+      <img src="who-spunnit-banner.jpg" alt="Who Spunnit? Spin the wheel. Find your next great read.">
     </div>
 
     <div class="main-row">
@@ -327,7 +316,6 @@
 
     <script>
       // ===== CONFIGURATION =====
-      // REPLACE THIS WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
       const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxwiNSENzLmnUdzijZrzKHFQvyYKiG1r7V8s1A2zLiuk6wdrzSAqlSiSE0WAWJI9V2-cA/exec';
 
       // Cover lookup tuning
@@ -346,7 +334,6 @@
       let totalSpins = parseInt(localStorage.getItem('totalSpins') || '0');
       let lastSpinBook = localStorage.getItem('lastSpinBook') || 'Never';
       let currentSource = localStorage.getItem('currentSource') || 'Not synced';
-      let isCustomList = false;
 
       const canvas = document.getElementById("wheelCanvas");
       const spinButton = document.getElementById("spinBtn");
@@ -357,6 +344,7 @@
       const lastSpinEl = document.getElementById("lastSpin");
       const currentSourceEl = document.getElementById("currentSource");
       const bookListTextarea = document.getElementById("bookList");
+      const resultEl = document.getElementById("result");
 
       // Update stats display
       function updateStats() {
@@ -377,28 +365,25 @@
           currentSource = 'Custom';
           localStorage.setItem('currentSource', currentSource);
           currentSourceEl.textContent = currentSource;
-          isCustomList = true;
         } else if (!savedSyncedText && currentText.trim() !== '') {
           // If there's no synced text but there is content, it's custom
           currentSource = 'Custom';
           localStorage.setItem('currentSource', currentSource);
           currentSourceEl.textContent = currentSource;
-          isCustomList = true;
         }
       }
 
       // ===== LOCAL STORAGE =====
       function saveBooks() {
-        const books = document.getElementById("bookList").value;
-        localStorage.setItem("bookListData", books);
+        localStorage.setItem("bookListData", bookListTextarea.value);
       }
 
       function loadBooks() {
         const saved = localStorage.getItem("bookListData");
         if (saved && saved.trim() !== "") {
-          document.getElementById("bookList").value = saved;
+          bookListTextarea.value = saved;
         } else {
-          document.getElementById("bookList").value =
+          bookListTextarea.value =
 `The Great Gatsby
 To Kill a Mockingbird
 1984
@@ -406,21 +391,19 @@ Pride and Prejudice
 The Catcher in the Rye`;
         }
         
-        // Check if this is a custom list or synced list
+        // Anything that doesn't match the last synced list is a custom list
         const syncedText = localStorage.getItem('syncedBookListData');
-        if (syncedText && document.getElementById("bookList").value === syncedText) {
-          // It matches what was synced, keep the current source
-        } else if (document.getElementById("bookList").value.trim() !== '') {
-          // It's custom content
+        const matchesSync = syncedText && bookListTextarea.value === syncedText;
+
+        if (!matchesSync && bookListTextarea.value.trim() !== '') {
           currentSource = 'Custom';
           localStorage.setItem('currentSource', currentSource);
           currentSourceEl.textContent = currentSource;
-          isCustomList = true;
         }
       }
 
       function checkForBooks() {
-        return document.getElementById("bookList").value
+        return bookListTextarea.value
           .split("\n")
           .map(b => b.replace(/^["'\s]+|["'\s]+$/g, '').trim())
           .filter(b => b !== "");
@@ -496,14 +479,14 @@ The Catcher in the Rye`;
       function startSpinAction() {
         const bookArray = checkForBooks();
         if (bookArray.length === 0) {
-          document.getElementById("result").innerText = "The list box is empty!";
+          resultEl.innerText = "The list box is empty!";
           return;
         }
         if (isSpinning) return;
 
         isHolding = true;
         holdStartTime = Date.now();
-        document.getElementById("result").innerText = "Charging up spin...";
+        resultEl.innerText = "Charging up spin...";
 
         canvas.style.transition = "none";
 
@@ -525,7 +508,7 @@ The Catcher in the Rye`;
 
         const bookArray = checkForBooks();
         const totalSlices = bookArray.length;
-        document.getElementById("result").innerText = "Spinning...";
+        resultEl.innerText = "Spinning...";
 
         canvas.style.transition = "transform 4s cubic-bezier(0.1, 0.8, 0.25, 1)";
 
@@ -545,7 +528,7 @@ The Catcher in the Rye`;
 
         setTimeout(() => {
           const selectedBook = bookArray[winnerIndex];
-          document.getElementById("result").innerText = selectedBook;
+          resultEl.innerText = selectedBook;
 
           // Update stats
           totalSpins++;
@@ -572,27 +555,15 @@ The Catcher in the Rye`;
 
       // ===== GOOGLE SHEETS INTEGRATION =====
 
-      // Sync Full TBR
-      async function syncFullTBR() {
-        await syncFromGoogleSheets('full', 'Full TBR');
-      }
-
-      // Sync Wheel Picks
-      async function syncWheelPicks() {
-        await syncFromGoogleSheets('wheel', 'Wheel Picks');
-      }
-
       async function syncFromGoogleSheets(type, sourceName) {
-        if (!GOOGLE_SHEETS_URL || GOOGLE_SHEETS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+        if (!GOOGLE_SHEETS_URL) {
           syncStatus.textContent = 'Please set your Google Sheets URL first!';
-          syncStatus.style.color = '#000000';
           return;
         }
 
         syncFullBtn.disabled = true;
         syncWheelBtn.disabled = true;
         syncStatus.textContent = `Loading ${sourceName}...`;
-        syncStatus.style.color = '#000000';
 
         try {
           const url = `${GOOGLE_SHEETS_URL}?action=getBooks&type=${type}`;
@@ -606,7 +577,7 @@ The Catcher in the Rye`;
           
           if (data.success && data.books && data.books.length > 0) {
             const bookList = data.books.join('\n');
-            document.getElementById("bookList").value = bookList;
+            bookListTextarea.value = bookList;
             saveBooks();
             
             // Store the synced text so we can detect custom changes later
@@ -617,18 +588,14 @@ The Catcher in the Rye`;
             currentSource = sourceName;
             localStorage.setItem('currentSource', currentSource);
             updateStats();
-            isCustomList = false;
-            
+
             syncStatus.textContent = `Synced ${data.books.length} books from ${sourceName}!`;
-            syncStatus.style.color = '#000000';
           } else {
             syncStatus.textContent = `${data.error || 'No books found!'}`;
-            syncStatus.style.color = '#000000';
           }
         } catch (error) {
           console.error('Sync error:', error);
           syncStatus.textContent = `Failed to sync: ${error.message}`;
-          syncStatus.style.color = '#000000';
         } finally {
           syncFullBtn.disabled = false;
           syncWheelBtn.disabled = false;
@@ -636,8 +603,8 @@ The Catcher in the Rye`;
       }
 
       // Sync button events
-      syncFullBtn.addEventListener('click', syncFullTBR);
-      syncWheelBtn.addEventListener('click', syncWheelPicks);
+      syncFullBtn.addEventListener('click', () => syncFromGoogleSheets('full', 'Full TBR'));
+      syncWheelBtn.addEventListener('click', () => syncFromGoogleSheets('wheel', 'Wheel Picks'));
 
       // ===== COVER HELPERS =====
 
