@@ -292,6 +292,13 @@
       // ===== CONFIGURATION =====
       // REPLACE THIS WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
       const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxwiNSENzLmnUdzijZrzKHFQvyYKiG1r7V8s1A2zLiuk6wdrzSAqlSiSE0WAWJI9V2-cA/exec';
+
+      // Cover lookup tuning
+      const MAX_SEARCH_RESULTS = 25;      // works pulled from search.json
+      const MAX_EDITIONS_TO_FETCH = 40;   // editions pulled per work
+      const MIN_TITLE_SCORE = 0.80;       // how closely a result must match
+      const COVER_ASPECT_MIN = 1.15;      // height / width — rejects scans
+      const COVER_ASPECT_MAX = 2.0;
       
       // ===== STATE =====
       let currentRotation = 0;
@@ -595,75 +602,259 @@ The Catcher in the Rye`;
       syncFullBtn.addEventListener('click', syncFullTBR);
       syncWheelBtn.addEventListener('click', syncWheelPicks);
 
+      // ===== COVER HELPERS =====
+
+      // Load an image URL and report back its real pixel dimensions.
+      function testCoverImage(url) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve({ url, width: img.naturalWidth, height: img.naturalHeight });
+          img.onerror = () => reject(new Error('Image failed to load'));
+          img.src = url;
+        });
+      }
+
+      // Real cover art sits in a fairly narrow height:width band. Raw
+      // scans (extra border, sideways photo, cropped wide) usually fall
+      // outside it, so this rejects most reader-uploaded photos.
+      function hasPlausibleCoverAspect(width, height) {
+        if (!width || !height) return false;
+        const ratio = height / width;
+        return ratio >= COVER_ASPECT_MIN && ratio <= COVER_ASPECT_MAX;
+      }
+
+      // Strip punctuation/accents so "The Serpent & the Wings of Night"
+      // and "The Serpent and the Wings of Night" compare as equal.
+      function normalizeTitle(title) {
+        return title
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/&/g, ' and ')
+          .replace(/['\u2019]/g, '')
+          .replace(/[^a-z0-9\s]/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
+
+      // Weighted word overlap between what we asked for and what came back.
+      function getTitleMatchScore(requestedTitle, resultTitle) {
+        if (requestedTitle === resultTitle) return 1.0;
+
+        const requestedWords = new Set(requestedTitle.split(' '));
+        const resultWords = new Set(resultTitle.split(' '));
+        let matchingWords = 0;
+
+        for (const word of requestedWords) {
+          if (resultWords.has(word)) matchingWords++;
+        }
+
+        const requestedCoverage = requestedWords.size ? matchingWords / requestedWords.size : 0;
+        const resultCoverage = resultWords.size ? matchingWords / resultWords.size : 0;
+
+        return (requestedCoverage * 0.7) + (resultCoverage * 0.3);
+      }
+
+      // ===== COVER SEARCH (OPEN LIBRARY) =====
+      //
+      // Strategy, in order of trust:
+      //   1. The work's own librarian-curated `covers` field. This is the
+      //      same cover Open Library shows on the book's page, so it's
+      //      the official English art rather than a guess.
+      //   2. Individual editions, filtered to ones marked English, as a
+      //      fallback for works with no curated cover set.
+      //   3. The search result's own cover_i, as a last resort.
+      //
+      // Why the language check matters: search.json returns WORKS, and a
+      // work's aggregate `language` field lists every translation that
+      // exists. So a work can show "eng" while its cover_i/edition_key
+      // points at, say, the Dutch edition. Editions must be checked one
+      // at a time for their own language.
+      //
+      // Google Books is deliberately not used here — its unauthenticated
+      // quota is shared and returns HTTP 429 in practice.
+
+      async function searchOpenLibraryCover(title) {
+        const cleanTitle = normalizeTitle(title);
+
+        const searchUrl =
+          'https://openlibrary.org/search.json?title=' + encodeURIComponent(title) +
+          '&limit=' + MAX_SEARCH_RESULTS +
+          '&fields=key,title,author_name,language,isbn,cover_i,edition_key';
+
+        const response = await fetch(searchUrl);
+        if (!response.ok) throw new Error(`Open Library returned HTTP ${response.status}`);
+
+        const data = await response.json();
+        if (!data.docs || data.docs.length === 0) throw new Error('No Open Library results');
+
+        // --- Rank works by how well the title matches ---
+        const scoredDocs = data.docs
+          .map(doc => ({
+            doc,
+            titleScore: getTitleMatchScore(cleanTitle, normalizeTitle(doc.title || ''))
+          }))
+          .filter(entry => entry.titleScore >= MIN_TITLE_SCORE)
+          .sort((a, b) => b.titleScore - a.titleScore);
+
+        if (scoredDocs.length === 0) throw new Error('No matching titles found');
+
+        // --- 1. Work-level curated cover (best source) ---
+        for (const { doc, titleScore } of scoredDocs) {
+          if (!doc.key) continue; // doc.key looks like "/works/OL12345W"
+
+          try {
+            const workResp = await fetch(`https://openlibrary.org${doc.key}.json`);
+            if (!workResp.ok) continue;
+
+            const workData = await workResp.json();
+            const workCovers = (workData.covers || []).filter(id => id && id > 0);
+
+            for (const coverId of workCovers) {
+              const imageUrl = `https://covers.openlibrary.org/b/id/${coverId}-L.jpg`;
+              try {
+                const image = await testCoverImage(imageUrl);
+                if (image.width >= 300 && image.height >= 450 &&
+                    hasPlausibleCoverAspect(image.width, image.height)) {
+                  console.log('Cover source: work-curated', imageUrl);
+                  return { url: imageUrl, width: image.width, height: image.height, titleScore, source: 'work_curated' };
+                }
+              } catch (e) { /* try next cover id */ }
+            }
+          } catch (e) {
+            console.log('Work lookup failed for', doc.key, e);
+          }
+        }
+
+        // --- 2. English editions only ---
+        const candidates = [];
+
+        for (const { doc, titleScore } of scoredDocs) {
+          if (!doc.key) continue;
+
+          try {
+            const editionsResp = await fetch(
+              `https://openlibrary.org${doc.key}/editions.json?limit=${MAX_EDITIONS_TO_FETCH}`
+            );
+            if (!editionsResp.ok) continue;
+
+            const editionsData = await editionsResp.json();
+
+            for (const edition of (editionsData.entries || [])) {
+              const languages = (edition.languages || []).map(l => l.key);
+              if (!languages.includes('/languages/eng')) continue;
+
+              // Covers attached straight to the edition are most trustworthy
+              for (const coverId of (edition.covers || [])) {
+                if (coverId && coverId > 0) {
+                  candidates.push({
+                    imageUrl: `https://covers.openlibrary.org/b/id/${coverId}-L.jpg`,
+                    titleScore,
+                    rank: 3
+                  });
+                }
+              }
+
+              for (const isbn of [...(edition.isbn_13 || []), ...(edition.isbn_10 || [])]) {
+                candidates.push({
+                  imageUrl: `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`,
+                  titleScore,
+                  rank: 2
+                });
+              }
+
+              if (edition.key) {
+                candidates.push({
+                  imageUrl: `https://covers.openlibrary.org/b/olid/${edition.key.split('/').pop()}-L.jpg`,
+                  titleScore,
+                  rank: 1
+                });
+              }
+            }
+          } catch (e) {
+            console.log('Editions lookup failed for', doc.key, e);
+          }
+
+          if (candidates.length >= 8) break; // don't hammer the API
+        }
+
+        const validCovers = [];
+
+        for (const candidate of candidates) {
+          try {
+            const image = await testCoverImage(candidate.imageUrl);
+            if (image.width >= 200 && image.height >= 300 &&
+                hasPlausibleCoverAspect(image.width, image.height)) {
+              validCovers.push({
+                url: candidate.imageUrl,
+                width: image.width,
+                height: image.height,
+                titleScore: candidate.titleScore,
+                rank: candidate.rank,
+                source: 'english_edition'
+              });
+            }
+          } catch (e) { /* skip broken image */ }
+        }
+
+        // --- 3. Last resort: the search result's own cover_i ---
+        if (validCovers.length === 0) {
+          for (const { doc, titleScore } of scoredDocs) {
+            if (!doc.cover_i) continue;
+
+            const imageUrl = `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`;
+            try {
+              const image = await testCoverImage(imageUrl);
+              if (image.width >= 100 && image.height >= 150 &&
+                  hasPlausibleCoverAspect(image.width, image.height)) {
+                validCovers.push({
+                  url: imageUrl,
+                  width: image.width,
+                  height: image.height,
+                  titleScore,
+                  rank: 0,
+                  source: 'search_fallback'
+                });
+                break;
+              }
+            } catch (e) { /* skip */ }
+          }
+        }
+
+        if (validCovers.length === 0) throw new Error('No usable covers found');
+
+        // Best title match, then most trustworthy source, then biggest image
+        validCovers.sort((a, b) => {
+          if (b.titleScore !== a.titleScore) return b.titleScore - a.titleScore;
+          if (b.rank !== a.rank) return b.rank - a.rank;
+          return (b.width * b.height) - (a.width * a.height);
+        });
+
+        console.log('Cover source:', validCovers[0].source, validCovers[0].url);
+        return validCovers[0];
+      }
+
       // ===== BOOK COVER LOADER =====
-      function loadBookImage(title) {
+      async function loadBookImage(title) {
         const imageElement = document.getElementById("bookImage");
         const placeholder = document.getElementById("imagePlaceholder");
-        const query = encodeURIComponent(title);
 
-        placeholder.textContent = "Loading cover...";
         imageElement.style.display = "none";
         imageElement.src = "";
         imageElement.alt = "";
+        placeholder.textContent = "Loading cover...";
 
-        fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=1`)
-          .then(response => response.json())
-          .then(data => {
-            if (data.items && data.items.length > 0) {
-              const volumeInfo = data.items[0].volumeInfo;
-              if (volumeInfo.imageLinks) {
-                const coverUrl = volumeInfo.imageLinks.extraLarge || 
-                                volumeInfo.imageLinks.large || 
-                                volumeInfo.imageLinks.medium || 
-                                volumeInfo.imageLinks.thumbnail.replace('zoom=1', 'zoom=3');
-                
-                imageElement.src = coverUrl;
-                imageElement.alt = title;
-                imageElement.style.display = "block";
-                placeholder.textContent = "";
-                return;
-              }
-            }
-            fallbackToOpenLibrary(title);
-          })
-          .catch(() => {
-            fallbackToOpenLibrary(title);
-          });
-      }
+        try {
+          const bestCover = await searchOpenLibraryCover(title);
 
-      function fallbackToOpenLibrary(title) {
-        const imageElement = document.getElementById("bookImage");
-        const placeholder = document.getElementById("imagePlaceholder");
-        const query = encodeURIComponent(title);
-
-        fetch(`https://openlibrary.org/search.json?title=${query}&limit=5`)
-          .then(response => response.json())
-          .then(data => {
-            if (data.docs && data.docs.length > 0) {
-              let bestDoc = data.docs[0];
-              for (let doc of data.docs) {
-                if (doc.isbn && doc.isbn.length > 0) {
-                  bestDoc = doc;
-                  break;
-                }
-              }
-              
-              if (bestDoc.cover_i) {
-                const coverUrl = `https://covers.openlibrary.org/b/id/${bestDoc.cover_i}.jpg`;
-                imageElement.src = coverUrl;
-                imageElement.alt = title;
-                imageElement.style.display = "block";
-                placeholder.textContent = "";
-              } else {
-                placeholder.textContent = "No cover found for this title.";
-              }
-            } else {
-              placeholder.textContent = "No cover found for this title.";
-            }
-          })
-          .catch(() => {
-            placeholder.textContent = "Error loading cover.";
-          });
+          imageElement.src = bestCover.url;
+          imageElement.alt = title;
+          imageElement.style.display = "block";
+          placeholder.textContent = "";
+        } catch (error) {
+          console.error('Unable to find cover:', title, error);
+          placeholder.textContent = "No cover found for this title.";
+        }
       }
 
       // ===== INIT =====
