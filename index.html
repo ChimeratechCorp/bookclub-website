@@ -1,177 +1,267 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Project Bookclub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=Oswald:wght@500;600&family=Special+Elite&display=swap" rel="stylesheet">
     <style>
+      :root {
+        --ink: #17140F;
+        --ink-soft: #2A241B;
+        --bone: #EEE4C8;
+        --bone-deep: #DCCFAA;
+        --blood: #9E1B1B;
+        --blood-dark: #741212;
+        --gold: #A9782F;
+        --gold-light: #D9B46A;
+        --muted: #6B604B;
+        --font-display: 'Special Elite', 'Courier New', monospace;
+        --font-label: 'Oswald', 'Arial Narrow', Arial, sans-serif;
+        --font-body: 'Lora', Georgia, serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
       body {
-        font-family: Arial, sans-serif;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-height: 95vh;
-        margin: 20px;
+        margin: 0;
+        min-height: 100vh;
+        font-family: var(--font-body);
+        color: var(--ink);
+        background-color: var(--ink);
         user-select: none;
-        background-color: #17140F;
         overflow-x: hidden;
+      }
+
+      /* Faint film grain to match the banner */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.07;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        z-index: 0;
       }
 
       /* ===== HERO BANNER ===== */
       .hero {
-        width: 100vw;
-        margin-left: calc(50% - 50vw);
-        margin-bottom: 10px;
+        position: relative;
+        width: 100%;
       }
 
       .hero img {
         width: 100%;
-        height: auto;
+        max-height: 340px;
+        object-fit: cover;
         display: block;
+        -webkit-mask-image: linear-gradient(to bottom, #000 65%, transparent);
+        mask-image: linear-gradient(to bottom, #000 65%, transparent);
       }
 
+      /* ===== LAYOUT ===== */
       .main-row {
+        position: relative;
+        z-index: 1;
         display: flex;
-        flex-direction: row;
         flex-wrap: wrap;
-        justify-content: space-around;
-        align-items: center;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 28px;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 10px 16px 48px;
+      }
+
+      /* ===== PAPER PANELS ===== */
+      .panel {
+        position: relative;
         width: 100%;
-        gap: 20px;
+        padding: 22px;
+        background-color: var(--bone);
+        background-image: linear-gradient(160deg, #F4ECD6 0%, var(--bone) 45%, #E4D8B6 100%);
+        border-radius: 6px;
+        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55), inset 0 0 40px rgba(120, 90, 40, 0.18);
+      }
+
+      .panel-title {
+        margin: 0 0 14px;
+        font-family: var(--font-display);
+        font-size: 20px;
+        font-weight: normal;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--ink);
+        border-bottom: 2px solid var(--blood);
+        padding-bottom: 6px;
       }
 
       .controls-container {
-        flex: 1;
-        max-width: 400px;
-        padding: 20px;
-        background: #EEE4C8;
-        border: 2px solid #000000;
-        border-radius: 8px;
+        flex: 1 1 300px;
+        max-width: 360px;
       }
 
-      /* ===== BANNER STYLES ===== */
-      .banner {
-        background-color: #000000;
-        color: #ffffff;
+      .image-container {
+        flex: 1 1 260px;
+        max-width: 320px;
         text-align: center;
-        padding: 14px 10px;
-        margin: -20px -20px 15px -20px;
-        border-radius: 8px 8px 0 0;
-        font-size: 18px;
-        font-weight: bold;
-        letter-spacing: 0.5px;
-        border-bottom: 3px solid #000000;
       }
 
-      .banner a {
-        color: #ffffff;
-        text-decoration: underline;
-        font-weight: bold;
-      }
-
-      .banner a:hover {
-        color: #cccccc;
+      /* ===== BANNER ===== */
+      .banner {
+        margin: -22px -22px 18px;
+        padding: 16px 14px 14px;
+        background: var(--ink);
+        color: var(--bone);
+        text-align: center;
+        border-radius: 6px 6px 0 0;
+        border-bottom: 3px solid var(--blood);
+        font-family: var(--font-display);
+        font-size: 22px;
+        letter-spacing: 2px;
       }
 
       .banner-sub {
-        font-size: 12px;
-        font-weight: normal;
-        opacity: 0.8;
         display: block;
-        margin-top: 2px;
+        margin-top: 4px;
+        font-family: var(--font-body);
+        font-size: 13px;
+        letter-spacing: 0;
       }
 
-      .wheel-container {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        position: relative;
+      .banner a {
+        color: var(--gold-light);
+        text-decoration: none;
+        border-bottom: 1px dotted var(--gold-light);
       }
 
-      .wheel-wrapper {
-        position: relative;
-        width: 500px;
-        height: 500px;
-        margin-top: 20px;
+      .banner a:hover {
+        color: #ffffff;
+        border-bottom-color: #ffffff;
       }
 
-      .ticker {
-        position: absolute;
-        top: -10px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 0;
-        height: 0;
-        border-left: 20px solid transparent;
-        border-right: 20px solid transparent;
-        border-top: 30px solid #A9782F;
-        z-index: 10;
+      .byline {
+        margin: -8px 0 14px;
+        font-size: 13px;
+        font-style: italic;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      label {
+        display: block;
+        font-family: var(--font-label);
+        font-size: 15px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+
+      .hint {
+        margin: 2px 0 0;
+        font-size: 12px;
+        color: var(--muted);
       }
 
       textarea {
         width: 100%;
-        margin: 10px 0 20px 0;
+        margin: 8px 0 18px;
         padding: 12px;
-        font-size: 16px;
-        box-sizing: border-box;
-        border: 2px solid #000000;
+        font-family: var(--font-body);
+        font-size: 15px;
+        line-height: 1.5;
+        border: 1px solid rgba(23, 20, 15, 0.45);
         border-radius: 4px;
         resize: vertical;
-        background-color: #ffffff;
-        color: #000000;
+        background-color: #FBF7EC;
+        color: var(--ink);
+        box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.12);
       }
 
+      textarea:focus {
+        outline: 2px solid var(--gold);
+        outline-offset: 1px;
+      }
+
+      /* ===== BUTTONS ===== */
       #spinBtn {
-        padding: 15px 30px;
-        font-size: 20px;
-        font-weight: bold;
-        cursor: pointer;
-        border: 2px solid #000000;
-        background-color: #000000;
-        color: #ffffff;
-        border-radius: 5px;
-        transition: transform 0.1s, background-color 0.2s;
         width: 100%;
         margin-bottom: 10px;
+        padding: 14px 20px;
+        font-family: var(--font-display);
+        font-size: 22px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        cursor: pointer;
+        color: var(--bone);
+        background: linear-gradient(180deg, #B42222 0%, var(--blood) 55%, var(--blood-dark) 100%);
+        border: 1px solid #3E0909;
+        border-radius: 5px;
+        box-shadow: 0 4px 0 #3E0909, 0 8px 18px rgba(0, 0, 0, 0.35);
+        transition: transform 0.1s, box-shadow 0.1s, filter 0.2s;
+      }
+
+      #spinBtn small {
+        display: block;
+        font-family: var(--font-body);
+        font-size: 11px;
+        letter-spacing: 0.5px;
+        text-transform: none;
+        opacity: 0.8;
       }
 
       #spinBtn:hover {
-        background-color: #333333;
+        filter: brightness(1.1);
       }
 
-      #spinBtn:active {
-        transform: scale(0.98);
+      #spinBtn:active,
+      #spinBtn.charging {
+        transform: translateY(3px);
+        box-shadow: 0 1px 0 #3E0909, 0 4px 10px rgba(0, 0, 0, 0.35);
+      }
+
+      #spinBtn.charging {
+        animation: charge-pulse 0.5s ease-in-out infinite alternate;
+      }
+
+      @keyframes charge-pulse {
+        from { filter: brightness(1); }
+        to   { filter: brightness(1.35); }
       }
 
       #spinBtn:disabled {
         cursor: not-allowed;
-        opacity: 0.5;
+        opacity: 0.55;
       }
 
       .sync-buttons {
         display: flex;
-        flex-direction: column;
-        gap: 6px;
+        gap: 8px;
         margin-top: 8px;
       }
 
       .sync-btn {
-        padding: 10px 15px;
+        flex: 1;
+        padding: 10px 8px;
+        font-family: var(--font-label);
         font-size: 14px;
-        font-weight: bold;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
         cursor: pointer;
-        border: 2px solid #000000;
+        color: var(--ink);
+        background: transparent;
+        border: 2px solid var(--ink);
         border-radius: 5px;
-        transition: all 0.2s;
-        width: 100%;
-        text-align: center;
-        background-color: #ffffff;
-        color: #000000;
+        transition: background-color 0.2s, color 0.2s;
       }
 
       .sync-btn:hover {
-        background-color: #f0f0f0;
-        transform: scale(0.98);
+        background-color: var(--ink);
+        color: var(--bone);
       }
 
       .sync-btn:disabled {
@@ -180,72 +270,228 @@
       }
 
       #syncStatus {
-        font-size: 12px;
-        color: #555555;
-        margin-top: 5px;
-        text-align: center;
         min-height: 20px;
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      /* ===== STATS ===== */
+      .stats-container {
+        margin-top: 14px;
+        padding: 12px 14px;
+        font-size: 13px;
+        background: rgba(255, 255, 255, 0.35);
+        border: 1px dashed rgba(23, 20, 15, 0.4);
+        border-radius: 4px;
+      }
+
+      .stats-container h3 {
+        margin: 0 0 6px;
+        font-family: var(--font-display);
+        font-size: 14px;
+        font-weight: normal;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+
+      .stat-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 3px 0;
+        border-bottom: 1px dotted rgba(23, 20, 15, 0.25);
+      }
+
+      .stat-row:last-child {
+        border-bottom: none;
+      }
+
+      .stat-row span:last-child {
+        font-weight: 600;
+        text-align: right;
+      }
+
+      /* ===== WHEEL ===== */
+      .wheel-container {
+        flex: 1 1 500px;
+        max-width: 560px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      #result {
+        min-height: 1.3em;
+        margin: 6px 0 4px;
+        font-family: var(--font-display);
+        font-size: clamp(24px, 4vw, 36px);
+        font-weight: normal;
+        line-height: 1.2;
+        text-align: center;
+        color: var(--bone);
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+      }
+
+      .picked-by {
+        visibility: hidden;
+        margin: 0 0 4px;
+        padding: 3px 12px;
+        font-family: var(--font-label);
+        font-size: 13px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--bone);
+        border-radius: 999px;
+        border: 1px solid rgba(238, 228, 200, 0.3);
+      }
+
+      .picked-by.visible {
+        visibility: visible;
+      }
+
+      .wheel-wrapper {
+        position: relative;
+        width: min(500px, calc(100vw - 32px));
+        aspect-ratio: 1;
+        margin-top: 18px;
       }
 
       #wheelCanvas {
-        width: 500px;
-        height: 500px;
+        display: block;
+        width: 100%;
+        height: 100%;
         border-radius: 50%;
-        background-color: #EEE4C8;
+        box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.35), 0 22px 50px rgba(0, 0, 0, 0.7);
       }
 
-      .image-container {
-        flex: 1;
-        max-width: 350px;
-        padding: 20px;
-        background: #EEE4C8;
-        border: 2px solid #000000;
-        border-radius: 8px;
-        text-align: center;
+      .ticker {
+        position: absolute;
+        top: -14px;
+        left: 50%;
+        z-index: 10;
+        width: 38px;
+        height: 48px;
+        transform: translateX(-50%);
+        background: linear-gradient(180deg, #C42A2A, var(--blood-dark));
+        clip-path: polygon(0 0, 100% 0, 100% 45%, 50% 100%, 0 45%);
+        filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.6));
+      }
+
+      .ticker::after {
+        content: "";
+        position: absolute;
+        top: 9px;
+        left: 50%;
+        width: 10px;
+        height: 10px;
+        transform: translateX(-50%);
+        border-radius: 50%;
+        background: var(--gold-light);
+      }
+
+      .hub {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        z-index: 5;
+        width: 16%;
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #3A3226, var(--ink) 70%);
+        border: 3px solid var(--gold);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+        font-family: var(--font-display);
+        font-size: clamp(24px, 6vw, 40px);
+        color: #C42A2A;
+        pointer-events: none;
+      }
+
+      /* ===== PICKER LEGEND ===== */
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 22px;
+      }
+
+      .legend-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 5px 12px 5px 6px;
+        font-family: var(--font-label);
+        font-size: 14px;
+        letter-spacing: 0.5px;
+        color: var(--bone);
+        background: rgba(238, 228, 200, 0.07);
+        border: 1px solid rgba(238, 228, 200, 0.18);
+        border-radius: 999px;
+      }
+
+      .legend-swatch {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 2px solid rgba(238, 228, 200, 0.6);
+      }
+
+      .legend-count {
+        opacity: 0.6;
+      }
+
+      /* ===== COVER (EXHIBIT A) ===== */
+      #bookImageBox {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 300px;
       }
 
       #bookImage {
-        max-width: 300px;
-        border: 2px solid #000000;
-        border-radius: 4px;
         display: none;
+        max-width: 100%;
+        max-height: 420px;
+        padding: 10px 10px 34px;
+        background: #FBF7EC;
+        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.4);
+        transform: rotate(-2deg);
       }
 
       #imagePlaceholder {
+        max-width: 220px;
+        padding: 40px 16px;
         font-size: 14px;
-        color: #555555;
-      }
-
-      .stats-container {
-        margin-top: 15px;
-        padding: 10px;
-        background: #f5f5f5;
-        border: 1px solid #000000;
+        font-style: italic;
+        color: var(--muted);
+        border: 2px dashed rgba(23, 20, 15, 0.3);
         border-radius: 4px;
-        font-size: 12px;
-        color: #000000;
       }
 
-      #spinCount {
-        font-weight: bold;
+      #imagePlaceholder:empty {
+        display: none;
       }
 
-      .current-picks {
-        font-size: 11px;
-        color: #555555;
-        margin-top: 4px;
+      /* ===== SMALL SCREENS ===== */
+      @media (max-width: 1180px) {
+        .wheel-container {
+          order: -1;
+          flex-basis: 100%;
+        }
       }
 
-      h1 {
-        color: #E8DFC4;
-      }
-
-      h2 {
-        color: #000000;
-      }
-
-      label {
-        color: #000000;
+      @media (max-width: 700px) {
+        .controls-container,
+        .image-container {
+          max-width: none;
+        }
       }
     </style>
 
@@ -261,7 +507,7 @@
 
     <div class="main-row">
 
-    <div class="controls-container">
+    <div class="controls-container panel">
       <!-- ===== BANNER ===== -->
       <div class="banner">
         PROJECT BOOKCLUB
@@ -270,42 +516,44 @@
         </span>
       </div>
 
-      <p style="margin: -5px 0 10px 0; font-size: 14px; color: #555555; text-align: center;">By: Robert Cruz</p>
-      
-      <label for="bookList"><strong>Book List:</strong></label>
-      <textarea id="bookList" rows="10" placeholder="List your books here..."
+      <p class="byline">By: Robert Cruz</p>
+
+      <label for="bookList">The Suspects</label>
+      <p class="hint">One book per line. Add <em>| Name</em> to tag who picked it.</p>
+      <textarea id="bookList" rows="10" placeholder="Throne of Glass | Heather"
         oninput="onBookListChange(); saveBooks(); drawWheel()"></textarea>
 
-      <button id="spinBtn">Spin the Wheel</button>
-      
+      <button id="spinBtn">Spin the Wheel<small>hold, then release</small></button>
+
       <!-- Google Sheets sync buttons -->
       <div class="sync-buttons">
         <button id="syncFullBtn" class="sync-btn">Sync Full TBR</button>
         <button id="syncWheelBtn" class="sync-btn">Sync Wheel Picks</button>
       </div>
       <div id="syncStatus">Click to load books from your spreadsheet</div>
-      
+
       <!-- Spin statistics -->
       <div class="stats-container">
-        <strong>Stats:</strong><br>
-        Total spins: <span id="spinCount">0</span> | 
-        Last spun: <span id="lastSpin">Never</span>
-        <div class="current-picks">
-          Current List Loaded: <span id="currentSource">Not synced</span>
-        </div>
+        <h3>Case Notes</h3>
+        <div class="stat-row"><span>Total spins</span><span id="spinCount">0</span></div>
+        <div class="stat-row"><span>Last spun</span><span id="lastSpin">Never</span></div>
+        <div class="stat-row"><span>List loaded</span><span id="currentSource">Not synced</span></div>
       </div>
     </div>
 
     <div class="wheel-container">
       <h1 id="result">Spin the Wheel!</h1>
+      <div id="pickedBy" class="picked-by"></div>
       <div class="wheel-wrapper">
         <div class="ticker"></div>
-        <canvas id="wheelCanvas" width="500" height="500"></canvas>
+        <canvas id="wheelCanvas" width="1000" height="1000"></canvas>
+        <div class="hub">?</div>
       </div>
+      <div id="legend" class="legend"></div>
     </div>
 
-    <div class="image-container">
-      <h2>Selected Book Cover</h2>
+    <div class="image-container panel">
+      <h2 class="panel-title">Exhibit A</h2>
       <div id="bookImageBox">
         <p id="imagePlaceholder">Spin the wheel to see the book cover here.</p>
         <img id="bookImage" src="" alt="">
@@ -318,13 +566,23 @@
       // ===== CONFIGURATION =====
       const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxwiNSENzLmnUdzijZrzKHFQvyYKiG1r7V8s1A2zLiuk6wdrzSAqlSiSE0WAWJI9V2-cA/exec';
 
+      // Slice colours for each person's picks (keys are lowercase names).
+      // Anyone not listed gets a colour from EXTRA_PICKER_COLORS.
+      const PICKER_COLORS = {
+        heather: '#8E2A24',
+        stacy: '#2E5E63',
+        mak: '#B0802E'
+      };
+      const EXTRA_PICKER_COLORS = ['#5B4A7A', '#4F6B3A', '#7A4A2E', '#3F4F7A'];
+      const UNCLAIMED_COLORS = ['#EEE4C8', '#DCCFAA', '#E6DABA'];
+
       // Cover lookup tuning
       const MAX_SEARCH_RESULTS = 25;      // works pulled from search.json
       const MAX_EDITIONS_TO_FETCH = 40;   // editions pulled per work
       const MIN_TITLE_SCORE = 0.80;       // how closely a result must match
       const COVER_ASPECT_MIN = 1.15;      // height / width — rejects scans
       const COVER_ASPECT_MAX = 2.0;
-      
+
       // ===== STATE =====
       let currentRotation = 0;
       let isSpinning = false;
@@ -345,6 +603,8 @@
       const currentSourceEl = document.getElementById("currentSource");
       const bookListTextarea = document.getElementById("bookList");
       const resultEl = document.getElementById("result");
+      const pickedByEl = document.getElementById("pickedBy");
+      const legendEl = document.getElementById("legend");
 
       // Update stats display
       function updateStats() {
@@ -359,7 +619,7 @@
         // Check if the current text matches what was synced
         const currentText = bookListTextarea.value;
         const savedSyncedText = localStorage.getItem('syncedBookListData');
-        
+
         // If the text is different from what was synced, mark as custom
         if (savedSyncedText && currentText !== savedSyncedText) {
           currentSource = 'Custom';
@@ -390,7 +650,7 @@ To Kill a Mockingbird
 Pride and Prejudice
 The Catcher in the Rye`;
         }
-        
+
         // Anything that doesn't match the last synced list is a custom list
         const syncedText = localStorage.getItem('syncedBookListData');
         const matchesSync = syncedText && bookListTextarea.value === syncedText;
@@ -402,67 +662,215 @@ The Catcher in the Rye`;
         }
       }
 
+      // Each line is "Title" or "Title | Picker".
       function checkForBooks() {
         return bookListTextarea.value
           .split("\n")
-          .map(b => b.replace(/^["'\s]+|["'\s]+$/g, '').trim())
-          .filter(b => b !== "");
+          .map(line => {
+            const [rawTitle, ...rest] = line.split("|");
+            const title = rawTitle.replace(/^["'\s]+|["'\s]+$/g, '').trim();
+            const picker = rest.join("|").trim();
+            return {
+              title,
+              picker: picker ? picker.charAt(0).toUpperCase() + picker.slice(1) : ''
+            };
+          })
+          .filter(b => b.title !== "");
+      }
+
+      // ===== PICKER COLOURS =====
+      function pickerColor(name) {
+        const key = name.toLowerCase();
+        if (PICKER_COLORS[key]) return PICKER_COLORS[key];
+
+        let hash = 0;
+        for (const ch of key) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+        return EXTRA_PICKER_COLORS[hash % EXTRA_PICKER_COLORS.length];
+      }
+
+      function sliceColor(book, index, totalSlices) {
+        if (book.picker) return pickerColor(book.picker);
+        // Alternate parchment shades; a third shade stops the last slice
+        // matching the first when the count is odd.
+        if (totalSlices % 2 === 1 && index === totalSlices - 1) return UNCLAIMED_COLORS[2];
+        return UNCLAIMED_COLORS[index % 2];
+      }
+
+      // Dark text on light slices, light text on dark ones.
+      function textColorFor(hex) {
+        const n = parseInt(hex.slice(1), 16);
+        const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        return luminance > 0.55 ? '#17140F' : '#F3EBD3';
+      }
+
+      function renderLegend(books) {
+        const counts = new Map();
+        let unclaimed = 0;
+        for (const book of books) {
+          if (book.picker) counts.set(book.picker, (counts.get(book.picker) || 0) + 1);
+          else unclaimed++;
+        }
+
+        legendEl.innerHTML = '';
+        if (counts.size === 0) return;
+
+        const addChip = (label, color, count) => {
+          const chip = document.createElement('span');
+          chip.className = 'legend-chip';
+          const swatch = document.createElement('span');
+          swatch.className = 'legend-swatch';
+          swatch.style.background = color;
+          const name = document.createElement('span');
+          name.textContent = label;
+          const num = document.createElement('span');
+          num.className = 'legend-count';
+          num.textContent = count;
+          chip.append(swatch, name, num);
+          legendEl.appendChild(chip);
+        };
+
+        for (const [name, count] of counts) addChip(name, pickerColor(name), count);
+        if (unclaimed > 0) addChip('Unclaimed', UNCLAIMED_COLORS[0], unclaimed);
+      }
+
+      // Shorten a title with an ellipsis until it fits the slice.
+      function fitText(ctx, text, maxWidth) {
+        if (ctx.measureText(text).width <= maxWidth) return text;
+        let t = text;
+        while (t.length > 1 && ctx.measureText(t + "…").width > maxWidth) {
+          t = t.slice(0, -1);
+        }
+        return t.trimEnd() + "…";
       }
 
       // ===== DRAW WHEEL =====
-      function drawWheel() {
+      // Drawn in a 500x500 space and scaled up so it stays sharp on
+      // high-DPI screens. Pass a slice index to spotlight the winner.
+      function drawWheel(highlightIndex = -1) {
         const books = checkForBooks();
         const ctx = canvas.getContext("2d");
         const totalSlices = books.length;
+        const C = 250;
+        const RIM = 248;
+        const radius = 228;
+        const HUB = 40;
 
+        const scale = canvas.width / 500;
+        ctx.setTransform(scale, 0, 0, scale, 0, 0);
         ctx.clearRect(0, 0, 500, 500);
+
+        renderLegend(books);
+
+        // Outer rim
+        ctx.beginPath();
+        ctx.arc(C, C, RIM, 0, Math.PI * 2);
+        ctx.fillStyle = "#1E1A14";
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(C, C, RIM - 2, 0, Math.PI * 2);
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "#A9782F";
+        ctx.stroke();
+
         if (totalSlices === 0) {
-          ctx.font = 'bold 20px Arial';
-          ctx.fillStyle = '#999999';
+          ctx.beginPath();
+          ctx.arc(C, C, radius, 0, Math.PI * 2);
+          ctx.fillStyle = UNCLAIMED_COLORS[0];
+          ctx.fill();
+          ctx.font = "20px 'Special Elite', 'Courier New', monospace";
+          ctx.fillStyle = '#6B604B';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText('Add books or sync', 250, 250);
+          ctx.fillText('Add books or sync', C, C + 70);
           return;
         }
 
         const angleOfSlice = (Math.PI * 2) / totalSlices;
-        const radius = 230;
-
-        ctx.beginPath();
-        ctx.arc(250, 250, radius, 0, Math.PI * 2);
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = "#000000";
-        ctx.stroke();
+        const fontSize = Math.max(8, Math.min(20, angleOfSlice * 110 * 0.7));
+        const maxTextWidth = radius - 18 - HUB - 12;
 
         for (let i = 0; i < totalSlices; i++) {
           const startAngle = i * angleOfSlice;
+          const color = sliceColor(books[i], i, totalSlices);
 
           ctx.beginPath();
-          ctx.moveTo(250, 250);
-          ctx.lineTo(250 + Math.cos(startAngle) * radius, 250 + Math.sin(startAngle) * radius);
-          ctx.lineWidth = 2;
-          ctx.strokeStyle = "#000000";
+          ctx.moveTo(C, C);
+          ctx.arc(C, C, radius, startAngle, startAngle + angleOfSlice);
+          ctx.closePath();
+          ctx.fillStyle = color;
+          ctx.fill();
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = "#17140F";
           ctx.stroke();
 
           ctx.save();
-          ctx.translate(250, 250);
+          ctx.translate(C, C);
           ctx.rotate(startAngle + angleOfSlice / 2);
           ctx.textAlign = "right";
           ctx.textBaseline = "middle";
-          ctx.fillStyle = "#000000";
-
-          let fontSize = 18;
-          if (totalSlices > 15) fontSize = 14;
-          if (totalSlices > 30) fontSize = 12;
-          ctx.font = `bold ${fontSize}px Arial`;
-
-          let title = books[i];
-          if (title.length > 25) {
-            title = title.substring(0, 22) + "...";
-          }
-
-          ctx.fillText(title, radius - 20, 0);
+          ctx.fillStyle = textColorFor(color);
+          ctx.font = `600 ${fontSize}px Oswald, 'Arial Narrow', Arial, sans-serif`;
+          ctx.fillText(fitText(ctx, books[i].title, maxTextWidth), radius - 18, 0);
           ctx.restore();
+        }
+
+        // Spotlight the winner by dimming everything else
+        if (highlightIndex >= 0 && highlightIndex < totalSlices) {
+          for (let i = 0; i < totalSlices; i++) {
+            if (i === highlightIndex) continue;
+            const startAngle = i * angleOfSlice;
+            ctx.beginPath();
+            ctx.moveTo(C, C);
+            ctx.arc(C, C, radius, startAngle, startAngle + angleOfSlice);
+            ctx.closePath();
+            ctx.fillStyle = "rgba(12, 10, 7, 0.6)";
+            ctx.fill();
+          }
+          const startAngle = highlightIndex * angleOfSlice;
+          ctx.beginPath();
+          ctx.moveTo(C, C);
+          ctx.arc(C, C, radius - 2, startAngle, startAngle + angleOfSlice);
+          ctx.closePath();
+          ctx.lineWidth = 4;
+          ctx.strokeStyle = "#D9B46A";
+          ctx.stroke();
+        }
+
+        // Inner edge of the rim
+        ctx.beginPath();
+        ctx.arc(C, C, radius, 0, Math.PI * 2);
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "#17140F";
+        ctx.stroke();
+
+        // Brass pegs at each slice boundary
+        if (totalSlices <= 60) {
+          const pegRadius = (radius + RIM) / 2;
+          for (let i = 0; i < totalSlices; i++) {
+            const a = i * angleOfSlice;
+            ctx.beginPath();
+            ctx.arc(C + Math.cos(a) * pegRadius, C + Math.sin(a) * pegRadius, 3.5, 0, Math.PI * 2);
+            ctx.fillStyle = "#D9B46A";
+            ctx.fill();
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = "#5A3F16";
+            ctx.stroke();
+          }
+        }
+      }
+
+      function showPickedBy(picker) {
+        if (picker) {
+          pickedByEl.textContent = `Picked by ${picker}`;
+          pickedByEl.style.background = pickerColor(picker);
+          pickedByEl.style.color = textColorFor(pickerColor(picker));
+          pickedByEl.classList.add('visible');
+        } else {
+          pickedByEl.textContent = '';
+          pickedByEl.style.background = '';
+          pickedByEl.style.color = '';
+          pickedByEl.classList.remove('visible');
         }
       }
 
@@ -487,6 +895,9 @@ The Catcher in the Rye`;
         isHolding = true;
         holdStartTime = Date.now();
         resultEl.innerText = "Charging up spin...";
+        showPickedBy('');
+        spinButton.classList.add('charging');
+        drawWheel();
 
         canvas.style.transition = "none";
 
@@ -500,9 +911,11 @@ The Catcher in the Rye`;
         if (!isHolding) return;
         isHolding = false;
         isSpinning = true;
+        spinButton.classList.remove('charging');
         spinButton.disabled = true;
         syncFullBtn.disabled = true;
         syncWheelBtn.disabled = true;
+        bookListTextarea.readOnly = true;
 
         clearInterval(spinLoopInterval);
 
@@ -528,32 +941,44 @@ The Catcher in the Rye`;
 
         setTimeout(() => {
           const selectedBook = bookArray[winnerIndex];
-          resultEl.innerText = selectedBook;
+          resultEl.innerText = selectedBook.title;
+          showPickedBy(selectedBook.picker);
+          drawWheel(winnerIndex);
 
           // Update stats
           totalSpins++;
-          lastSpinBook = selectedBook;
+          lastSpinBook = selectedBook.title;
           localStorage.setItem('totalSpins', totalSpins.toString());
           localStorage.setItem('lastSpinBook', lastSpinBook);
           updateStats();
 
           // Load book cover
-          loadBookImage(selectedBook);
+          loadBookImage(selectedBook.title);
 
-          confetti({
+          const winnerColor = selectedBook.picker ? pickerColor(selectedBook.picker) : '#9E1B1B';
+          if (window.confetti) confetti({
             particleCount: 150,
             spread: 80,
-            origin: { y: 0.6 }
+            origin: { y: 0.6 },
+            colors: [winnerColor, '#EEE4C8', '#D9B46A', '#9E1B1B']
           });
 
           isSpinning = false;
           spinButton.disabled = false;
           syncFullBtn.disabled = false;
           syncWheelBtn.disabled = false;
+          bookListTextarea.readOnly = false;
         }, 4000);
       }
 
       // ===== GOOGLE SHEETS INTEGRATION =====
+
+      // The Apps Script returns either plain titles (older script) or
+      // { title, picker } objects. Pickers become "Title | Picker" lines.
+      function formatSyncedBook(book) {
+        if (typeof book === 'string') return book;
+        return book.picker ? `${book.title} | ${book.picker}` : book.title;
+      }
 
       async function syncFromGoogleSheets(type, sourceName) {
         if (!GOOGLE_SHEETS_URL) {
@@ -568,23 +993,23 @@ The Catcher in the Rye`;
         try {
           const url = `${GOOGLE_SHEETS_URL}?action=getBooks&type=${type}`;
           console.log('Fetching:', url);
-          
+
           const response = await fetch(url);
           if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-          
+
           const data = await response.json();
           console.log('Data received:', data);
-          
+
           if (data.success && data.books && data.books.length > 0) {
-            const bookList = data.books.join('\n');
+            const bookList = data.books.map(formatSyncedBook).join('\n');
             bookListTextarea.value = bookList;
             saveBooks();
-            
+
             // Store the synced text so we can detect custom changes later
             localStorage.setItem('syncedBookListData', bookList);
-            
+
             drawWheel();
-            
+
             currentSource = sourceName;
             localStorage.setItem('currentSource', currentSource);
             updateStats();
@@ -864,6 +1289,14 @@ The Catcher in the Rye`;
       // ===== INIT =====
       loadBooks();
       drawWheel();
+
+      // Canvas text can't use a web font until it has loaded, so redraw then.
+      if (document.fonts) {
+        Promise.all([
+          document.fonts.load("600 20px Oswald"),
+          document.fonts.load("20px 'Special Elite'")
+        ]).then(() => { if (!isSpinning) drawWheel(); }).catch(() => {});
+      }
     </script>
   </body>
 </html>
