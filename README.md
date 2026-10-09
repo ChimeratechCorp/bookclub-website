@@ -24,7 +24,8 @@ Project Bookclub is an interactive web application that helps book clubs and ind
 ### Interactive Wheel
 - **Spin to Select** - Click and hold to charge, release to spin
 - **Dynamic Sizing** - Automatically adjusts text size and placement based on the number of books
-- **Visual Feedback** - Clear display of the winning book with confetti celebration
+- **Visual Feedback** - Clear display of the winning book with confetti celebration, and the winning slice is spotlighted
+- **Color-Coded Picks** - Each person's picks get their own slice color, with a legend showing how many books each person has on the wheel
 - **Touch Support** - Works on both desktop and mobile devices
 
 ### Book Cover Integration
@@ -39,7 +40,7 @@ Project Bookclub is an interactive web application that helps book clubs and ind
 - **Persistent Storage** - All stats are saved locally in your browser
 
 ### Design
-- **Clean Black and White** - Minimalist design focused on readability
+- **Noir Mystery Theme** - Bone, blood-red, and brass styling to match the "Who Spunnit?" banner
 - **Responsive Layout** - Works on desktop and mobile devices
 - **Accessibility** - High contrast and clear typography
 
@@ -68,6 +69,10 @@ Your Google Sheet should have the following columns:
 - **Sync Full TBR** - Loads ALL unchecked books from Column A
 - **Sync Wheel Picks** - Loads only unchecked books with specific values in Column G
 - **Column E Checkbox** - Check = Book is ignored, Uncheck = Book is included
+- **Column G Wheel Mark** - Also decides whose color a book gets on the wheel (in both sync modes)
+
+### Tagging Picks by Hand
+Each line in the book list can end with `| Name` to say who picked it, e.g. `Throne of Glass | Heather`. Synced lists are written this way automatically. Slice colors live in `PICKER_COLORS` at the top of the `<script>` in `index.html`; anyone not listed there gets a color automatically.
 
 ---
 
@@ -96,6 +101,13 @@ Your Google Sheet should have the following columns:
 // ===== GOOGLE APPS SCRIPT FOR BOOKCLUB WHEEL =====
 // Copy this entire code into your Apps Script editor
 
+// Column G value -> name shown on the wheel
+const PICKERS = {
+  'heathers wheel pick': 'Heather',
+  'stacys wheel pick': 'Stacy',
+  'maks wheel pick': 'Mak'
+};
+
 function doGet(e) {
   if (!e || !e.parameter) {
     return ContentService.createTextOutput(JSON.stringify({
@@ -116,28 +128,16 @@ function doGet(e) {
       const data = sheet.getRange("A:G").getValues();
       let books = [];
       
-      if (type === 'full') {
-        for (let i = 1; i < data.length; i++) {
-          const title = data[i][0];
-          const checked = data[i][4];
-          if (title && title.toString().trim() !== "" && !checked) {
-            books.push(title.toString().trim());
-          }
-        }
-      } else if (type === 'wheel') {
-        const validPicks = ['heathers wheel pick', 'stacys wheel pick', 'maks wheel pick'];
-        for (let i = 1; i < data.length; i++) {
-          const title = data[i][0];
-          const checked = data[i][4];
-          const mark = data[i][6];
-          if (checked) continue;
-          if (title && title.toString().trim() !== "" && mark) {
-            const markText = mark.toString().trim().toLowerCase();
-            if (validPicks.includes(markText)) {
-              books.push(title.toString().trim());
-            }
-          }
-        }
+      for (let i = 1; i < data.length; i++) {
+        const title = data[i][0];
+        const checked = data[i][4];
+        const mark = data[i][6];
+        if (checked || !title || title.toString().trim() === "") continue;
+
+        const picker = mark ? (PICKERS[mark.toString().trim().toLowerCase()] || '') : '';
+        if (type === 'wheel' && !picker) continue;
+
+        books.push({ title: title.toString().trim(), picker: picker });
       }
       
       return ContentService.createTextOutput(JSON.stringify({
