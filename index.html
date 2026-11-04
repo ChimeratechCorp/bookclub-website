@@ -636,7 +636,8 @@
 
     <script>
       // ===== CONFIGURATION =====
-      const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxRkgXksp3_He48OQkDh84WONY5s40NtnnXhBiBoHEHkxcfDK74gTNzo549pkEboZ4tWg/exec';
+      const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyn0h86LyZwOh22U3xBTKpD6X8maZBwvgaYclbMexvjoc19lRPJWHwC1N-w7MPqAXBn9g/exec';
+      const SYNC_TIMEOUT_MS = 30000;
 
       // Slice colours for each person's picks (keys are lowercase names).
       // Anyone not listed gets a colour from EXTRA_PICKER_COLORS.
@@ -660,7 +661,8 @@
       let isSpinning = false;
       let isHolding = false;
       let holdStartTime = 0;
-      let spinLoopInterval = null;
+      let spinLoopFrame = null;
+      let coverRequestId = 0;
       let totalSpins = parseInt(localStorage.getItem('totalSpins') || '0');
       let lastSpinBook = localStorage.getItem('lastSpinBook') || 'Never';
       let currentSource = localStorage.getItem('currentSource') || 'Not synced';
@@ -995,10 +997,15 @@ The Catcher in the Rye`;
 
         canvas.style.transition = "none";
 
-        spinLoopInterval = setInterval(() => {
-          currentRotation += 18;
+        // Spin at a steady 18deg per 60fps frame, whatever the display's refresh rate
+        let lastFrame = performance.now();
+        const chargeFrame = (now) => {
+          currentRotation += 18 * (now - lastFrame) / (1000 / 60);
+          lastFrame = now;
           canvas.style.transform = "rotate(" + (currentRotation % 360) + "deg)";
-        }, 16.67);
+          spinLoopFrame = requestAnimationFrame(chargeFrame);
+        };
+        spinLoopFrame = requestAnimationFrame(chargeFrame);
       }
 
       function stopSpinAction() {
@@ -1011,7 +1018,7 @@ The Catcher in the Rye`;
         syncWheelBtn.disabled = true;
         bookListTextarea.readOnly = true;
 
-        clearInterval(spinLoopInterval);
+        cancelAnimationFrame(spinLoopFrame);
 
         const bookArray = checkForBooks();
         const totalSlices = bookArray.length;
@@ -1026,7 +1033,8 @@ The Catcher in the Rye`;
         const targetDegreeStop = (270 - currentSliceCenterDegree + 360) % 360;
 
         const durationHeld = Date.now() - holdStartTime;
-        const fullSpins = durationHeld > 400 ? 1440 : 2160;
+        // A longer hold winds up a bigger spin
+        const fullSpins = durationHeld > 400 ? 2160 : 1440;
 
         const baseNormalizedRotation = currentRotation - (currentRotation % 360);
         currentRotation = baseNormalizedRotation + fullSpins + targetDegreeStop;
@@ -1086,13 +1094,27 @@ The Catcher in the Rye`;
         syncStatus.textContent = `Loading ${sourceName}...`;
 
         try {
-          const url = `${GOOGLE_SHEETS_URL}?action=getBooks&type=${type}`;
+          // A unique URL per sync, so the browser never parks a new request
+          // behind an earlier identical one that is still stuck or cached
+          const url = `${GOOGLE_SHEETS_URL}?action=getBooks&type=${type}&t=${Date.now()}`;
           console.log('Fetching:', url);
 
-          const response = await fetch(url);
-          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-          const data = await response.json();
+          // Give up on a script that never answers instead of hanging on "Loading..."
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), SYNC_TIMEOUT_MS);
+          let data;
+          try {
+            const response = await fetch(url, { signal: controller.signal, cache: 'no-store' });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            data = await response.json();
+          } catch (error) {
+            if (error.name === 'AbortError') {
+              throw new Error(`the Google Apps Script didn't answer within ${SYNC_TIMEOUT_MS / 1000}s`);
+            }
+            throw error;
+          } finally {
+            clearTimeout(timeout);
+          }
           console.log('Data received:', data);
 
           if (data.success && data.books && data.books.length > 0) {
@@ -1103,6 +1125,10 @@ The Catcher in the Rye`;
             // Store the synced text so we can detect custom changes later
             localStorage.setItem('syncedBookListData', bookList);
 
+            // A new list means the last winner no longer applies
+            clearStamp();
+            showPickedBy('');
+            resultEl.innerText = 'Spin the Wheel!';
             drawWheel();
 
             currentSource = sourceName;
@@ -1362,6 +1388,8 @@ The Catcher in the Rye`;
       async function loadBookImage(title) {
         const imageElement = document.getElementById("bookImage");
         const placeholder = document.getElementById("imagePlaceholder");
+        // A newer spin may finish its lookup first; only the latest one may show
+        const requestId = ++coverRequestId;
 
         imageElement.style.display = "none";
         imageElement.src = "";
@@ -1370,12 +1398,14 @@ The Catcher in the Rye`;
 
         try {
           const bestCover = await searchOpenLibraryCover(title);
+          if (requestId !== coverRequestId) return;
 
           imageElement.src = bestCover.url;
           imageElement.alt = title;
           imageElement.style.display = "block";
           placeholder.textContent = "";
         } catch (error) {
+          if (requestId !== coverRequestId) return;
           console.error('Unable to find cover:', title, error);
           placeholder.textContent = "No cover found for this title.";
         }
