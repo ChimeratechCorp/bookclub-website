@@ -637,6 +637,7 @@
     <script>
       // ===== CONFIGURATION =====
       const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxRkgXksp3_He48OQkDh84WONY5s40NtnnXhBiBoHEHkxcfDK74gTNzo549pkEboZ4tWg/exec';
+      const SYNC_TIMEOUT_MS = 30000;
 
       // Slice colours for each person's picks (keys are lowercase names).
       // Anyone not listed gets a colour from EXTRA_PICKER_COLORS.
@@ -1099,10 +1100,22 @@ The Catcher in the Rye`;
           const url = `${GOOGLE_SHEETS_URL}?action=getBooks&type=${type}`;
           console.log('Fetching:', url);
 
-          const response = await fetch(url);
-          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-          const data = await response.json();
+          // Give up on a script that never answers instead of hanging on "Loading..."
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), SYNC_TIMEOUT_MS);
+          let data;
+          try {
+            const response = await fetch(url, { signal: controller.signal });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            data = await response.json();
+          } catch (error) {
+            if (error.name === 'AbortError') {
+              throw new Error(`the Google Apps Script didn't answer within ${SYNC_TIMEOUT_MS / 1000}s`);
+            }
+            throw error;
+          } finally {
+            clearTimeout(timeout);
+          }
           console.log('Data received:', data);
 
           if (data.success && data.books && data.books.length > 0) {
