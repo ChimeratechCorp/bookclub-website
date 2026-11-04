@@ -1125,6 +1125,10 @@ The Catcher in the Rye`;
             // Store the synced text so we can detect custom changes later
             localStorage.setItem('syncedBookListData', bookList);
 
+            // A new list means the last winner no longer applies
+            clearStamp();
+            showPickedBy('');
+            resultEl.innerText = 'Spin the Wheel!';
             drawWheel();
 
             currentSource = sourceName;
