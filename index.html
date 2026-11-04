@@ -446,7 +446,6 @@
         opacity: 0.6;
       }
 
-      /* ===== COVER (EXHIBIT A) ===== */
       #bookImageBox {
         display: flex;
         flex-direction: column;
@@ -625,7 +624,7 @@
     </div>
 
     <div class="image-container panel">
-      <h2 class="panel-title">Exhibit A</h2>
+      <h2 class="panel-title">Book Cover</h2>
       <div id="bookImageBox">
         <p id="imagePlaceholder">Spin the wheel to see the book cover here.</p>
         <img id="bookImage" src="" alt="">
@@ -806,7 +805,7 @@ The Catcher in the Rye`;
         };
 
         for (const [name, count] of counts) addChip(name, pickerColor(name), count);
-        if (unclaimed > 0) addChip('Unclaimed', UNCLAIMED_COLORS[0], unclaimed);
+        if (unclaimed > 0) addChip('TBR', UNCLAIMED_COLORS[0], unclaimed);
       }
 
       // Shorten a title with an ellipsis until it fits the slice.
