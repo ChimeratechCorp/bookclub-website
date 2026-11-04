@@ -1097,7 +1097,9 @@ The Catcher in the Rye`;
         syncStatus.textContent = `Loading ${sourceName}...`;
 
         try {
-          const url = `${GOOGLE_SHEETS_URL}?action=getBooks&type=${type}`;
+          // A unique URL per sync, so the browser never parks a new request
+          // behind an earlier identical one that is still stuck or cached
+          const url = `${GOOGLE_SHEETS_URL}?action=getBooks&type=${type}&t=${Date.now()}`;
           console.log('Fetching:', url);
 
           // Give up on a script that never answers instead of hanging on "Loading..."
@@ -1105,7 +1107,7 @@ The Catcher in the Rye`;
           const timeout = setTimeout(() => controller.abort(), SYNC_TIMEOUT_MS);
           let data;
           try {
-            const response = await fetch(url, { signal: controller.signal });
+            const response = await fetch(url, { signal: controller.signal, cache: 'no-store' });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             data = await response.json();
           } catch (error) {
