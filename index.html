@@ -638,7 +638,7 @@
     </div>
 
     <div class="wheel-container">
-      <h1 id="result">Which tale calls to you?</h1>
+      <h1 id="result">Spin the Wheel!</h1>
       <div id="pickedBy" class="picked-by"></div>
       <div class="wheel-wrapper">
         <div class="ticker"></div>
@@ -655,7 +655,7 @@
     <div class="image-container panel">
       <h2 class="panel-title">Cover Book</h2>
       <div id="bookImageBox">
-        <p id="imagePlaceholder">Spin the wheel and the dragon will reveal your next tome.</p>
+        <p id="imagePlaceholder">Spin the wheel to see the book cover here.</p>
         <img id="bookImage" src="" alt="">
       </div>
     </div>
@@ -1017,7 +1017,7 @@ The Catcher in the Rye`;
 
         isHolding = true;
         holdStartTime = Date.now();
-        resultEl.innerText = "The dragon stirs...";
+        resultEl.innerText = "Charging up spin...";
         showPickedBy('');
         clearStamp();
         spinButton.classList.add('charging');
@@ -1050,7 +1050,7 @@ The Catcher in the Rye`;
 
         const bookArray = checkForBooks();
         const totalSlices = bookArray.length;
-        resultEl.innerText = "Fate is turning...";
+        resultEl.innerText = "Spinning...";
 
         canvas.style.transition = "transform 4s cubic-bezier(0.1, 0.8, 0.25, 1)";
 
@@ -1156,7 +1156,7 @@ The Catcher in the Rye`;
             // A new list means the last winner no longer applies
             clearStamp();
             showPickedBy('');
-            resultEl.innerText = 'Which tale calls to you?';
+            resultEl.innerText = 'Spin the Wheel!';
             drawWheel();
 
             currentSource = sourceName;
