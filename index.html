@@ -6,21 +6,21 @@
     <title>Project Bookclub</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=Oswald:wght@500;600&family=Special+Elite&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
     <style>
       :root {
-        --ink: #17140F;
-        --ink-soft: #2A241B;
-        --bone: #EEE4C8;
-        --bone-deep: #DCCFAA;
-        --blood: #9E1B1B;
-        --blood-dark: #741212;
-        --gold: #A9782F;
-        --gold-light: #D9B46A;
-        --muted: #6B604B;
-        --font-display: 'Special Elite', 'Courier New', monospace;
-        --font-label: 'Oswald', 'Arial Narrow', Arial, sans-serif;
-        --font-body: 'Lora', Georgia, serif;
+        --ink: #150E1D;
+        --ink-soft: #2A1D38;
+        --bone: #F3E6D0;
+        --bone-deep: #E6CFB4;
+        --blood: #B0304A;
+        --blood-dark: #7A1F35;
+        --gold: #C4904A;
+        --gold-light: #EBC788;
+        --muted: #7B6380;
+        --font-display: 'Cinzel Decorative', 'Cinzel', Georgia, serif;
+        --font-label: 'Cinzel', Georgia, serif;
+        --font-body: 'Cormorant Garamond', Georgia, serif;
       }
 
       * {
@@ -83,9 +83,9 @@
         width: 100%;
         padding: 22px;
         background-color: var(--bone);
-        background-image: linear-gradient(160deg, #F4ECD6 0%, var(--bone) 45%, #E4D8B6 100%);
+        background-image: linear-gradient(160deg, #FAF0E0 0%, var(--bone) 45%, #E9D3BA 100%);
         border-radius: 6px;
-        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55), inset 0 0 40px rgba(120, 90, 40, 0.18);
+        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55), inset 0 0 40px rgba(150, 80, 70, 0.16);
       }
 
       .panel-title {
@@ -174,10 +174,10 @@
         font-family: var(--font-body);
         font-size: 15px;
         line-height: 1.5;
-        border: 1px solid rgba(23, 20, 15, 0.45);
+        border: 1px solid rgba(21, 14, 29, 0.45);
         border-radius: 4px;
         resize: vertical;
-        background-color: #FBF7EC;
+        background-color: #FCF3E6;
         color: var(--ink);
         box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.12);
       }
@@ -198,10 +198,10 @@
         text-transform: uppercase;
         cursor: pointer;
         color: var(--bone);
-        background: linear-gradient(180deg, #B42222 0%, var(--blood) 55%, var(--blood-dark) 100%);
-        border: 1px solid #3E0909;
+        background: linear-gradient(180deg, #B02E4A 0%, var(--blood) 55%, var(--blood-dark) 100%);
+        border: 1px solid #3E0A1C;
         border-radius: 5px;
-        box-shadow: 0 4px 0 #3E0909, 0 8px 18px rgba(0, 0, 0, 0.35);
+        box-shadow: 0 4px 0 #3E0A1C, 0 8px 18px rgba(0, 0, 0, 0.35);
         transition: transform 0.1s, box-shadow 0.1s, filter 0.2s;
       }
 
@@ -221,7 +221,7 @@
       #spinBtn:active,
       #spinBtn.charging {
         transform: translateY(3px);
-        box-shadow: 0 1px 0 #3E0909, 0 4px 10px rgba(0, 0, 0, 0.35);
+        box-shadow: 0 1px 0 #3E0A1C, 0 4px 10px rgba(0, 0, 0, 0.35);
       }
 
       #spinBtn.charging {
@@ -283,7 +283,7 @@
         padding: 12px 14px;
         font-size: 13px;
         background: rgba(255, 255, 255, 0.35);
-        border: 1px dashed rgba(23, 20, 15, 0.4);
+        border: 1px dashed rgba(21, 14, 29, 0.4);
         border-radius: 4px;
       }
 
@@ -301,7 +301,7 @@
         justify-content: space-between;
         gap: 10px;
         padding: 3px 0;
-        border-bottom: 1px dotted rgba(23, 20, 15, 0.25);
+        border-bottom: 1px dotted rgba(21, 14, 29, 0.25);
       }
 
       .stat-row:last-child {
@@ -344,7 +344,7 @@
         text-transform: uppercase;
         color: var(--bone);
         border-radius: 999px;
-        border: 1px solid rgba(238, 228, 200, 0.3);
+        border: 1px solid rgba(243, 230, 208, 0.3);
       }
 
       .picked-by.visible {
@@ -374,7 +374,7 @@
         width: 38px;
         height: 48px;
         transform: translateX(-50%);
-        background: linear-gradient(180deg, #C42A2A, var(--blood-dark));
+        background: linear-gradient(180deg, #C83A55, var(--blood-dark));
         clip-path: polygon(0 0, 100% 0, 100% 45%, 50% 100%, 0 45%);
         filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.6));
       }
@@ -403,12 +403,12 @@
         justify-content: center;
         transform: translate(-50%, -50%);
         border-radius: 50%;
-        background: radial-gradient(circle at 35% 30%, #3A3226, var(--ink) 70%);
+        background: radial-gradient(circle at 35% 30%, #3A2A44, var(--ink) 70%);
         border: 3px solid var(--gold);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
         font-family: var(--font-display);
         font-size: clamp(24px, 6vw, 40px);
-        color: #C42A2A;
+        color: #C83A55;
         pointer-events: none;
       }
 
@@ -430,8 +430,8 @@
         font-size: 14px;
         letter-spacing: 0.5px;
         color: var(--bone);
-        background: rgba(238, 228, 200, 0.07);
-        border: 1px solid rgba(238, 228, 200, 0.18);
+        background: rgba(243, 230, 208, 0.07);
+        border: 1px solid rgba(243, 230, 208, 0.18);
         border-radius: 999px;
       }
 
@@ -439,7 +439,7 @@
         width: 18px;
         height: 18px;
         border-radius: 50%;
-        border: 2px solid rgba(238, 228, 200, 0.6);
+        border: 2px solid rgba(243, 230, 208, 0.6);
       }
 
       .legend-count {
@@ -460,7 +460,7 @@
         max-width: 100%;
         max-height: 420px;
         padding: 10px 10px 34px;
-        background: #FBF7EC;
+        background: #FCF3E6;
         box-shadow: 0 10px 22px rgba(0, 0, 0, 0.4);
         transform: rotate(-2deg);
       }
@@ -471,7 +471,7 @@
         font-size: 14px;
         font-style: italic;
         color: var(--muted);
-        border: 2px dashed rgba(23, 20, 15, 0.3);
+        border: 2px dashed rgba(21, 14, 29, 0.3);
         border-radius: 4px;
       }
 
@@ -493,12 +493,12 @@
         text-transform: uppercase;
         text-align: center;
         white-space: nowrap;
-        color: #E03A3A;
+        color: #EBC788;
         border: 4px solid currentColor;
         outline: 2px solid currentColor;
         outline-offset: 4px;
         border-radius: 6px;
-        background: rgba(23, 20, 15, 0.6);
+        background: rgba(21, 14, 29, 0.6);
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         opacity: 0;
         pointer-events: none;
@@ -561,17 +561,45 @@
           max-width: none;
         }
       }
+
+      /* ===== DRAGON THEME ===== */
+      body { background: radial-gradient(120% 70% at 50% 0%, #3A1A3A 0%, #1D1428 45%, #150E1D 100%) fixed, #150E1D; }
+      body::before { opacity: 0.05; }
+      .hero { position: relative; overflow: hidden; text-align: center; padding: 44px max(16px, env(safe-area-inset-left, 0px)) 30px; color: #F3E6D0; }
+      .hero-eyebrow { margin: 0 0 6px; font: 600 13px var(--font-label); letter-spacing: 6px; text-transform: uppercase; color: #EBC788; }
+      .hero-title { margin: 0; font: 700 clamp(40px, 9vw, 92px)/1 var(--font-display); text-wrap: balance;
+        background: linear-gradient(180deg, #FBE7B5 0%, #EBC788 40%, #C4904A 75%, #8A4A2A 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+        filter: drop-shadow(0 0 18px rgba(200, 58, 85, 0.45)); }
+      .hero-tag { margin: 12px auto 0; max-width: 34ch; font: italic 500 clamp(18px, 2.6vw, 24px)/1.35 var(--font-body); color: #E6CFB4; }
+      .embers i { position: absolute; bottom: -10px; width: 5px; height: 5px; border-radius: 50%; background: #F2A65A; box-shadow: 0 0 10px 3px rgba(242, 120, 70, 0.7); opacity: 0; animation: ember 7s linear infinite; }
+      .embers i:nth-child(1){left:8%;animation-delay:0s}.embers i:nth-child(2){left:19%;animation-delay:2.2s}.embers i:nth-child(3){left:31%;animation-delay:4.1s}
+      .embers i:nth-child(4){left:44%;animation-delay:1.3s}.embers i:nth-child(5){left:57%;animation-delay:5.2s}.embers i:nth-child(6){left:68%;animation-delay:3s}
+      .embers i:nth-child(7){left:79%;animation-delay:.7s}.embers i:nth-child(8){left:88%;animation-delay:4.7s}.embers i:nth-child(9){left:95%;animation-delay:2.8s}
+      @keyframes ember { 0%{transform:translate(0,0);opacity:0} 10%{opacity:.9} 100%{transform:translate(22px,-260px);opacity:0} }
+      .panel { border: 1px solid rgba(196, 144, 74, 0.55); border-radius: 14px 14px 6px 6px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 0 4px rgba(21, 14, 29, 0.6), 0 0 28px rgba(176, 48, 74, 0.25), inset 0 0 40px rgba(150, 80, 70, 0.16); }
+      .banner { border-radius: 13px 13px 0 0; background: linear-gradient(180deg, #2A1D38, #150E1D); border-bottom-color: #C4904A; font-size: 18px; letter-spacing: 3px; }
+      .panel-title { font-size: 18px; border-bottom-color: #C4904A; text-transform: none; }
+      #result { font-family: var(--font-display); color: #FBE7B5; text-shadow: 0 0 16px rgba(200, 58, 85, 0.55); }
+      /* Wax seal instead of a rubber stamp */
+      .stamp { width: clamp(150px, 30vw, 200px); aspect-ratio: 1; max-width: 100%; justify-content: center; padding: 0; border-radius: 50%; border: 3px solid #7A1F35; outline: 2px dashed rgba(235, 199, 136, 0.7); outline-offset: -14px;
+        color: #FBE7B5; background: radial-gradient(circle at 35% 30%, #D2445F 0%, #B0304A 45%, #7A1F35 100%); box-shadow: 0 8px 22px rgba(0, 0, 0, 0.6), inset 0 -6px 14px rgba(0, 0, 0, 0.35);
+        -webkit-mask-image: none; mask-image: none; text-transform: none; }
+      .stamp-main { font-size: clamp(26px, 6vw, 38px); letter-spacing: 2px; }
+      .stamp-date { border-top-color: rgba(251, 231, 181, 0.7); letter-spacing: 2px; font-family: var(--font-label); }
+      .stamp { display: none; }
+      @media (prefers-reduced-motion: reduce) { .embers { display: none; } }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   </head>
 
   <body>
-
     <!-- ===== HERO ===== -->
-    <div class="hero">
-      <img src="who-spunnit.jpg" alt="Who Spunnit? Spin the wheel. Find your next great read.">
-    </div>
+    <header class="hero">
+      <p class="hero-eyebrow">Project Bookclub</p>
+      <h1 class="hero-title">WhoSpunnit?</h1>
+      <div class="embers" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </header>
 
     <div class="main-row">
 
@@ -586,7 +614,7 @@
 
       <p class="byline">By: Robert Cruz</p>
 
-      <label for="bookList">The Suspects</label>
+      <label for="bookList">Book List</label>
       <p class="hint">One book per line. Add <em>| Name</em> to tag who picked it.</p>
       <textarea id="bookList" rows="10" placeholder="Throne of Glass | Heather"
         oninput="onBookListChange(); saveBooks(); drawWheel()"></textarea>
@@ -602,7 +630,7 @@
 
       <!-- Spin statistics -->
       <div class="stats-container">
-        <h3>Case Notes</h3>
+        <h3>Stats</h3>
         <div class="stat-row"><span>Total spins</span><span id="spinCount">0</span></div>
         <div class="stat-row"><span>Last spun</span><span id="lastSpin">Never</span></div>
         <div class="stat-row"><span>List loaded</span><span id="currentSource">Not synced</span></div>
@@ -610,14 +638,14 @@
     </div>
 
     <div class="wheel-container">
-      <h1 id="result">Spin the Wheel!</h1>
+      <h1 id="result">Which tale calls to you?</h1>
       <div id="pickedBy" class="picked-by"></div>
       <div class="wheel-wrapper">
         <div class="ticker"></div>
         <canvas id="wheelCanvas" width="1000" height="1000"></canvas>
-        <div class="hub">?</div>
+        <div class="hub">&#10022;</div>
         <div id="stamp" class="stamp" aria-hidden="true">
-          <span class="stamp-main">Case Closed</span>
+          <span class="stamp-main">Fated</span>
           <span id="stampDate" class="stamp-date"></span>
         </div>
       </div>
@@ -625,9 +653,9 @@
     </div>
 
     <div class="image-container panel">
-      <h2 class="panel-title">Exhibit A</h2>
+      <h2 class="panel-title">Cover Book</h2>
       <div id="bookImageBox">
-        <p id="imagePlaceholder">Spin the wheel to see the book cover here.</p>
+        <p id="imagePlaceholder">Spin the wheel and the dragon will reveal your next tome.</p>
         <img id="bookImage" src="" alt="">
       </div>
     </div>
@@ -642,12 +670,12 @@
       // Slice colours for each person's picks (keys are lowercase names).
       // Anyone not listed gets a colour from EXTRA_PICKER_COLORS.
       const PICKER_COLORS = {
-        heather: '#8E2A24',
-        stacy: '#2E5E63',
-        mak: '#B0802E'
+        heather: '#A02C4E',
+        stacy: '#2C6155',
+        mak: '#C08A36'
       };
       const EXTRA_PICKER_COLORS = ['#5B4A7A', '#4F6B3A', '#7A4A2E', '#3F4F7A'];
-      const UNCLAIMED_COLORS = ['#EEE4C8', '#DCCFAA', '#E6DABA'];
+      const UNCLAIMED_COLORS = ['#F3E6D0', '#E6CFB4', '#EEDDC6'];
 
       // Cover lookup tuning
       const MAX_SEARCH_RESULTS = 25;      // works pulled from search.json
@@ -778,7 +806,7 @@ The Catcher in the Rye`;
         const n = parseInt(hex.slice(1), 16);
         const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
         const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-        return luminance > 0.55 ? '#17140F' : '#F3EBD3';
+        return luminance > 0.55 ? '#150E1D' : '#FBF1E2';
       }
 
       function renderLegend(books) {
@@ -842,12 +870,12 @@ The Catcher in the Rye`;
         // Outer rim
         ctx.beginPath();
         ctx.arc(C, C, RIM, 0, Math.PI * 2);
-        ctx.fillStyle = "#1E1A14";
+        ctx.fillStyle = "#1D1428";
         ctx.fill();
         ctx.beginPath();
         ctx.arc(C, C, RIM - 2, 0, Math.PI * 2);
         ctx.lineWidth = 3;
-        ctx.strokeStyle = "#A9782F";
+        ctx.strokeStyle = "#C4904A";
         ctx.stroke();
 
         if (totalSlices === 0) {
@@ -855,8 +883,8 @@ The Catcher in the Rye`;
           ctx.arc(C, C, radius, 0, Math.PI * 2);
           ctx.fillStyle = UNCLAIMED_COLORS[0];
           ctx.fill();
-          ctx.font = "20px 'Special Elite', 'Courier New', monospace";
-          ctx.fillStyle = '#6B604B';
+          ctx.font = "700 20px 'Cinzel Decorative', Georgia, serif";
+          ctx.fillStyle = '#7B6380';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText('Add books or sync', C, C + 70);
@@ -878,7 +906,7 @@ The Catcher in the Rye`;
           ctx.fillStyle = color;
           ctx.fill();
           ctx.lineWidth = 1.5;
-          ctx.strokeStyle = "#17140F";
+          ctx.strokeStyle = "#150E1D";
           ctx.stroke();
 
           ctx.save();
@@ -887,7 +915,7 @@ The Catcher in the Rye`;
           ctx.textAlign = "right";
           ctx.textBaseline = "middle";
           ctx.fillStyle = textColorFor(color);
-          ctx.font = `600 ${fontSize}px Oswald, 'Arial Narrow', Arial, sans-serif`;
+          ctx.font = `600 ${fontSize}px Cinzel, Georgia, serif`;
           ctx.fillText(fitText(ctx, books[i].title, maxTextWidth), radius - 18, 0);
           ctx.restore();
         }
@@ -901,7 +929,7 @@ The Catcher in the Rye`;
             ctx.moveTo(C, C);
             ctx.arc(C, C, radius, startAngle, startAngle + angleOfSlice);
             ctx.closePath();
-            ctx.fillStyle = "rgba(12, 10, 7, 0.6)";
+            ctx.fillStyle = "rgba(14, 8, 22, 0.62)";
             ctx.fill();
           }
           const startAngle = highlightIndex * angleOfSlice;
@@ -910,7 +938,7 @@ The Catcher in the Rye`;
           ctx.arc(C, C, radius - 2, startAngle, startAngle + angleOfSlice);
           ctx.closePath();
           ctx.lineWidth = 4;
-          ctx.strokeStyle = "#D9B46A";
+          ctx.strokeStyle = "#EBC788";
           ctx.stroke();
         }
 
@@ -918,7 +946,7 @@ The Catcher in the Rye`;
         ctx.beginPath();
         ctx.arc(C, C, radius, 0, Math.PI * 2);
         ctx.lineWidth = 3;
-        ctx.strokeStyle = "#17140F";
+        ctx.strokeStyle = "#150E1D";
         ctx.stroke();
 
         // Brass pegs at each slice boundary
@@ -928,10 +956,10 @@ The Catcher in the Rye`;
             const a = i * angleOfSlice;
             ctx.beginPath();
             ctx.arc(C + Math.cos(a) * pegRadius, C + Math.sin(a) * pegRadius, 3.5, 0, Math.PI * 2);
-            ctx.fillStyle = "#D9B46A";
+            ctx.fillStyle = "#EBC788";
             ctx.fill();
             ctx.lineWidth = 1;
-            ctx.strokeStyle = "#5A3F16";
+            ctx.strokeStyle = "#6E3F22";
             ctx.stroke();
           }
         }
@@ -989,7 +1017,7 @@ The Catcher in the Rye`;
 
         isHolding = true;
         holdStartTime = Date.now();
-        resultEl.innerText = "Charging up spin...";
+        resultEl.innerText = "The dragon stirs...";
         showPickedBy('');
         clearStamp();
         spinButton.classList.add('charging');
@@ -1022,7 +1050,7 @@ The Catcher in the Rye`;
 
         const bookArray = checkForBooks();
         const totalSlices = bookArray.length;
-        resultEl.innerText = "Spinning...";
+        resultEl.innerText = "Fate is turning...";
 
         canvas.style.transition = "transform 4s cubic-bezier(0.1, 0.8, 0.25, 1)";
 
@@ -1058,12 +1086,12 @@ The Catcher in the Rye`;
           // Load book cover
           loadBookImage(selectedBook.title);
 
-          const winnerColor = selectedBook.picker ? pickerColor(selectedBook.picker) : '#9E1B1B';
+          const winnerColor = selectedBook.picker ? pickerColor(selectedBook.picker) : '#B0304A';
           if (window.confetti) confetti({
             particleCount: 150,
             spread: 80,
             origin: { y: 0.6 },
-            colors: [winnerColor, '#EEE4C8', '#D9B46A', '#9E1B1B']
+            colors: [winnerColor, '#F3E6D0', '#EBC788', '#B0304A']
           });
 
           isSpinning = false;
@@ -1128,7 +1156,7 @@ The Catcher in the Rye`;
             // A new list means the last winner no longer applies
             clearStamp();
             showPickedBy('');
-            resultEl.innerText = 'Spin the Wheel!';
+            resultEl.innerText = 'Which tale calls to you?';
             drawWheel();
 
             currentSource = sourceName;
@@ -1418,8 +1446,8 @@ The Catcher in the Rye`;
       // Canvas text can't use a web font until it has loaded, so redraw then.
       if (document.fonts) {
         Promise.all([
-          document.fonts.load("600 20px Oswald"),
-          document.fonts.load("20px 'Special Elite'")
+          document.fonts.load("600 20px Cinzel"),
+          document.fonts.load("700 20px 'Cinzel Decorative'")
         ]).then(() => { if (!isSpinning) drawWheel(); }).catch(() => {});
       }
     </script>
