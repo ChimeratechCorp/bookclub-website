@@ -4,23 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Project Bookclub</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=Oswald:wght@500;600&family=Special+Elite&display=swap" rel="stylesheet">
     <style>
       :root {
-        --ink: #17140F;
-        --ink-soft: #2A241B;
-        --bone: #EEE4C8;
-        --bone-deep: #DCCFAA;
-        --blood: #9E1B1B;
-        --blood-dark: #741212;
-        --gold: #A9782F;
-        --gold-light: #D9B46A;
-        --muted: #6B604B;
-        --font-display: 'Special Elite', 'Courier New', monospace;
-        --font-label: 'Oswald', 'Arial Narrow', Arial, sans-serif;
-        --font-body: 'Lora', Georgia, serif;
+        --ink: #121212;
+        --ink-soft: #242424;
+        --bone: #E7E7E7;
+        --bone-deep: #D3D3D3;
+        --blood: #595959;
+        --blood-dark: #3D3D3D;
+        --gold: #989898;
+        --gold-light: #CBCBCB;
+        --muted: #6D6D6D;
+        --font-display: Arial, Helvetica, sans-serif;
+        --font-label: Arial, Helvetica, sans-serif;
+        --font-body: Arial, Helvetica, sans-serif;
       }
 
       * {
@@ -83,9 +80,9 @@
         width: 100%;
         padding: 22px;
         background-color: var(--bone);
-        background-image: linear-gradient(160deg, #F4ECD6 0%, var(--bone) 45%, #E4D8B6 100%);
+        background-image: linear-gradient(160deg, #F1F1F1 0%, var(--bone) 45%, #D7D7D7 100%);
         border-radius: 6px;
-        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55), inset 0 0 40px rgba(120, 90, 40, 0.18);
+        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55), inset 0 0 40px rgba(100, 100, 100, 0.16);
       }
 
       .panel-title {
@@ -140,8 +137,8 @@
       }
 
       .banner a:hover {
-        color: #ffffff;
-        border-bottom-color: #ffffff;
+        color: #FFFFFF;
+        border-bottom-color: #FFFFFF;
       }
 
       .byline {
@@ -174,10 +171,10 @@
         font-family: var(--font-body);
         font-size: 15px;
         line-height: 1.5;
-        border: 1px solid rgba(23, 20, 15, 0.45);
+        border: 1px solid rgba(18, 18, 18, 0.45);
         border-radius: 4px;
         resize: vertical;
-        background-color: #FBF7EC;
+        background-color: #F4F4F4;
         color: var(--ink);
         box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.12);
       }
@@ -198,10 +195,10 @@
         text-transform: uppercase;
         cursor: pointer;
         color: var(--bone);
-        background: linear-gradient(180deg, #B42222 0%, var(--blood) 55%, var(--blood-dark) 100%);
-        border: 1px solid #3E0909;
+        background: linear-gradient(180deg, #585858 0%, var(--blood) 55%, var(--blood-dark) 100%);
+        border: 1px solid #1C1C1C;
         border-radius: 5px;
-        box-shadow: 0 4px 0 #3E0909, 0 8px 18px rgba(0, 0, 0, 0.35);
+        box-shadow: 0 4px 0 #1C1C1C, 0 8px 18px rgba(0, 0, 0, 0.35);
         transition: transform 0.1s, box-shadow 0.1s, filter 0.2s;
       }
 
@@ -221,7 +218,7 @@
       #spinBtn:active,
       #spinBtn.charging {
         transform: translateY(3px);
-        box-shadow: 0 1px 0 #3E0909, 0 4px 10px rgba(0, 0, 0, 0.35);
+        box-shadow: 0 1px 0 #1C1C1C, 0 4px 10px rgba(0, 0, 0, 0.35);
       }
 
       #spinBtn.charging {
@@ -283,7 +280,7 @@
         padding: 12px 14px;
         font-size: 13px;
         background: rgba(255, 255, 255, 0.35);
-        border: 1px dashed rgba(23, 20, 15, 0.4);
+        border: 1px dashed rgba(18, 18, 18, 0.4);
         border-radius: 4px;
       }
 
@@ -301,7 +298,7 @@
         justify-content: space-between;
         gap: 10px;
         padding: 3px 0;
-        border-bottom: 1px dotted rgba(23, 20, 15, 0.25);
+        border-bottom: 1px dotted rgba(18, 18, 18, 0.25);
       }
 
       .stat-row:last-child {
@@ -344,7 +341,7 @@
         text-transform: uppercase;
         color: var(--bone);
         border-radius: 999px;
-        border: 1px solid rgba(238, 228, 200, 0.3);
+        border: 1px solid rgba(231, 231, 231, 0.3);
       }
 
       .picked-by.visible {
@@ -374,7 +371,7 @@
         width: 38px;
         height: 48px;
         transform: translateX(-50%);
-        background: linear-gradient(180deg, #C42A2A, var(--blood-dark));
+        background: linear-gradient(180deg, #686868, var(--blood-dark));
         clip-path: polygon(0 0, 100% 0, 100% 45%, 50% 100%, 0 45%);
         filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.6));
       }
@@ -403,12 +400,12 @@
         justify-content: center;
         transform: translate(-50%, -50%);
         border-radius: 50%;
-        background: radial-gradient(circle at 35% 30%, #3A3226, var(--ink) 70%);
+        background: radial-gradient(circle at 35% 30%, #323232, var(--ink) 70%);
         border: 3px solid var(--gold);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
         font-family: var(--font-display);
         font-size: clamp(24px, 6vw, 40px);
-        color: #C42A2A;
+        color: #686868;
         pointer-events: none;
       }
 
@@ -430,8 +427,8 @@
         font-size: 14px;
         letter-spacing: 0.5px;
         color: var(--bone);
-        background: rgba(238, 228, 200, 0.07);
-        border: 1px solid rgba(238, 228, 200, 0.18);
+        background: rgba(231, 231, 231, 0.07);
+        border: 1px solid rgba(231, 231, 231, 0.18);
         border-radius: 999px;
       }
 
@@ -439,13 +436,14 @@
         width: 18px;
         height: 18px;
         border-radius: 50%;
-        border: 2px solid rgba(238, 228, 200, 0.6);
+        border: 2px solid rgba(231, 231, 231, 0.6);
       }
 
       .legend-count {
         opacity: 0.6;
       }
 
+      /* ===== COVER (EXHIBIT A) ===== */
       #bookImageBox {
         display: flex;
         flex-direction: column;
@@ -459,7 +457,7 @@
         max-width: 100%;
         max-height: 420px;
         padding: 10px 10px 34px;
-        background: #FBF7EC;
+        background: #F4F4F4;
         box-shadow: 0 10px 22px rgba(0, 0, 0, 0.4);
         transform: rotate(-2deg);
       }
@@ -470,7 +468,7 @@
         font-size: 14px;
         font-style: italic;
         color: var(--muted);
-        border: 2px dashed rgba(23, 20, 15, 0.3);
+        border: 2px dashed rgba(18, 18, 18, 0.3);
         border-radius: 4px;
       }
 
@@ -492,12 +490,12 @@
         text-transform: uppercase;
         text-align: center;
         white-space: nowrap;
-        color: #E03A3A;
+        color: #CBCBCB;
         border: 4px solid currentColor;
         outline: 2px solid currentColor;
         outline-offset: 4px;
         border-radius: 6px;
-        background: rgba(23, 20, 15, 0.6);
+        background: rgba(18, 18, 18, 0.6);
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         opacity: 0;
         pointer-events: none;
@@ -560,17 +558,37 @@
           max-width: none;
         }
       }
-    </style>
 
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+      /* ===== PLAIN BLACK AND WHITE ===== */
+      *, *::before, *::after { box-shadow: none !important; text-shadow: none !important; filter: none !important; background-image: none !important; }
+      body { background: #FFFFFF; color: #000000; }
+      body::before { display: none; }
+      .hero { padding: 28px max(16px, env(safe-area-inset-left, 0px)) 12px; text-align: center; color: #000000; }
+      .hero-eyebrow { margin: 0 0 4px; font: 600 12px var(--font-label); letter-spacing: 3px; text-transform: uppercase; color: #000000; }
+      .hero-title { margin: 0; font: 700 clamp(32px, 7vw, 56px)/1.1 var(--font-display); color: #000000; }
+      .panel { background: #FFFFFF; border: 1px solid #000000; border-radius: 0; }
+      .banner { background: #000000; color: #FFFFFF; border-radius: 0; border-bottom: 0; font-size: 18px; }
+      .banner a, .banner a:hover { color: #FFFFFF; border-bottom-color: #FFFFFF; }
+      .panel-title { border-bottom: 1px solid #000000; text-transform: none; }
+      textarea { background: #FFFFFF; color: #000000; border: 1px solid #000000; border-radius: 0; }
+      #spinBtn, #spinBtn:hover, #spinBtn.charging { background: #000000; color: #FFFFFF; border: 1px solid #000000; border-radius: 0; transform: none; }
+      .sync-btn, .sync-btn:hover { background: #FFFFFF; color: #000000; border: 1px solid #000000; border-radius: 0; }
+      .stats-container { border: 1px solid #000000; border-radius: 0; background: #FFFFFF; }
+      #result { color: #000000; font-family: var(--font-display); }
+      .ticker { background: #000000; }
+      .hub { background: #FFFFFF; color: #000000; border: 2px solid #000000; }
+      .legend-chip { color: #000000; background: #FFFFFF; border: 1px solid #000000; }
+      .legend-swatch { border: 1px solid #000000; }
+      .stamp { display: none; }
+    </style>
   </head>
 
   <body>
-
     <!-- ===== HERO ===== -->
-    <div class="hero">
-      <img src="who-spunnit.jpg" alt="Who Spunnit? Spin the wheel. Find your next great read.">
-    </div>
+    <header class="hero">
+      <p class="hero-eyebrow">Project Bookclub</p>
+      <h1 class="hero-title">WhoSpunnit?</h1>
+    </header>
 
     <div class="main-row">
 
@@ -585,12 +603,12 @@
 
       <p class="byline">By: Robert Cruz</p>
 
-      <label for="bookList">The Suspects</label>
+      <label for="bookList">Book List</label>
       <p class="hint">One book per line. Add <em>| Name</em> to tag who picked it.</p>
       <textarea id="bookList" rows="10" placeholder="Throne of Glass | Heather"
         oninput="onBookListChange(); saveBooks(); drawWheel()"></textarea>
 
-      <button id="spinBtn">Spin the Wheel<small>Click or hold to Spin</small></button>
+      <button id="spinBtn">Spin the Wheel<small>hold, then release</small></button>
 
       <!-- Google Sheets sync buttons -->
       <div class="sync-buttons">
@@ -601,7 +619,7 @@
 
       <!-- Spin statistics -->
       <div class="stats-container">
-        <h3>Case Notes</h3>
+        <h3>Stats</h3>
         <div class="stat-row"><span>Total spins</span><span id="spinCount">0</span></div>
         <div class="stat-row"><span>Last spun</span><span id="lastSpin">Never</span></div>
         <div class="stat-row"><span>List loaded</span><span id="currentSource">Not synced</span></div>
@@ -616,7 +634,7 @@
         <canvas id="wheelCanvas" width="1000" height="1000"></canvas>
         <div class="hub">?</div>
         <div id="stamp" class="stamp" aria-hidden="true">
-          <span class="stamp-main">Case Closed</span>
+          <span class="stamp-main">Fated</span>
           <span id="stampDate" class="stamp-date"></span>
         </div>
       </div>
@@ -624,7 +642,7 @@
     </div>
 
     <div class="image-container panel">
-      <h2 class="panel-title">Book Cover</h2>
+      <h2 class="panel-title">Cover Book</h2>
       <div id="bookImageBox">
         <p id="imagePlaceholder">Spin the wheel to see the book cover here.</p>
         <img id="bookImage" src="" alt="">
@@ -635,13 +653,12 @@
 
     <script>
       // ===== CONFIGURATION =====
-      const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxRkgXksp3_He48OQkDh84WONY5s40NtnnXhBiBoHEHkxcfDK74gTNzo549pkEboZ4tWg/exec';
+      const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyn0h86LyZwOh22U3xBTKpD6X8maZBwvgaYclbMexvjoc19lRPJWHwC1N-w7MPqAXBn9g/exec';
+      const SYNC_TIMEOUT_MS = 30000;
 
-      // Slice colours for each person's picks (keys are lowercase names).
-      // Anyone not listed gets a colour from EXTRA_PICKER_COLORS.
       const PICKER_COLORS = {
-        heather: '#FFC0CB',
-        stacy: '#2E5E63',
+        heather: '#ffc0cb',
+        stacy: '#008000',
         mak: '#800080'
       };
       const EXTRA_PICKER_COLORS = ['#5B4A7A', '#4F6B3A', '#7A4A2E', '#3F4F7A'];
@@ -659,7 +676,8 @@
       let isSpinning = false;
       let isHolding = false;
       let holdStartTime = 0;
-      let spinLoopInterval = null;
+      let spinLoopFrame = null;
+      let coverRequestId = 0;
       let totalSpins = parseInt(localStorage.getItem('totalSpins') || '0');
       let lastSpinBook = localStorage.getItem('lastSpinBook') || 'Never';
       let currentSource = localStorage.getItem('currentSource') || 'Not synced';
@@ -775,7 +793,7 @@ The Catcher in the Rye`;
         const n = parseInt(hex.slice(1), 16);
         const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
         const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-        return luminance > 0.55 ? '#17140F' : '#F3EBD3';
+        return luminance > 0.55 ? '#121212' : '#F2F2F2';
       }
 
       function renderLegend(books) {
@@ -805,7 +823,7 @@ The Catcher in the Rye`;
         };
 
         for (const [name, count] of counts) addChip(name, pickerColor(name), count);
-        if (unclaimed > 0) addChip('TBR', UNCLAIMED_COLORS[0], unclaimed);
+        if (unclaimed > 0) addChip('Unclaimed', UNCLAIMED_COLORS[0], unclaimed);
       }
 
       // Shorten a title with an ellipsis until it fits the slice.
@@ -839,12 +857,12 @@ The Catcher in the Rye`;
         // Outer rim
         ctx.beginPath();
         ctx.arc(C, C, RIM, 0, Math.PI * 2);
-        ctx.fillStyle = "#1E1A14";
+        ctx.fillStyle = "#191919";
         ctx.fill();
         ctx.beginPath();
         ctx.arc(C, C, RIM - 2, 0, Math.PI * 2);
         ctx.lineWidth = 3;
-        ctx.strokeStyle = "#A9782F";
+        ctx.strokeStyle = "#989898";
         ctx.stroke();
 
         if (totalSlices === 0) {
@@ -852,8 +870,8 @@ The Catcher in the Rye`;
           ctx.arc(C, C, radius, 0, Math.PI * 2);
           ctx.fillStyle = UNCLAIMED_COLORS[0];
           ctx.fill();
-          ctx.font = "20px 'Special Elite', 'Courier New', monospace";
-          ctx.fillStyle = '#6B604B';
+          ctx.font = "20px Arial, Helvetica, sans-serif";
+          ctx.fillStyle = '#6D6D6D';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText('Add books or sync', C, C + 70);
@@ -875,7 +893,7 @@ The Catcher in the Rye`;
           ctx.fillStyle = color;
           ctx.fill();
           ctx.lineWidth = 1.5;
-          ctx.strokeStyle = "#17140F";
+          ctx.strokeStyle = "#121212";
           ctx.stroke();
 
           ctx.save();
@@ -884,7 +902,7 @@ The Catcher in the Rye`;
           ctx.textAlign = "right";
           ctx.textBaseline = "middle";
           ctx.fillStyle = textColorFor(color);
-          ctx.font = `600 ${fontSize}px Oswald, 'Arial Narrow', Arial, sans-serif`;
+          ctx.font = `600 ${fontSize}px Arial, Helvetica, sans-serif`;
           ctx.fillText(fitText(ctx, books[i].title, maxTextWidth), radius - 18, 0);
           ctx.restore();
         }
@@ -898,7 +916,7 @@ The Catcher in the Rye`;
             ctx.moveTo(C, C);
             ctx.arc(C, C, radius, startAngle, startAngle + angleOfSlice);
             ctx.closePath();
-            ctx.fillStyle = "rgba(12, 10, 7, 0.6)";
+            ctx.fillStyle = "rgba(11, 11, 11, 0.62)";
             ctx.fill();
           }
           const startAngle = highlightIndex * angleOfSlice;
@@ -907,7 +925,7 @@ The Catcher in the Rye`;
           ctx.arc(C, C, radius - 2, startAngle, startAngle + angleOfSlice);
           ctx.closePath();
           ctx.lineWidth = 4;
-          ctx.strokeStyle = "#D9B46A";
+          ctx.strokeStyle = "#CBCBCB";
           ctx.stroke();
         }
 
@@ -915,7 +933,7 @@ The Catcher in the Rye`;
         ctx.beginPath();
         ctx.arc(C, C, radius, 0, Math.PI * 2);
         ctx.lineWidth = 3;
-        ctx.strokeStyle = "#17140F";
+        ctx.strokeStyle = "#121212";
         ctx.stroke();
 
         // Brass pegs at each slice boundary
@@ -925,10 +943,10 @@ The Catcher in the Rye`;
             const a = i * angleOfSlice;
             ctx.beginPath();
             ctx.arc(C + Math.cos(a) * pegRadius, C + Math.sin(a) * pegRadius, 3.5, 0, Math.PI * 2);
-            ctx.fillStyle = "#D9B46A";
+            ctx.fillStyle = "#CBCBCB";
             ctx.fill();
             ctx.lineWidth = 1;
-            ctx.strokeStyle = "#5A3F16";
+            ctx.strokeStyle = "#4A4A4A";
             ctx.stroke();
           }
         }
@@ -994,10 +1012,15 @@ The Catcher in the Rye`;
 
         canvas.style.transition = "none";
 
-        spinLoopInterval = setInterval(() => {
-          currentRotation += 18;
+        // Spin at a steady 18deg per 60fps frame, whatever the display's refresh rate
+        let lastFrame = performance.now();
+        const chargeFrame = (now) => {
+          currentRotation += 18 * (now - lastFrame) / (1000 / 60);
+          lastFrame = now;
           canvas.style.transform = "rotate(" + (currentRotation % 360) + "deg)";
-        }, 16.67);
+          spinLoopFrame = requestAnimationFrame(chargeFrame);
+        };
+        spinLoopFrame = requestAnimationFrame(chargeFrame);
       }
 
       function stopSpinAction() {
@@ -1010,7 +1033,7 @@ The Catcher in the Rye`;
         syncWheelBtn.disabled = true;
         bookListTextarea.readOnly = true;
 
-        clearInterval(spinLoopInterval);
+        cancelAnimationFrame(spinLoopFrame);
 
         const bookArray = checkForBooks();
         const totalSlices = bookArray.length;
@@ -1025,7 +1048,8 @@ The Catcher in the Rye`;
         const targetDegreeStop = (270 - currentSliceCenterDegree + 360) % 360;
 
         const durationHeld = Date.now() - holdStartTime;
-        const fullSpins = durationHeld > 400 ? 1440 : 2160;
+        // A longer hold winds up a bigger spin
+        const fullSpins = durationHeld > 400 ? 2160 : 1440;
 
         const baseNormalizedRotation = currentRotation - (currentRotation % 360);
         currentRotation = baseNormalizedRotation + fullSpins + targetDegreeStop;
@@ -1048,14 +1072,6 @@ The Catcher in the Rye`;
 
           // Load book cover
           loadBookImage(selectedBook.title);
-
-          const winnerColor = selectedBook.picker ? pickerColor(selectedBook.picker) : '#9E1B1B';
-          if (window.confetti) confetti({
-            particleCount: 150,
-            spread: 80,
-            origin: { y: 0.6 },
-            colors: [winnerColor, '#EEE4C8', '#D9B46A', '#9E1B1B']
-          });
 
           isSpinning = false;
           spinButton.disabled = false;
@@ -1085,13 +1101,27 @@ The Catcher in the Rye`;
         syncStatus.textContent = `Loading ${sourceName}...`;
 
         try {
-          const url = `${GOOGLE_SHEETS_URL}?action=getBooks&type=${type}`;
+          // A unique URL per sync, so the browser never parks a new request
+          // behind an earlier identical one that is still stuck or cached
+          const url = `${GOOGLE_SHEETS_URL}?action=getBooks&type=${type}&t=${Date.now()}`;
           console.log('Fetching:', url);
 
-          const response = await fetch(url);
-          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-          const data = await response.json();
+          // Give up on a script that never answers instead of hanging on "Loading..."
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), SYNC_TIMEOUT_MS);
+          let data;
+          try {
+            const response = await fetch(url, { signal: controller.signal, cache: 'no-store' });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            data = await response.json();
+          } catch (error) {
+            if (error.name === 'AbortError') {
+              throw new Error(`the Google Apps Script didn't answer within ${SYNC_TIMEOUT_MS / 1000}s`);
+            }
+            throw error;
+          } finally {
+            clearTimeout(timeout);
+          }
           console.log('Data received:', data);
 
           if (data.success && data.books && data.books.length > 0) {
@@ -1102,6 +1132,10 @@ The Catcher in the Rye`;
             // Store the synced text so we can detect custom changes later
             localStorage.setItem('syncedBookListData', bookList);
 
+            // A new list means the last winner no longer applies
+            clearStamp();
+            showPickedBy('');
+            resultEl.innerText = 'Spin the Wheel!';
             drawWheel();
 
             currentSource = sourceName;
@@ -1361,6 +1395,8 @@ The Catcher in the Rye`;
       async function loadBookImage(title) {
         const imageElement = document.getElementById("bookImage");
         const placeholder = document.getElementById("imagePlaceholder");
+        // A newer spin may finish its lookup first; only the latest one may show
+        const requestId = ++coverRequestId;
 
         imageElement.style.display = "none";
         imageElement.src = "";
@@ -1369,12 +1405,14 @@ The Catcher in the Rye`;
 
         try {
           const bestCover = await searchOpenLibraryCover(title);
+          if (requestId !== coverRequestId) return;
 
           imageElement.src = bestCover.url;
           imageElement.alt = title;
           imageElement.style.display = "block";
           placeholder.textContent = "";
         } catch (error) {
+          if (requestId !== coverRequestId) return;
           console.error('Unable to find cover:', title, error);
           placeholder.textContent = "No cover found for this title.";
         }
@@ -1383,14 +1421,6 @@ The Catcher in the Rye`;
       // ===== INIT =====
       loadBooks();
       drawWheel();
-
-      // Canvas text can't use a web font until it has loaded, so redraw then.
-      if (document.fonts) {
-        Promise.all([
-          document.fonts.load("600 20px Oswald"),
-          document.fonts.load("20px 'Special Elite'")
-        ]).then(() => { if (!isSpinning) drawWheel(); }).catch(() => {});
-      }
     </script>
   </body>
 </html>
