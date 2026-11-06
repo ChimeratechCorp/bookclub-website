@@ -590,7 +590,7 @@
       <textarea id="bookList" rows="10" placeholder="Throne of Glass | Heather"
         oninput="onBookListChange(); saveBooks(); drawWheel()"></textarea>
 
-      <button id="spinBtn">Spin the Wheel<small>hold, then release</small></button>
+      <button id="spinBtn">Spin the Wheel<small>Click or hold to Spin</small></button>
 
       <!-- Google Sheets sync buttons -->
       <div class="sync-buttons">
@@ -640,9 +640,9 @@
       // Slice colours for each person's picks (keys are lowercase names).
       // Anyone not listed gets a colour from EXTRA_PICKER_COLORS.
       const PICKER_COLORS = {
-        heather: '#8E2A24',
+        heather: '#FFC0CB',
         stacy: '#2E5E63',
-        mak: '#B0802E'
+        mak: '#800080'
       };
       const EXTRA_PICKER_COLORS = ['#5B4A7A', '#4F6B3A', '#7A4A2E', '#3F4F7A'];
       const UNCLAIMED_COLORS = ['#EEE4C8', '#DCCFAA', '#E6DABA'];
